@@ -13,6 +13,7 @@ import {
   AssignAdminModal,
   CreateInvoiceModal,
   FeedbackModal,
+  DashboardDetailModal,
 } from './SuperAdminModals';
 import SuperAdminSecurityView from './SuperAdminSecurityView';
 
@@ -158,7 +159,7 @@ const defaultActivities = [
 ];
 
 
-export default function SuperAdminView({ activeTab = 'sa-dashboard' }) {
+export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTab }) {
   // Main Data States with initial demo defaults merged with local portal storage
   const [schools, setSchools] = useState(() => {
     try {
@@ -243,6 +244,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard' }) {
   const [selectedPlanObj, setSelectedPlanObj] = useState(null);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const [feedback, setFeedback] = useState({ isOpen: false, title: '', message: '' });
+  const [cardDetailModal, setCardDetailModal] = useState({ isOpen: false, config: null });
 
 
 
@@ -743,85 +745,355 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard' }) {
             {/* Top 12 Summary SaaS Cards */}
             <div className="grid-4" style={{ marginBottom: '25px' }}>
               {/* 1. Total Schools */}
-              <div className="portal-card" style={{ borderLeftColor: '#2563eb' }}>
-                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Total Schools</div>
+              <div
+                className="portal-card clickable-card"
+                style={{ borderLeftColor: '#2563eb' }}
+                title="Click to view all registered schools"
+                onClick={() =>
+                  setCardDetailModal({
+                    isOpen: true,
+                    config: {
+                      title: 'All Registered Schools',
+                      subtitle: 'Comprehensive directory of onboarded multi-tenant campuses',
+                      badgeColor: '#2563eb',
+                      count: schools.length,
+                      type: 'schools',
+                      items: schools,
+                      targetTab: 'sa-schools',
+                      targetTabLabel: 'Schools Management',
+                    },
+                  })
+                }
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Total Schools</div>
+                  <span style={{ fontSize: '0.72rem', color: '#2563eb', fontWeight: 600 }}>View &rarr;</span>
+                </div>
                 <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#1e3a8a', margin: '4px 0' }}>{totalSchools}</p>
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>Platform Multi-Tenant</span>
               </div>
 
               {/* 2. Active Schools */}
-              <div className="portal-card" style={{ borderLeftColor: '#10b981' }}>
-                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Active Schools</div>
+              <div
+                className="portal-card clickable-card"
+                style={{ borderLeftColor: '#10b981' }}
+                title="Click to view active operational schools"
+                onClick={() => {
+                  const items = schools.filter((s) => s.status === 'Active');
+                  setCardDetailModal({
+                    isOpen: true,
+                    config: {
+                      title: 'Active Schools',
+                      subtitle: 'Currently operational and enabled campuses',
+                      badgeColor: '#10b981',
+                      count: items.length,
+                      type: 'schools',
+                      items,
+                      targetTab: 'sa-schools',
+                      targetTabLabel: 'Schools Management',
+                    },
+                  });
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Active Schools</div>
+                  <span style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: 600 }}>View &rarr;</span>
+                </div>
                 <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#047857', margin: '4px 0' }}>{activeSchools}</p>
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>Operational</span>
               </div>
 
               {/* 3. InActive Schools */}
-              <div className="portal-card" style={{ borderLeftColor: '#ef4444' }}>
-                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>InActive Schools</div>
+              <div
+                className="portal-card clickable-card"
+                style={{ borderLeftColor: '#ef4444' }}
+                title="Click to view suspended or inactive schools"
+                onClick={() => {
+                  const items = schools.filter((s) => s.status !== 'Active');
+                  setCardDetailModal({
+                    isOpen: true,
+                    config: {
+                      title: 'Inactive & Suspended Schools',
+                      subtitle: 'Campuses pending activation or suspended for review',
+                      badgeColor: '#ef4444',
+                      count: items.length,
+                      type: 'schools',
+                      items,
+                      targetTab: 'sa-schools',
+                      targetTabLabel: 'Schools Management',
+                    },
+                  });
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>InActive Schools</div>
+                  <span style={{ fontSize: '0.72rem', color: '#dc2626', fontWeight: 600 }}>View &rarr;</span>
+                </div>
                 <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b91c1c', margin: '4px 0' }}>{inactiveSchools}</p>
                 <span style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 600 }}>Suspended / Expired</span>
               </div>
 
               {/* 4. Total School Admins */}
-              <div className="portal-card" style={{ borderLeftColor: '#f59e0b' }}>
-                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Total School Admins</div>
+              <div
+                className="portal-card clickable-card"
+                style={{ borderLeftColor: '#f59e0b' }}
+                title="Click to view assigned school administrators"
+                onClick={() =>
+                  setCardDetailModal({
+                    isOpen: true,
+                    config: {
+                      title: 'School Administrators',
+                      subtitle: 'Assigned school head administrators & campus principals',
+                      badgeColor: '#f59e0b',
+                      count: schoolAdmins.length,
+                      type: 'admins',
+                      items: schoolAdmins,
+                      targetTab: 'sa-admin-management',
+                      targetTabLabel: 'Admin Management',
+                    },
+                  })
+                }
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Total School Admins</div>
+                  <span style={{ fontSize: '0.72rem', color: '#b45309', fontWeight: 600 }}>View &rarr;</span>
+                </div>
                 <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b45309', margin: '4px 0' }}>{totalSchoolAdmins}</p>
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Assigned Admins</span>
               </div>
 
               {/* 5. Active Subscriptions */}
-              <div className="portal-card" style={{ borderLeftColor: '#10b981' }}>
-                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Active Subscriptions</div>
+              <div
+                className="portal-card clickable-card"
+                style={{ borderLeftColor: '#10b981' }}
+                title="Click to view active SaaS subscriptions"
+                onClick={() => {
+                  const items = subscriptions.filter((s) => s.status === 'ACTIVE' || s.status === 'Active');
+                  setCardDetailModal({
+                    isOpen: true,
+                    config: {
+                      title: 'Active SaaS Subscriptions',
+                      subtitle: 'Campuses on active annual software subscriptions',
+                      badgeColor: '#10b981',
+                      count: items.length,
+                      type: 'subscriptions',
+                      items,
+                      targetTab: 'sa-subscriptions',
+                      targetTabLabel: 'Subscriptions',
+                    },
+                  });
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Active Subscriptions</div>
+                  <span style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 600 }}>View &rarr;</span>
+                </div>
                 <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#059669', margin: '4px 0' }}>{activeSubs}</p>
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>Paid SaaS Tier</span>
               </div>
 
               {/* 6. Expiring / Expired */}
-              <div className="portal-card" style={{ borderLeftColor: '#f97316' }}>
-                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Expiring / Expired</div>
+              <div
+                className="portal-card clickable-card"
+                style={{ borderLeftColor: '#f97316' }}
+                title="Click to view expired or pending renewal subscriptions"
+                onClick={() => {
+                  const items = subscriptions.filter((s) => s.status === 'EXPIRED' || s.status === 'PENDING');
+                  setCardDetailModal({
+                    isOpen: true,
+                    config: {
+                      title: 'Expiring / Expired Subscriptions',
+                      subtitle: 'Subscriptions needing immediate renewal or activation',
+                      badgeColor: '#f97316',
+                      count: items.length,
+                      type: 'subscriptions',
+                      items,
+                      targetTab: 'sa-subscriptions',
+                      targetTabLabel: 'Subscriptions',
+                    },
+                  });
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Expiring / Expired</div>
+                  <span style={{ fontSize: '0.72rem', color: '#c2410c', fontWeight: 600 }}>View &rarr;</span>
+                </div>
                 <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#c2410c', margin: '4px 0' }}>{expiringSubs}</p>
                 <span style={{ fontSize: '0.75rem', color: '#ea580c', fontWeight: 600 }}>Action Required</span>
               </div>
 
               {/* 7. Pending Bills */}
-              <div className="portal-card" style={{ borderLeftColor: '#ef4444' }}>
-                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Pending Bills</div>
+              <div
+                className="portal-card clickable-card"
+                style={{ borderLeftColor: '#ef4444' }}
+                title="Click to view pending or overdue invoices"
+                onClick={() => {
+                  const items = bills.filter((b) => b.status === 'PENDING' || b.status === 'OVERDUE');
+                  setCardDetailModal({
+                    isOpen: true,
+                    config: {
+                      title: 'Pending & Overdue Invoices',
+                      subtitle: 'Invoices awaiting payment clearance from schools',
+                      badgeColor: '#ef4444',
+                      count: items.length,
+                      type: 'bills',
+                      items,
+                      targetTab: 'sa-billing',
+                      targetTabLabel: 'Billing Management',
+                    },
+                  });
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Pending Bills</div>
+                  <span style={{ fontSize: '0.72rem', color: '#dc2626', fontWeight: 600 }}>View &rarr;</span>
+                </div>
                 <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#dc2626', margin: '4px 0' }}>{pendingBills}</p>
                 <span style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 600 }}>Invoices Unpaid</span>
               </div>
 
               {/* 8. Total Revenue */}
-              <div className="portal-card" style={{ borderLeftColor: '#059669' }}>
-                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Total Revenue</div>
+              <div
+                className="portal-card clickable-card"
+                style={{ borderLeftColor: '#059669' }}
+                title="Click to view collected billing invoices"
+                onClick={() => {
+                  const items = bills.filter((b) => b.status === 'PAID');
+                  setCardDetailModal({
+                    isOpen: true,
+                    config: {
+                      title: 'Revenue Collections Breakdown',
+                      subtitle: `Lifetime collected revenue from paid school licenses (Total: ₹${totalRevenue.toLocaleString()}/-)`,
+                      badgeColor: '#059669',
+                      count: items.length,
+                      type: 'bills',
+                      items,
+                      targetTab: 'sa-billing',
+                      targetTabLabel: 'Billing Management',
+                    },
+                  });
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Total Revenue</div>
+                  <span style={{ fontSize: '0.72rem', color: '#047857', fontWeight: 600 }}>View &rarr;</span>
+                </div>
                 <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#047857', margin: '4px 0' }}>₹{totalRevenue.toLocaleString()}/-</p>
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>Lifetime Collections</span>
               </div>
 
               {/* 9. Total Students */}
-              <div className="portal-card" style={{ borderLeftColor: '#3b82f6' }}>
-                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Total Students</div>
+              <div
+                className="portal-card clickable-card"
+                style={{ borderLeftColor: '#3b82f6' }}
+                title="Click to view student population by school"
+                onClick={() =>
+                  setCardDetailModal({
+                    isOpen: true,
+                    config: {
+                      title: 'Students Across Campuses',
+                      subtitle: `Total of ${totalStudents.toLocaleString()} students enrolled across all active partner campuses`,
+                      badgeColor: '#3b82f6',
+                      count: schools.length,
+                      type: 'people',
+                      items: schools,
+                      targetTab: 'sa-schools',
+                      targetTabLabel: 'Schools Management',
+                    },
+                  })
+                }
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Total Students</div>
+                  <span style={{ fontSize: '0.72rem', color: '#1d4ed8', fontWeight: 600 }}>View &rarr;</span>
+                </div>
                 <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#1d4ed8', margin: '4px 0' }}>{totalStudents.toLocaleString()}</p>
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Across All Campuses</span>
               </div>
 
               {/* 10. Total Teachers */}
-              <div className="portal-card" style={{ borderLeftColor: '#8b5cf6' }}>
-                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Total Teachers</div>
+              <div
+                className="portal-card clickable-card"
+                style={{ borderLeftColor: '#8b5cf6' }}
+                title="Click to view faculty distribution by school"
+                onClick={() =>
+                  setCardDetailModal({
+                    isOpen: true,
+                    config: {
+                      title: 'Faculty Members by Campus',
+                      subtitle: `Total of ${totalTeachers} teaching staff members across all campuses`,
+                      badgeColor: '#8b5cf6',
+                      count: schools.length,
+                      type: 'people',
+                      items: schools,
+                      targetTab: 'sa-schools',
+                      targetTabLabel: 'Schools Management',
+                    },
+                  })
+                }
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Total Teachers</div>
+                  <span style={{ fontSize: '0.72rem', color: '#6d28d9', fontWeight: 600 }}>View &rarr;</span>
+                </div>
                 <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6d28d9', margin: '4px 0' }}>{totalTeachers}</p>
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Faculty Members</span>
               </div>
 
               {/* 11. Total Parents */}
-              <div className="portal-card" style={{ borderLeftColor: '#ec4899' }}>
-                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Total Parents</div>
+              <div
+                className="portal-card clickable-card"
+                style={{ borderLeftColor: '#ec4899' }}
+                title="Click to view parent registrations by school"
+                onClick={() =>
+                  setCardDetailModal({
+                    isOpen: true,
+                    config: {
+                      title: 'Parent Guardians by Campus',
+                      subtitle: `Total of ${totalParents.toLocaleString()} registered parent guardian accounts`,
+                      badgeColor: '#ec4899',
+                      count: schools.length,
+                      type: 'people',
+                      items: schools,
+                      targetTab: 'sa-schools',
+                      targetTabLabel: 'Schools Management',
+                    },
+                  })
+                }
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Total Parents</div>
+                  <span style={{ fontSize: '0.72rem', color: '#be185d', fontWeight: 600 }}>View &rarr;</span>
+                </div>
                 <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#be185d', margin: '4px 0' }}>{totalParents.toLocaleString()}</p>
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Registered Portals</span>
               </div>
 
               {/* 12. Total Staff */}
-              <div className="portal-card" style={{ borderLeftColor: '#6366f1' }}>
-                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Total Staff</div>
+              <div
+                className="portal-card clickable-card"
+                style={{ borderLeftColor: '#6366f1' }}
+                title="Click to view full staff breakdown"
+                onClick={() =>
+                  setCardDetailModal({
+                    isOpen: true,
+                    config: {
+                      title: 'School Staff & Leadership Breakdown',
+                      subtitle: `Total of ${totalStaff} staff (Admins, Faculty & School personnel)`,
+                      badgeColor: '#6366f1',
+                      count: schools.length,
+                      type: 'people',
+                      items: schools,
+                      targetTab: 'sa-admin-management',
+                      targetTabLabel: 'Admin Management',
+                    },
+                  })
+                }
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>Total Staff</div>
+                  <span style={{ fontSize: '0.72rem', color: '#4338ca', fontWeight: 600 }}>View &rarr;</span>
+                </div>
                 <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#4338ca', margin: '4px 0' }}>{totalStaff}</p>
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Admins & Teachers</span>
               </div>
@@ -910,7 +1182,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard' }) {
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
                   </svg>
-                  + Add School
+                  Add School
                 </button>
               </div>
             </div>
@@ -1101,9 +1373,6 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard' }) {
                     onChange={(e) => setAdminSearch(e.target.value)}
                   />
                 </div>
-                <button className="btn btn-outline btn-sm" onClick={() => { setAssignInitialAdminId(null); setIsAssignAdminOpen(true); }}>
-                  Assign Admin
-                </button>
                 <button className="btn btn-primary btn-sm" onClick={() => setIsAddAdminOpen(true)}>
                   + Add Admin
                 </button>
@@ -1714,6 +1983,18 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard' }) {
         title={feedback.title}
         message={feedback.message}
         onClose={() => setFeedback({ ...feedback, isOpen: false })}
+      />
+
+      {/* 10. Dashboard Card Drill-down Modal */}
+      <DashboardDetailModal
+        isOpen={cardDetailModal.isOpen}
+        detailConfig={cardDetailModal.config}
+        onClose={() => setCardDetailModal({ isOpen: false, config: null })}
+        onNavigate={(tab) => {
+          if (setActiveTab) {
+            setActiveTab(tab);
+          }
+        }}
       />
     </div>
   );

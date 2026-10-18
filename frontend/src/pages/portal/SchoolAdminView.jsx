@@ -596,12 +596,6 @@ export default function SchoolAdminView({ activeTab }) {
                   All Users <span className="sa-tab-badge">{data.users.length}</span>
                 </button>
                 <button
-                  className={`sa-filter-tab ${userRoleFilter === 'ADMIN' ? 'active' : ''}`}
-                  onClick={() => setUserRoleFilter('ADMIN')}
-                >
-                  Admins <span className="sa-tab-badge badge-indigo">{data.users.filter((u) => u.role === 'SCHOOL_ADMIN').length}</span>
-                </button>
-                <button
                   className={`sa-filter-tab ${userRoleFilter === 'PRINCIPAL' ? 'active' : ''}`}
                   onClick={() => setUserRoleFilter('PRINCIPAL')}
                 >

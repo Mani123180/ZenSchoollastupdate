@@ -585,3 +585,289 @@ export function FeedbackModal({ isOpen, title, message, onClose }) {
     </div>
   );
 }
+
+// 8. Dashboard Card Drill-down Modal (shows details when cards are clicked)
+export function DashboardDetailModal({ isOpen, detailConfig, onClose, onNavigate }) {
+  if (!isOpen || !detailConfig) return null;
+
+  const { title, subtitle, badgeColor, count, items = [], type } = detailConfig;
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter items based on active search query
+  const filteredItems = items.filter((item) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase().trim();
+    if (type === 'schools') {
+      return (
+        (item.name || '').toLowerCase().includes(q) ||
+        (item.code || '').toLowerCase().includes(q) ||
+        (item.city || '').toLowerCase().includes(q) ||
+        (item.adminName || item.principal || '').toLowerCase().includes(q) ||
+        (item.email || '').toLowerCase().includes(q)
+      );
+    }
+    if (type === 'admins') {
+      return (
+        (item.name || '').toLowerCase().includes(q) ||
+        (item.email || '').toLowerCase().includes(q) ||
+        (item.username || '').toLowerCase().includes(q) ||
+        (item.schoolName || '').toLowerCase().includes(q) ||
+        (item.phone || '').toLowerCase().includes(q)
+      );
+    }
+    if (type === 'subscriptions') {
+      return (
+        (item.id || '').toLowerCase().includes(q) ||
+        (item.school || '').toLowerCase().includes(q) ||
+        (item.plan || '').toLowerCase().includes(q) ||
+        (item.status || '').toLowerCase().includes(q)
+      );
+    }
+    if (type === 'bills') {
+      return (
+        (item.invoiceNo || '').toLowerCase().includes(q) ||
+        (item.school || '').toLowerCase().includes(q) ||
+        (item.plan || '').toLowerCase().includes(q) ||
+        (item.status || '').toLowerCase().includes(q)
+      );
+    }
+    if (type === 'people') {
+      return (
+        (item.name || '').toLowerCase().includes(q) ||
+        (item.code || '').toLowerCase().includes(q) ||
+        (item.adminName || item.principal || '').toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
+
+  return (
+    <div className="modal-overlay" style={{ display: 'flex' }}>
+      <div className="modal-content wizard-modal-lg" style={{ maxWidth: '950px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+        <div className="modal-header" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: badgeColor || '#2563eb' }}></div>
+              <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#1e293b' }}>{title}</h3>
+              <span className="badge" style={{ background: `${badgeColor || '#2563eb'}18`, color: badgeColor || '#2563eb', fontWeight: 700 }}>
+                {filteredItems.length} of {count} {count === 1 ? 'Record' : 'Records'}
+              </span>
+            </div>
+            {subtitle && <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '4px 0 0 22px' }}>{subtitle}</p>}
+          </div>
+          <button className="modal-close" onClick={onClose}>&times;</button>
+        </div>
+
+        {/* Modal Search Toolbar */}
+        <div style={{ padding: '12px 20px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', flex: 1, background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px 12px', gap: '8px' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="text"
+              placeholder={`Search in ${title.toLowerCase()} (name, code, status, etc)...`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ border: 'none', outline: 'none', width: '100%', fontSize: '0.9rem', color: '#1e293b', background: 'transparent' }}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '1rem', padding: '0 4px' }}
+                title="Clear search"
+              >
+                &times;
+              </button>
+            )}
+          </div>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 16px', borderRadius: '8px' }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            Search
+          </button>
+        </div>
+
+        <div style={{ padding: '16px 20px', overflowY: 'auto', flex: 1 }}>
+          {filteredItems.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94a3b8' }}>
+              <p style={{ fontSize: '1rem', fontWeight: 600 }}>No matching records found for "{searchQuery}".</p>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                style={{ marginTop: '10px' }}
+                onClick={() => setSearchQuery('')}
+              >
+                Reset Search
+              </button>
+            </div>
+          ) : (
+            <div className="table-responsive" style={{ border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+              <table className="portal-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', textAlign: 'left', color: '#475569' }}>
+                    {type === 'schools' && (
+                      <>
+                        <th style={{ padding: '10px 14px' }}>School Name</th>
+                        <th style={{ padding: '10px 14px' }}>Code</th>
+                        <th style={{ padding: '10px 14px' }}>City</th>
+                        <th style={{ padding: '10px 14px' }}>Admin / Principal</th>
+                        <th style={{ padding: '10px 14px' }}>Students</th>
+                        <th style={{ padding: '10px 14px' }}>Status</th>
+                      </>
+                    )}
+                    {type === 'admins' && (
+                      <>
+                        <th style={{ padding: '10px 14px' }}>Admin Name</th>
+                        <th style={{ padding: '10px 14px' }}>Email / Login</th>
+                        <th style={{ padding: '10px 14px' }}>Assigned School</th>
+                        <th style={{ padding: '10px 14px' }}>Contact Phone</th>
+                        <th style={{ padding: '10px 14px' }}>Status</th>
+                      </>
+                    )}
+                    {type === 'subscriptions' && (
+                      <>
+                        <th style={{ padding: '10px 14px' }}>Sub ID</th>
+                        <th style={{ padding: '10px 14px' }}>School</th>
+                        <th style={{ padding: '10px 14px' }}>Plan</th>
+                        <th style={{ padding: '10px 14px' }}>Validity</th>
+                        <th style={{ padding: '10px 14px' }}>Amount</th>
+                        <th style={{ padding: '10px 14px' }}>Status</th>
+                      </>
+                    )}
+                    {type === 'bills' && (
+                      <>
+                        <th style={{ padding: '10px 14px' }}>Invoice No</th>
+                        <th style={{ padding: '10px 14px' }}>School</th>
+                        <th style={{ padding: '10px 14px' }}>Plan</th>
+                        <th style={{ padding: '10px 14px' }}>Due Date</th>
+                        <th style={{ padding: '10px 14px' }}>Amount</th>
+                        <th style={{ padding: '10px 14px' }}>Payment Status</th>
+                      </>
+                    )}
+                    {type === 'people' && (
+                      <>
+                        <th style={{ padding: '10px 14px' }}>School Campus</th>
+                        <th style={{ padding: '10px 14px' }}>Students</th>
+                        <th style={{ padding: '10px 14px' }}>Teachers</th>
+                        <th style={{ padding: '10px 14px' }}>Parents</th>
+                        <th style={{ padding: '10px 14px' }}>Admin Lead</th>
+                      </>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredItems.map((item, idx) => (
+                    <tr key={item.id || item.invoiceNo || idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      {type === 'schools' && (
+                        <>
+                          <td style={{ padding: '10px 14px', fontWeight: 600, color: '#1e3a8a' }}>{item.name}</td>
+                          <td style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.code || item.id}</span></td>
+                          <td style={{ padding: '10px 14px' }}>{item.city || '—'}</td>
+                          <td style={{ padding: '10px 14px' }}>
+                            <div>{item.adminName || item.principal || '—'}</div>
+                            <small style={{ color: '#64748b' }}>{item.email || item.admin || ''}</small>
+                          </td>
+                          <td style={{ padding: '10px 14px', fontWeight: 700 }}>{item.studentsCount || 0}</td>
+                          <td style={{ padding: '10px 14px' }}>
+                            <span className={`badge ${item.status === 'Active' ? 'badge-success' : 'badge-danger'}`}>
+                              {item.status}
+                            </span>
+                          </td>
+                        </>
+                      )}
+                      {type === 'admins' && (
+                        <>
+                          <td style={{ padding: '10px 14px', fontWeight: 600, color: '#1e293b' }}>{item.name}</td>
+                          <td style={{ padding: '10px 14px' }}>
+                            <div><code style={{ color: '#2563eb' }}>{item.email}</code></div>
+                            <small style={{ color: '#64748b' }}>User: {item.username || '—'}</small>
+                          </td>
+                          <td style={{ padding: '10px 14px', color: '#0369a1', fontWeight: 500 }}>{item.schoolName || item.schoolId || 'Platform Central'}</td>
+                          <td style={{ padding: '10px 14px' }}>{item.phone || '—'}</td>
+                          <td style={{ padding: '10px 14px' }}>
+                            <span className={`badge ${item.status === 'Active' ? 'badge-success' : 'badge-danger'}`}>
+                              {item.status}
+                            </span>
+                          </td>
+                        </>
+                      )}
+                      {type === 'subscriptions' && (
+                        <>
+                          <td style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.id}</span></td>
+                          <td style={{ padding: '10px 14px', fontWeight: 600 }}>{item.school}</td>
+                          <td style={{ padding: '10px 14px', color: '#6366f1', fontWeight: 600 }}>{item.plan}</td>
+                          <td style={{ padding: '10px 14px', fontSize: '0.8rem', color: '#64748b' }}>
+                            {item.startDate} &rarr; {item.endDate}
+                          </td>
+                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#047857' }}>{item.amount}</td>
+                          <td style={{ padding: '10px 14px' }}>
+                            <span className={`badge ${item.status === 'ACTIVE' || item.status === 'Active' ? 'badge-success' : item.status === 'PENDING' ? 'badge-warning' : 'badge-danger'}`}>
+                              {item.status}
+                            </span>
+                          </td>
+                        </>
+                      )}
+                      {type === 'bills' && (
+                        <>
+                          <td style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.invoiceNo}</span></td>
+                          <td style={{ padding: '10px 14px', fontWeight: 600 }}>{item.school}</td>
+                          <td style={{ padding: '10px 14px', color: '#6366f1' }}>{item.plan}</td>
+                          <td style={{ padding: '10px 14px', color: '#64748b' }}>{item.dueDate}</td>
+                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#047857' }}>{item.amount}</td>
+                          <td style={{ padding: '10px 14px' }}>
+                            <span className={`badge ${item.status === 'PAID' ? 'badge-success' : item.status === 'OVERDUE' ? 'badge-danger' : 'badge-warning'}`}>
+                              {item.status}
+                            </span>
+                          </td>
+                        </>
+                      )}
+                      {type === 'people' && (
+                        <>
+                          <td style={{ padding: '10px 14px', fontWeight: 600, color: '#1e3a8a' }}>{item.name}</td>
+                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#1d4ed8' }}>{(item.studentsCount || 0).toLocaleString()}</td>
+                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#6d28d9' }}>{item.teachersCount || 0}</td>
+                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#be185d' }}>{(item.parentsCount || 0).toLocaleString()}</td>
+                          <td style={{ padding: '10px 14px', color: '#475569' }}>{item.adminName || item.principal || '—'}</td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '0 0 12px 12px' }}>
+          <div>
+            {detailConfig.targetTab && (
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => {
+                  if (onNavigate) onNavigate(detailConfig.targetTab);
+                  onClose();
+                }}
+              >
+                Go to full {detailConfig.targetTabLabel || 'Management view'} &rarr;
+              </button>
+            )}
+          </div>
+          <button type="button" className="btn btn-primary btn-sm" onClick={onClose}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+

@@ -227,7 +227,7 @@ export default function Portal() {
 
           {/* Main Panel matching portal.html lines 1353-1366 */}
           <main className="portal-main">
-            {currentRole === 'superadmin' && <SuperAdminView activeTab={activeTab} />}
+            {currentRole === 'superadmin' && <SuperAdminView activeTab={activeTab} setActiveTab={setActiveTab} />}
             {currentRole === 'schooladmin' && <SchoolAdminView activeTab={activeTab} />}
             {['principal', 'teacher', 'student', 'parent'].includes(currentRole) && (
               <AcademicRolesView role={currentRole} user={user} activeTab={activeTab} />

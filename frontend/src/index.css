@@ -1508,6 +1508,18 @@ img {
     .portal-card:hover {
       box-shadow: 0 4px 12px rgba(30, 58, 138, 0.08);
     }
+    .clickable-card {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+    .clickable-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(30, 58, 138, 0.12);
+    }
+    .clickable-card:active {
+      transform: translateY(-1px);
+    }
     .portal-card-header {
       display: flex;
       justify-content: space-between;
