@@ -510,7 +510,23 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  };
 
  useEffect(() => {
- setData(getPortalData());
+   setData(getPortalData());
+
+   const handleDataUpdate = (e) => {
+     if (e && e.detail) {
+       setData(e.detail);
+     } else {
+       setData(getPortalData());
+     }
+   };
+
+   window.addEventListener('portal_data_updated', handleDataUpdate);
+   window.addEventListener('storage', handleDataUpdate);
+
+   return () => {
+     window.removeEventListener('portal_data_updated', handleDataUpdate);
+     window.removeEventListener('storage', handleDataUpdate);
+   };
  }, [activeTab]);
 
  const refreshData = () => {

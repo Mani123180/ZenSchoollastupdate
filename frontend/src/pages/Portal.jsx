@@ -90,20 +90,20 @@ export default function Portal() {
       { id: 'secure-messaging', label: 'Secure Messaging', icon: schIcons.messaging },
     ],
     principal: [
+      { id: 'dashboard-analytics', label: 'Dashboard Analytics', icon: saIcons.dashboard },
       { id: 'attendance-reports', label: 'Attendance Reports', icon: schIcons.reports },
+      { id: 'track-exams', label: 'Examination Schedule & Dates', icon: schIcons.reports },
       { id: 'principal-services-tab', label: 'Enrichment Programs & Services', icon: saIcons.services },
-      { id: 'academic-performance', label: 'Academic Performance', icon: saIcons.dashboard },
       { id: 'staff-leave-approvals', label: 'Staff Leave Approvals', icon: schIcons.users },
       { id: 'school-announcements', label: 'School Announcements', icon: schIcons.announcements },
       { id: 'communication-teachers', label: 'Communication with Teachers', icon: schIcons.messaging },
-      { id: 'school-reports', label: 'School Reports', icon: schIcons.reports },
-      { id: 'dashboard-analytics', label: 'Dashboard Analytics', icon: saIcons.dashboard },
     ],
     teacher: [
       { id: 'my-classes', label: 'My Classes', icon: schIcons.classes },
       { id: 'teacher-services-tab', label: 'Activities & Service Labs', icon: saIcons.services },
       { id: 'student-list', label: 'Student List', icon: schIcons.students },
       { id: 'attendance-management', label: 'Attendance Management', icon: schIcons.users },
+      { id: 'track-exams', label: 'Exam Schedule & Dates', icon: schIcons.reports },
       { id: 'assignments', label: 'Homework & Assignments', icon: schIcons.subjects },
       { id: 'study-materials', label: 'Study Materials', icon: schIcons.subjects },
       { id: 'announcements', label: 'Announcements', icon: schIcons.announcements },
@@ -118,7 +118,6 @@ export default function Portal() {
       { id: 'download-materials', label: 'Study Materials', icon: schIcons.subjects },
       { id: 'submit-assignments', label: 'Submit Homework & Assignments', icon: schIcons.subjects },
       { id: 'view-homework', label: 'View Homework', icon: schIcons.subjects },
-      { id: 'transport-tracking', label: 'Bus / Transport GPS', icon: saIcons.services },
       { id: 'receive-announcements', label: 'Announcements', icon: schIcons.announcements },
       { id: 'chat-teachers', label: 'Chat with Teachers', icon: schIcons.messaging },
       { id: 'track-exams', label: 'Track Upcoming Exams', icon: schIcons.reports },
@@ -128,6 +127,7 @@ export default function Portal() {
       { id: 'parent-services-tab', label: 'Student Enrolled Services', icon: saIcons.services },
       { id: 'attendance-tracking', label: 'Attendance Tracking', icon: schIcons.reports },
       { id: 'homework', label: 'Homework & Assignments', icon: schIcons.subjects },
+      { id: 'track-exams', label: 'Upcoming Exam Schedule', icon: schIcons.reports },
       { id: 'exam-results', label: 'Exam Results & Report Card', icon: schIcons.reports },
       { id: 'fee-reminders', label: 'Fee Payments', icon: saIcons.billing },
       { id: 'transport-tracking', label: 'School Bus GPS Tracker', icon: saIcons.services },
@@ -258,7 +258,7 @@ export default function Portal() {
             {currentRole === 'superadmin' && <SuperAdminView activeTab={activeTab} setActiveTab={setActiveTab} />}
             {currentRole === 'schooladmin' && <SchoolAdminView activeTab={activeTab} setActiveTab={setActiveTab} />}
             {['principal', 'teacher', 'student', 'parent'].includes(currentRole) && (
-              <AcademicRolesView role={currentRole} user={user} activeTab={activeTab} />
+              <AcademicRolesView role={currentRole} user={user} activeTab={activeTab} setActiveTab={setActiveTab} />
             )}
           </main>
         </div>

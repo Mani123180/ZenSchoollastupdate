@@ -2406,6 +2406,21 @@ img {
       cursor: pointer;
       color: var(--color-text-light);
     }
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      backdrop-filter: blur(5px);
+      padding: 16px;
+      overflow-y: auto;
+    }
 
 /* ==========================================================================
    ZenSchool Login Page Styles (matching login.html)
@@ -3149,4 +3164,115 @@ img {
 .custom-solution-banner p {
   color: var(--color-text-light);
   font-size: 0.95rem;
+}
+
+/* ==========================================================================
+   Comprehensive Mobile Responsiveness for All Dashboards (Modals, Tables, Forms)
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* Modals: Full screen adaptability and smooth scrolling on mobile */
+  .modal-backdrop {
+    padding: 10px !important;
+    align-items: flex-end !important;
+  }
+
+  .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    max-height: 92vh !important;
+    border-radius: 16px 16px 0 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Form Grids: Convert 2-column or inline grids to single stack */
+  .modal-content form {
+    padding: 16px !important;
+  }
+
+  .modal-content div[style*="grid-template-columns: repeat(2, 1fr)"],
+  .modal-content div[style*="gridTemplateColumns: 'repeat(2, 1fr)'"],
+  .wizard-grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .modal-content div[style*="grid-column: span 2"],
+  .modal-content div[style*="gridColumn: 'span 2'"],
+  .wizard-field.span-2 {
+    grid-column: span 1 !important;
+  }
+
+  /* Modal Footer Buttons Stack on Mobile */
+  .modal-footer,
+  .modal-content form > div[style*="justify-content: flex-end"],
+  .modal-content form > div[style*="justifyContent: 'flex-end'"] {
+    flex-direction: column-reverse !important;
+    gap: 10px !important;
+  }
+
+  .modal-footer button,
+  .modal-content form > div[style*="justify-content: flex-end"] button,
+  .modal-content form > div[style*="justifyContent: 'flex-end'"] button {
+    width: 100% !important;
+    padding: 12px !important;
+    font-size: 0.95rem !important;
+  }
+
+  /* Tables: Ensure smooth horizontal touch scrolling without page blowout */
+  .table-responsive {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .sa-schools-table {
+    min-width: 580px;
+  }
+
+  .sa-schools-table th, 
+  .sa-schools-table td {
+    padding: 10px 8px !important;
+    font-size: 0.8rem !important;
+    white-space: nowrap;
+  }
+
+  /* Header Toolbars & Role Switchers */
+  .sa-schools-header-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .sa-filter-segment {
+    overflow-x: auto !important;
+    white-space: nowrap;
+    width: 100% !important;
+    display: flex !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sa-toolbar-right {
+    width: 100% !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .sa-toolbar-right .btn {
+    flex: 1 1 auto !important;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* Campus Role Tabs strip */
+  div[style*="flexWrap: 'wrap'"] > button.btn-sm,
+  div[style*="flex-wrap: wrap"] > button.btn-sm {
+    font-size: 0.78rem !important;
+    padding: 6px 10px !important;
+  }
 }

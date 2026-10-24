@@ -1334,65 +1334,69 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                   {activeCampusRole === 'schooladmin' && (
                     <>
                       <button className={`btn btn-sm ${activeCampusTab === 'school-admin-users' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('school-admin-users')}>DashBoard</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'school-services-tab' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('school-services-tab')}>Campus Services</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'school-services-tab' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('school-services-tab')}>Campus Services & Activities</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'manage-staff' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('manage-staff')}>👥 Manage Staff</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'manage-students' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('manage-students')}>🎒 Students</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'manage-parents' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('manage-parents')}>👨‍👩‍👧 Parents</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'manage-classes' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('manage-classes')}>🏫 Classes</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'manage-subjects' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('manage-subjects')}>📚 Subjects</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'fee-collection-tracker' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('fee-collection-tracker')}>💰 Fees & Dues</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'attendance-calendar' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('attendance-calendar')}>📅 Attendance</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'id-card-generator' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('id-card-generator')}>🪪 ID Cards</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'publish-announcements' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('publish-announcements')}>📢 Notices</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'view-reports' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('view-reports')}>📈 Reports</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'secure-messaging' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('secure-messaging')}>💬 Messaging</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'manage-students' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('manage-students')}>🎒 Manage Students</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'manage-parents' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('manage-parents')}>👨‍👩‍👧 Manage Parents</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'manage-classes' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('manage-classes')}>🏫 Manage Classes</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'manage-subjects' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('manage-subjects')}>📚 Manage Subjects</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'fee-collection-tracker' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('fee-collection-tracker')}>💰 Fee Collection & Dues</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'publish-announcements' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('publish-announcements')}>📢 Announcements</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'view-reports' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('view-reports')}>📈 School Reports</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'secure-messaging' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('secure-messaging')}>💬 Secure Messaging</button>
                     </>
                   )}
                   {activeCampusRole === 'principal' && (
                     <>
+                      <button className={`btn btn-sm ${activeCampusTab === 'dashboard-analytics' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('dashboard-analytics')}>⚡ Dashboard Analytics</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'attendance-reports' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('attendance-reports')}>📊 Attendance Reports</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'principal-services-tab' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('principal-services-tab')}>Enrichment Services</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'academic-performance' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('academic-performance')}>📈 Performance</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'staff-leave-approvals' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('staff-leave-approvals')}>📝 Leave Approvals</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'school-announcements' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('school-announcements')}>📢 Announcements</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'communication-teachers' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('communication-teachers')}>💬 Faculty Comm</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'school-reports' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('school-reports')}>📋 School Reports</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'dashboard-analytics' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('dashboard-analytics')}>⚡ Analytics</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'track-exams' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('track-exams')}>📅 Examination Schedule & Dates</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'principal-services-tab' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('principal-services-tab')}>Enrichment Programs & Services</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'staff-leave-approvals' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('staff-leave-approvals')}>📝 Staff Leave Approvals</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'school-announcements' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('school-announcements')}>📢 School Announcements</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'communication-teachers' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('communication-teachers')}>💬 Communication with Teachers</button>
                     </>
                   )}
                   {activeCampusRole === 'teacher' && (
                     <>
                       <button className={`btn btn-sm ${activeCampusTab === 'my-classes' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('my-classes')}>🏫 My Classes</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'teacher-services-tab' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('teacher-services-tab')}>Service Labs</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'teacher-services-tab' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('teacher-services-tab')}>Activities & Service Labs</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'student-list' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('student-list')}>🎒 Student List</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'attendance-management' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('attendance-management')}>📋 Take Attendance</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'attendance-management' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('attendance-management')}>📋 Attendance Management</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'track-exams' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('track-exams')}>📅 Exam Schedule & Dates</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'assignments' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('assignments')}>📝 Homework & Assignments</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'timetable' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('timetable')}>🕒 Timetable</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'study-materials' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('study-materials')}>📚 Study Materials</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'announcements' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('announcements')}>📢 Announcements</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'secure-messaging' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('secure-messaging')}>💬 Messaging</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'secure-messaging' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('secure-messaging')}>💬 Secure Messaging</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'timetable' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('timetable')}>🕒 Timetable</button>
                     </>
                   )}
                   {activeCampusRole === 'student' && (
                     <>
-                      <button className={`btn btn-sm ${activeCampusTab === 'view-dashboard' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('view-dashboard')}>📊 Student Overview</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'student-services-tab' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('student-services-tab')}>My Services</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'check-attendance' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('check-attendance')}>📅 My Attendance</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'view-timetable' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('view-timetable')}>🕒 Timetable</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'submit-assignments' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('submit-assignments')}>📝 Homework</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'track-exams' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('track-exams')}>🎯 Exams & Results</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'transport-tracking' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('transport-tracking')}>🚌 Bus GPS</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'chat-teachers' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('chat-teachers')}>💬 Chat Teachers</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'view-dashboard' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('view-dashboard')}>📊 View Dashboard</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'student-services-tab' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('student-services-tab')}>My Active Services & Play</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'check-attendance' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('check-attendance')}>📋 Check Attendance</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'view-timetable' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('view-timetable')}>🕒 View Timetable</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'download-materials' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('download-materials')}>📚 Study Materials</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'submit-assignments' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('submit-assignments')}>📤 Submit Homework & Assignments</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'view-homework' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('view-homework')}>📝 View Homework</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'receive-announcements' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('receive-announcements')}>📢 Announcements</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'chat-teachers' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('chat-teachers')}>💬 Chat with Teachers</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'track-exams' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('track-exams')}>📅 Track Upcoming Exams</button>
                     </>
                   )}
                   {activeCampusRole === 'parent' && (
                     <>
-                      <button className={`btn btn-sm ${activeCampusTab === 'child-information' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('child-information')}>👨‍👧 Child Profile</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'parent-services-tab' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('parent-services-tab')}>Enrolled Services</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'attendance-tracking' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('attendance-tracking')}>📅 Child Attendance</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'exam-results' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('exam-results')}>📜 Report Card</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'child-information' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('child-information')}>👨‍👧 Child Information</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'parent-services-tab' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('parent-services-tab')}>Student Enrolled Services</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'attendance-tracking' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('attendance-tracking')}>📋 Attendance Tracking</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'homework' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('homework')}>📝 Homework & Assignments</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'track-exams' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('track-exams')}>📅 Upcoming Exam Schedule</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'exam-results' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('exam-results')}>📜 Exam Results & Report Card</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'fee-reminders' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('fee-reminders')}>💳 Fee Payments</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'transport-tracking' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('transport-tracking')}>🚌 Bus GPS</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'messaging-teachers' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('messaging-teachers')}>💬 Teacher Connect</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'transport-tracking' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('transport-tracking')}>🚌 School Bus GPS Tracker</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'school-announcements' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('school-announcements')}>📢 School Announcements</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'messaging-teachers' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('messaging-teachers')}>💬 Messaging with Teachers</button>
                     </>
                   )}
                 </div>
@@ -1412,6 +1416,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                       schoolName: activeCampusPortal.name,
                     }}
                     activeTab={activeCampusTab}
+                    setActiveTab={setActiveCampusTab}
                   />
                 )}
               </div>

@@ -60,6 +60,8 @@ const defaultData = {
       schoolId: 'SCHOOL002',
       attendance: '96%',
       performance: 'Outstanding',
+      parentName: 'Mr. Kumarasamy (Father)',
+      parentPhone: '+91 98401 55210',
       marks: [
         { subject: 'Mathematics', max: 100, scored: 98, grade: 'A+' },
         { subject: 'Physics', max: 100, scored: 92, grade: 'A+' },
@@ -75,6 +77,8 @@ const defaultData = {
       schoolId: 'SCHOOL002',
       attendance: '92%',
       performance: 'Very Good',
+      parentName: 'Mr. Selvam Raman (Father)',
+      parentPhone: '+91 94440 88731',
       marks: [
         { subject: 'Mathematics', max: 100, scored: 88, grade: 'A' },
         { subject: 'Physics', max: 100, scored: 84, grade: 'A' },
@@ -90,6 +94,8 @@ const defaultData = {
       schoolId: 'SCHOOL002',
       attendance: '88%',
       performance: 'Good',
+      parentName: 'Mrs. Geetha Ramesh (Mother)',
+      parentPhone: '+91 98840 12399',
       marks: [
         { subject: 'Mathematics', max: 100, scored: 74, grade: 'B' },
         { subject: 'Physics', max: 100, scored: 78, grade: 'B' },
@@ -105,6 +111,8 @@ const defaultData = {
       schoolId: 'SCHOOL002',
       attendance: '94%',
       performance: 'Outstanding',
+      parentName: 'Mr. Venkatesh R (Father)',
+      parentPhone: '+91 97910 65421',
       marks: [
         { subject: 'Mathematics', max: 100, scored: 95, grade: 'A+' },
         { subject: 'Physics', max: 100, scored: 91, grade: 'A+' },
@@ -120,6 +128,8 @@ const defaultData = {
       schoolId: 'SCHOOL002',
       attendance: '90%',
       performance: 'Very Good',
+      parentName: 'Mrs. Lakshmi Natarajan (Mother)',
+      parentPhone: '+91 94451 77209',
       marks: [
         { subject: 'Mathematics', max: 100, scored: 82, grade: 'A' },
         { subject: 'Physics', max: 100, scored: 85, grade: 'A' },
@@ -135,6 +145,8 @@ const defaultData = {
       schoolId: 'SCHOOL002',
       attendance: '95%',
       performance: 'Outstanding',
+      parentName: 'Mr. Sundaram Pillai (Father)',
+      parentPhone: '+91 98412 33418',
       marks: [
         { subject: 'Mathematics', max: 100, scored: 96, grade: 'A+' },
         { subject: 'Physics', max: 100, scored: 94, grade: 'A+' },
@@ -199,8 +211,93 @@ const defaultData = {
   ],
 
   assignments: [
-    { id: 'HW01', title: 'Algebra Equations Exercise', due: '2026-07-28', grade: 'Grade 10-A', subject: 'Mathematics', instructions: 'Solve exercises 3.1 to 3.4 in trigonometry notebook.', assignedBy: 'Mrs. Priya Krishnan', schoolId: 'SCHOOL002', assignedDate: '2026-07-20' },
-    { id: 'HW02', title: 'Newtonian Laws Essay', due: '2026-07-30', grade: 'Grade 11-B', subject: 'Physics', instructions: 'Read chapter on kinetic energy laws and write 500 words essay.', assignedBy: 'Dr. Anandhi Rajan', schoolId: 'SCHOOL002', assignedDate: '2026-07-22' }
+    { id: 'HW01', title: 'Algebra Equations Exercise', givenDate: '2026-07-20', due: '2026-07-28', grade: 'Grade 10-A', subject: 'Mathematics', instructions: 'Solve exercises 3.1 to 3.4 in trigonometry notebook.', assignedBy: 'Mrs. Priya Krishnan', schoolId: 'SCHOOL002', assignedDate: '2026-07-20' },
+    { id: 'HW02', title: 'Newtonian Laws Essay', givenDate: '2026-07-22', due: '2026-07-30', grade: 'Grade 11-B', subject: 'Physics', instructions: 'Read chapter on kinetic energy laws and write 500 words essay.', assignedBy: 'Dr. Anandhi Rajan', schoolId: 'SCHOOL002', assignedDate: '2026-07-22' }
+  ],
+
+  studyMaterials: [
+    { id: 'MAT-01', title: 'Trigonometry & Heights Formulas Sheet', grade: 'Grade 10-A', subject: 'Mathematics', fileName: 'Trigonometry_Complete_Guide.pdf', fileSize: '2.4 MB', fileType: 'PDF', uploadedBy: 'Mrs. Priya Krishnan', date: '2026-10-18', description: 'Comprehensive formula summary, identities, and angle values table.' },
+    { id: 'MAT-02', title: 'Quadratic Equations Practice Problems Set', grade: 'Grade 10-A', subject: 'Mathematics', fileName: 'Quadratic_Equations_Problems.pdf', fileSize: '1.8 MB', fileType: 'PDF', uploadedBy: 'Mrs. Priya Krishnan', date: '2026-10-20', description: '50 previous board exam solved problems with step-by-step methods.' },
+    { id: 'MAT-03', title: 'Coordinate Geometry Visual Notes', grade: 'Grade 10-A', subject: 'Mathematics', fileName: 'Coordinate_Geometry_Charts.pdf', fileSize: '3.1 MB', fileType: 'PDF', uploadedBy: 'Mrs. Priya Krishnan', date: '2026-10-22', description: 'Section formula, distance equation diagrams and practical questions.' },
+    { id: 'MAT-04', title: 'Physics Light & Optics Chapter Handbook', grade: 'Grade 11-B', subject: 'Physics', fileName: 'Ray_Optics_Notes.pdf', fileSize: '4.2 MB', fileType: 'PDF', uploadedBy: 'Dr. Anandhi Rajan', date: '2026-10-21', description: 'Lenses, refraction and mirror formulas with colored ray diagrams.' },
+  ],
+
+  exams: [
+    { id: 'EX-101', name: 'Midterm Examination 2026', subject: 'Mathematics (Paper-I)', grade: 'Grade 10-A', date: '2026-09-10', time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35, status: 'Scheduled', uploadedBy: 'Principal Office' },
+    { id: 'EX-102', name: 'Midterm Examination 2026', subject: 'Science & Experiments', grade: 'Grade 10-A', date: '2026-09-12', time: '09:30 AM - 12:30 PM', room: 'Science Lab 1', maxMarks: 100, passMarks: 35, status: 'Scheduled', uploadedBy: 'Mrs. Priya Krishnan' },
+    { id: 'EX-103', name: 'Midterm Examination 2026', subject: 'Tamil Language', grade: 'Grade 10-A', date: '2026-09-14', time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35, status: 'Scheduled', uploadedBy: 'Principal Office' },
+    { id: 'EX-104', name: 'Midterm Examination 2026', subject: 'English (Language & Lit)', grade: 'Grade 10-A', date: '2026-09-16', time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35, status: 'Scheduled', uploadedBy: 'Principal Office' },
+    { id: 'EX-105', name: 'Midterm Examination 2026', subject: 'Social Science & History', grade: 'Grade 10-A', date: '2026-09-18', time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35, status: 'Scheduled', uploadedBy: 'Mrs. Selvi Murugan' },
+    { id: 'EX-106', name: 'Quarterly Unit Test', subject: 'Physics (Theory & Lab)', grade: 'Grade 11-B', date: '2026-09-22', time: '10:00 AM - 01:00 PM', room: 'Physics Lab', maxMarks: 70, passMarks: 25, status: 'Scheduled', uploadedBy: 'Dr. Anandhi Rajan' },
+    { id: 'EX-107', name: 'Quarterly Unit Test', subject: 'Computer Science Practical', grade: 'Grade 11-B', date: '2026-09-24', time: '10:00 AM - 01:00 PM', room: 'Comp Lab 2', maxMarks: 50, passMarks: 18, status: 'Scheduled', uploadedBy: 'Dr. Anandhi Rajan' },
+  ],
+
+  attendanceLogs: [
+    {
+      date: '2026-10-24',
+      className: 'Grade 10-A',
+      markedBy: 'Mrs. Priya Krishnan',
+      timestamp: '2026-10-24T09:15:00.000Z',
+      records: {
+        S101: 'present',
+        S102: 'present',
+        S103: 'present',
+        S104: 'present',
+        S105: 'present'
+      }
+    },
+    {
+      date: '2026-10-23',
+      className: 'Grade 10-A',
+      markedBy: 'Mrs. Priya Krishnan',
+      timestamp: '2026-10-23T09:10:00.000Z',
+      records: {
+        S101: 'present',
+        S102: 'present',
+        S103: 'absent',
+        S104: 'present',
+        S105: 'present'
+      }
+    },
+    {
+      date: '2026-10-22',
+      className: 'Grade 10-A',
+      markedBy: 'Mrs. Priya Krishnan',
+      timestamp: '2026-10-22T09:12:00.000Z',
+      records: {
+        S101: 'present',
+        S102: 'present',
+        S103: 'present',
+        S104: 'present',
+        S105: 'present'
+      }
+    },
+    {
+      date: '2026-10-21',
+      className: 'Grade 10-A',
+      markedBy: 'Mrs. Priya Krishnan',
+      timestamp: '2026-10-21T09:15:00.000Z',
+      records: {
+        S101: 'present',
+        S102: 'absent',
+        S103: 'present',
+        S104: 'present',
+        S105: 'present'
+      }
+    },
+    {
+      date: '2026-10-20',
+      className: 'Grade 10-A',
+      markedBy: 'Mrs. Priya Krishnan',
+      timestamp: '2026-10-20T09:10:00.000Z',
+      records: {
+        S101: 'present',
+        S102: 'present',
+        S103: 'present',
+        S104: 'present',
+        S105: 'present'
+      }
+    }
   ],
 
   announcements: [
@@ -315,6 +412,25 @@ export function getPortalData() {
       if (!parsed.announcements || parsed.announcements.length === 0 || !parsed.announcements[0].image) {
         parsed.announcements = defaultData.announcements;
       }
+      if (!parsed.exams || parsed.exams.length === 0) {
+        parsed.exams = defaultData.exams;
+      }
+      if (!parsed.studyMaterials || parsed.studyMaterials.length === 0) {
+        parsed.studyMaterials = defaultData.studyMaterials;
+      }
+      if (!parsed.attendanceLogs || parsed.attendanceLogs.length === 0) {
+        parsed.attendanceLogs = defaultData.attendanceLogs;
+      }
+      if (parsed.students && parsed.students.length > 0) {
+        parsed.students = parsed.students.map((s) => {
+          const match = defaultData.students.find((ds) => ds.roll === s.roll);
+          return {
+            ...s,
+            parentName: s.parentName || (match ? match.parentName : 'Mr. Parent Guardian'),
+            parentPhone: s.parentPhone || (match ? match.parentPhone : '+91 98401 22334')
+          };
+        });
+      }
       return { ...defaultData, ...parsed };
     }
   } catch (err) {
@@ -326,6 +442,9 @@ export function getPortalData() {
 export function savePortalData(data) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('portal_data_updated', { detail: data }));
+    }
   } catch (err) {
     console.error('Portal data saving error:', err);
   }
@@ -336,3 +455,4 @@ export function getInitialPortalData() {
   savePortalData(data);
   return data;
 }
+
