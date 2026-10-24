@@ -3363,6 +3363,7 @@ img {
     gap: 12px !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    text-align: right !important;
   }
 
   .table-responsive td::before {
@@ -3377,65 +3378,49 @@ img {
     line-height: 1.4 !important;
   }
 
-  /* Right-hand side cell value container */
+  /* Right-hand side cell value container - everything opposite the ::before */
   .table-responsive td > *:not(.sa-tbl-action):not(button):not(.school-meta-line):not(.school-meta-content) {
     text-align: right !important;
     word-break: break-word !important;
   }
 
-  /* When cell content is text/spans or single items */
-  .table-responsive td > span,
-  .table-responsive td > code,
-  .table-responsive td > strong {
+  /* When cell content is bare text (like address), force it to align right */
+  .table-responsive td[data-label="Address"] {
     text-align: right !important;
-  }
-
-  /* When cell content has multiple direct children (e.g. Linked Ward: Name + Roll div, or multiple divs) */
-  .table-responsive td {
-    display: flex !important;
-    flex-direction: row !important;
     justify-content: space-between !important;
-    align-items: flex-start !important;
-    padding: 10px 0 !important;
-    gap: 12px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    flex-wrap: wrap !important;
   }
 
-  /* Wrap all cell content other than ::before label in an automatic right-aligned column */
-  .table-responsive td > div:not(.sa-actions-cell) {
-    text-align: right !important;
+  /* Wrap multiple direct children or subtexts (e.g. Student Name, Linked Ward) into a right-aligned column */
+  .table-responsive td .school-meta-line,
+  .table-responsive td .school-meta-content {
     display: flex !important;
     flex-direction: column !important;
     align-items: flex-end !important;
-    justify-content: flex-start !important;
-    max-width: calc(100% - 120px) !important;
+    text-align: right !important;
     margin-left: auto !important;
+    max-width: calc(100% - 120px) !important;
   }
 
-  /* Address specific cell */
-  .table-responsive td[data-label="Address"] {
-    align-items: flex-start !important;
-  }
-  .table-responsive td[data-label="Address"] {
+  .table-responsive td .school-meta-line strong,
+  .table-responsive td .school-meta-content strong {
     text-align: right !important;
   }
 
-  /* Linked Ward cell */
-  .table-responsive td[data-label="Linked Ward"] {
+  .table-responsive td .school-meta-line small,
+  .table-responsive td .school-meta-content small {
+    text-align: right !important;
+  }
+
+  /* When cell content has multiple direct divs (e.g. Student Name + Gender/DOB) */
+  .table-responsive td[data-label="Student Name"],
+  .table-responsive td[data-label="Parent Name"],
+  .table-responsive td[data-label="Linked Ward"],
+  .table-responsive td[data-label="Subject"],
+  .table-responsive td[data-label="Assigned Campus"] {
     display: flex !important;
     flex-direction: row !important;
     justify-content: space-between !important;
     align-items: flex-start !important;
-  }
-  .table-responsive td[data-label="Linked Ward"] > div {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-end !important;
-    text-align: right !important;
-    margin-left: 0 !important;
-    max-width: 100% !important;
   }
 
   /* When cell content is a flex container (e.g. Avatar + Name/Username in Admin Profile) */
@@ -3451,44 +3436,13 @@ img {
     margin-left: auto !important;
   }
 
-  .table-responsive td .school-meta-line {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-end !important;
-    text-align: right !important;
-  }
-
-  .table-responsive td .school-meta-line strong {
-    text-align: right !important;
-  }
-
-  .table-responsive td .school-meta-line small {
-    text-align: right !important;
-  }
-
-  .table-responsive td .school-meta-content {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-end !important;
-    text-align: right !important;
-    width: 100% !important;
-  }
-
-  .table-responsive td .school-meta-content strong {
-    color: var(--color-primary, #1e3a8a) !important;
-    text-align: right !important;
-  }
-
-  .table-responsive td .school-meta-content small {
-    color: #64748b !important;
-    text-align: right !important;
-  }
-
   /* Ensure Timetable Tables Remain Tables with smooth horizontal touch scrolling */
   .table-responsive table.timetable-grid,
   .table-responsive table.timetable-table {
     display: table !important;
-    min-width: 620px !important;
+    width: 100% !important;
+    min-width: 780px !important;
+    table-layout: fixed !important;
   }
   .table-responsive table.timetable-grid thead,
   .table-responsive table.timetable-table thead {
@@ -3513,9 +3467,11 @@ img {
     display: table-cell !important;
     width: auto !important;
     text-align: left !important;
-    border-bottom: 1px solid rgba(30, 58, 138, 0.08) !important;
-    white-space: nowrap !important;
-    padding: 8px 10px !important;
+    border: 1px solid rgba(30, 58, 138, 0.1) !important;
+    white-space: normal !important;
+    padding: 8px 6px !important;
+    box-sizing: border-box !important;
+    word-break: break-word !important;
   }
   .table-responsive table.timetable-grid td::before,
   .table-responsive table.timetable-table td::before {
@@ -3527,13 +3483,30 @@ img {
   .table-responsive table.timetable-table td:first-child {
     position: sticky !important;
     left: 0 !important;
+    width: 110px !important;
+    min-width: 110px !important;
+    max-width: 110px !important;
     background-color: var(--color-bg-white) !important;
     z-index: 2 !important;
-    border-right: 2px solid rgba(30, 58, 138, 0.15) !important;
+    border-right: 2px solid rgba(30, 58, 138, 0.2) !important;
   }
   .table-responsive table.timetable-grid th:first-child,
   .table-responsive table.timetable-table th:first-child {
     background-color: #f0f4ff !important;
+  }
+
+  /* Timetable slot inner cards */
+  .table-responsive table.timetable-grid td > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    word-break: break-word !important;
   }
 
   /* Header Toolbar Mobile Stacking Fixes */
@@ -3583,7 +3556,9 @@ img {
 
   .table-responsive td:last-child,
   .table-responsive td[data-label="Actions"],
-  .table-responsive td[data-label="Action"] {
+  .table-responsive td[data-label="Action"],
+  .table-responsive td[data-label="Principal Action"],
+  .table-responsive td[data-label="Reminder Actions"] {
     display: flex !important;
     flex-direction: column !important;
     align-items: stretch !important;
@@ -3595,7 +3570,9 @@ img {
 
   .table-responsive td:last-child::before,
   .table-responsive td[data-label="Actions"]::before,
-  .table-responsive td[data-label="Action"]::before {
+  .table-responsive td[data-label="Action"]::before,
+  .table-responsive td[data-label="Principal Action"]::before,
+  .table-responsive td[data-label="Reminder Actions"]::before {
     flex: 0 0 100% !important;
     max-width: 100% !important;
     margin-bottom: 8px !important;
@@ -3604,16 +3581,22 @@ img {
 
   .table-responsive td:last-child > *,
   .table-responsive td[data-label="Actions"] > *,
-  .table-responsive td[data-label="Action"] > * {
+  .table-responsive td[data-label="Action"] > *,
+  .table-responsive td[data-label="Principal Action"] > *,
+  .table-responsive td[data-label="Reminder Actions"] > * {
     max-width: 100% !important;
     width: 100% !important;
   }
 
-  .table-responsive td .sa-actions-cell {
+  .table-responsive td .sa-actions-cell,
+  .table-responsive td[data-label="Principal Action"] .sa-actions-cell,
+  .table-responsive td[data-label="Reminder Actions"] > div {
     display: flex !important;
-    flex-direction: column !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
     width: 100% !important;
-    gap: 6px !important;
+    gap: 8px !important;
+    justify-content: stretch !important;
   }
 
   .table-responsive td:last-child button,
@@ -3627,6 +3610,17 @@ img {
     display: flex !important;
     padding: 8px 12px !important;
     font-size: 0.84rem !important;
+  }
+
+  /* Fee Reminder Action buttons (WhatsApp, SMS, Call) on mobile */
+  .table-responsive td[data-label="Reminder Actions"] button {
+    flex: 1 1 calc(33.333% - 6px) !important;
+    min-width: 80px !important;
+    text-align: center !important;
+    justify-content: center !important;
+    padding: 8px 6px !important;
+    font-size: 0.8rem !important;
+    margin-top: 0 !important;
   }
 
   /* Modal Drilldown Header & Footer Fixes on Mobile */
@@ -3707,5 +3701,22 @@ img {
     padding: 11px !important;
     font-size: 0.92rem !important;
     justify-content: center !important;
+  }
+
+  /* Academic Roles Modal Content Footer Stack (Print / Close) */
+  .modal-backdrop .modal-content > div:last-child {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    padding: 12px 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  .modal-backdrop .modal-content > div:last-child button {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 10px 16px !important;
+    font-size: 0.88rem !important;
   }
 }

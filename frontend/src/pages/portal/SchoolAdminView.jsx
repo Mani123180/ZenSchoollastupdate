@@ -2026,8 +2026,10 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </td>
  <td data-label="Phone Number">{staff.phone || '—'}</td>
  <td data-label="Email Address">{staff.email || '—'}</td>
- <td data-label="Address" style={{ fontSize: '0.82rem', maxWidth: '200px', whiteSpace: 'normal' }}>
- {staff.address || 'Campus Staff Quarters'}
+ <td data-label="Address">
+ <div className="school-meta-line">
+ <span style={{ fontSize: '0.82rem', whiteSpace: 'normal' }}>{staff.address || 'Campus Staff Quarters'}</span>
+ </div>
  </td>
  <td data-label="Blood Group" style={{ textAlign: 'center' }}>
  <span style={{
@@ -2048,12 +2050,14 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </span>
  </td>
  <td data-label="Subject">
+ <div className="school-meta-line">
  <strong style={{ color: 'var(--color-primary)' }}>
  {staff.onboardSubject || staff.subject || 'General'}
  </strong>
  {staff.class && staff.roleType !== 'Principal' && (
- <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{staff.class}</div>
+ <small>{staff.class}</small>
  )}
+ </div>
  </td>
  <td data-label="Status" style={{ textAlign: 'center' }}>
  <span className={`badge ${staff.status === 'Active' ? 'badge-success' : 'badge-warning'}`}>
@@ -2293,9 +2297,9 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <tr key={s.roll}>
  <td data-label="Roll No"><code>{s.roll}</code></td>
  <td data-label="Student Name">
- <div><strong>{s.name}</strong></div>
- <div style={{ fontSize: '0.74rem', color: '#64748b' }}>
- {s.gender || 'Female'} {s.dob ? `• DOB: ${s.dob}` : ''}
+ <div className="school-meta-line">
+ <strong>{s.name}</strong>
+ <small>{s.gender || 'Female'} {s.dob ? `• DOB: ${s.dob}` : ''}</small>
  </div>
  </td>
  <td data-label="Class"><span className="badge badge-info">{s.class}</span></td>
@@ -2876,8 +2880,10 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <td data-label="Student Name"><strong>{r.name}</strong></td>
  <td data-label="Class"><span className="badge badge-info">{r.class}</span></td>
  <td data-label="Parent">
- <div>{r.parent}</div>
- <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{r.phone}</div>
+ <div className="school-meta-line">
+ <strong>{r.parent}</strong>
+ <small>{r.phone}</small>
+ </div>
  </td>
  <td data-label="Total Fee"><strong>{r.totalFee}</strong></td>
  <td data-label="Paid" style={{ color: '#059669', fontWeight: 600 }}>{r.paid}</td>
