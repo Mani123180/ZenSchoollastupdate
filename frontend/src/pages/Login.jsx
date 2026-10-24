@@ -89,10 +89,10 @@ export default function Login() {
             src="/images/zenschool_logo.jpg"
             alt="ZenSkool Logo"
             className="login-logo-img"
-            style={{ borderRadius: '16px', background: '#ffffff', padding: '6px', height: '68px', width: '68px', objectFit: 'contain', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }}
+            style={{ borderRadius: '12px', background: '#ffffff', padding: '4px', height: '48px', width: '48px', objectFit: 'contain', boxShadow: '0 2px 10px rgba(0,0,0,0.15)' }}
           />
-          <div className="zenskool-brand-wrap" style={{ alignItems: 'center', marginTop: '6px' }}>
-            <div className="zenskool-brand-text light" style={{ fontSize: '1.75rem', letterSpacing: '3px' }}>
+          <div className="zenskool-brand-wrap" style={{ alignItems: 'center', marginTop: '4px' }}>
+            <div className="zenskool-brand-text light" style={{ fontSize: '1.35rem', letterSpacing: '2px' }}>
               <span className="brand-zen">ZEN</span>
               <span className="brand-skool">SKOOLL</span>
             </div>
@@ -102,7 +102,7 @@ export default function Login() {
         {/* Login Body matching login.html lines 143-170 */}
         <div className="login-body">
           {error && (
-            <div className="error-msg" style={{ display: 'block' }}>
+            <div className="error-msg" style={{ display: 'block', padding: '8px 12px', fontSize: '0.82rem', marginBottom: '10px' }}>
               {error}
             </div>
           )}
@@ -114,12 +114,12 @@ export default function Login() {
               background: 'rgba(30, 58, 138, 0.04)',
               border: '1px dashed rgba(30, 58, 138, 0.2)',
               borderRadius: 'var(--radius-sm)',
-              padding: '12px',
-              marginBottom: '20px',
+              padding: '8px 10px',
+              marginBottom: '14px',
               textAlign: 'center',
             }}
           >
-            <p style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--color-primary)', marginBottom: '8px' }}>
+            <p style={{ fontSize: '0.76rem', fontWeight: 600, color: 'var(--color-primary)', marginBottom: '6px' }}>
               Quick Demo Login Presets:
             </p>
             <div className="role-quick-links">
@@ -184,11 +184,11 @@ export default function Login() {
                 width: '100%',
                 display: 'block',
                 textAlign: 'center',
-                marginTop: '15px',
+                marginTop: '10px',
                 textDecoration: 'none',
-                padding: '14px',
+                padding: '9px 12px',
                 borderRadius: '50px',
-                fontSize: '1rem',
+                fontSize: '0.88rem',
                 boxSizing: 'border-box',
               }}
             >
