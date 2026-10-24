@@ -2353,8 +2353,10 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <td data-label="Phone Number"><span style={{ fontWeight: 600, color: 'var(--color-text-dark)' }}>{p.phone}</span></td>
  <td data-label="Contact Email">{p.email}</td>
  <td data-label="Linked Ward">
- <div><strong>{p.studentName}</strong></div>
- <div style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Roll: {p.studentRoll}</div>
+ <div className="school-meta-line">
+ <strong>{p.studentName}</strong>
+ <small>Roll: {p.studentRoll}</small>
+ </div>
  </td>
  <td data-label="Actions" style={{ textAlign: 'right' }}>
  <div className="sa-actions-cell" style={{ justifyContent: 'flex-end' }}>
@@ -5296,10 +5298,10 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <tbody>
  {bulkStudentPreview.map((s, idx) => (
  <tr key={idx}>
- <td style={{ padding: '8px 12px' }}>{idx + 1}</td>
- <td style={{ padding: '8px 12px' }}><code>{s.roll}</code></td>
- <td style={{ padding: '8px 12px' }}><strong>{s.name}</strong></td>
- <td style={{ padding: '8px 12px' }}><span className="badge badge-info">{s.class}</span></td>
+ <td data-label="#" style={{ padding: '8px 12px' }}>{idx + 1}</td>
+ <td data-label="Roll No" style={{ padding: '8px 12px' }}><code>{s.roll}</code></td>
+ <td data-label="Student Name" style={{ padding: '8px 12px' }}><strong>{s.name}</strong></td>
+ <td data-label="Class / Section" style={{ padding: '8px 12px' }}><span className="badge badge-info">{s.class}</span></td>
  </tr>
  ))}
  </tbody>
@@ -5425,17 +5427,17 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <tbody>
  {bulkTeacherPreview.map((t, idx) => (
  <tr key={idx}>
- <td style={{ padding: '8px 10px' }}><code>{t.id}</code></td>
- <td style={{ padding: '8px 10px' }}><strong>{t.name}</strong></td>
- <td style={{ padding: '8px 10px' }}><span className="badge badge-info">{t.subject}</span></td>
- <td style={{ padding: '8px 10px' }}>{t.class}</td>
- <td style={{ padding: '8px 10px' }}>{t.phone}</td>
- <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+ <td data-label="Staff ID" style={{ padding: '8px 10px' }}><code>{t.id}</code></td>
+ <td data-label="Name" style={{ padding: '8px 10px' }}><strong>{t.name}</strong></td>
+ <td data-label="Subject" style={{ padding: '8px 10px' }}><span className="badge badge-info">{t.subject}</span></td>
+ <td data-label="Class" style={{ padding: '8px 10px' }}>{t.class}</td>
+ <td data-label="Phone" style={{ padding: '8px 10px' }}>{t.phone}</td>
+ <td data-label="Blood Group" style={{ padding: '8px 10px', textAlign: 'center' }}>
  <span style={{ background: '#fee2e2', color: '#991b1b', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, fontSize: '0.75rem' }}>
  {t.bloodGroup}
  </span>
  </td>
- <td style={{ padding: '8px 10px' }}>{t.qualification}</td>
+ <td data-label="Qualification" style={{ padding: '8px 10px' }}>{t.qualification}</td>
  </tr>
  ))}
  </tbody>
@@ -6102,12 +6104,12 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <tbody>
  {(data.students || []).map((s) => (
  <tr key={s.roll}>
- <td><code>{s.roll}</code></td>
- <td><strong>{s.name}</strong></td>
- <td><span className="badge badge-info">{s.class}</span></td>
- <td><strong style={{ color: '#059669' }}>{s.attendance || '92%'}</strong></td>
- <td><span className="badge badge-active">{s.performance || 'Good'}</span></td>
- <td><span className="badge badge-success"> Enrolled</span></td>
+ <td data-label="Roll No"><code>{s.roll}</code></td>
+ <td data-label="Student Full Name"><strong>{s.name}</strong></td>
+ <td data-label="Class Section"><span className="badge badge-info">{s.class}</span></td>
+ <td data-label="Attendance"><strong style={{ color: '#059669' }}>{s.attendance || '92%'}</strong></td>
+ <td data-label="Standing"><span className="badge badge-active">{s.performance || 'Good'}</span></td>
+ <td data-label="Admission Status"><span className="badge badge-success">✓ Enrolled</span></td>
  </tr>
  ))}
  </tbody>
@@ -6135,15 +6137,15 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  (s.marks || []).forEach(m => { marksMap[m.subject] = m.scored; });
  return (
  <tr key={s.roll}>
- <td><code>{s.roll}</code></td>
- <td><strong>{s.name}</strong></td>
- <td><span className="badge badge-info">{s.class}</span></td>
- <td style={{ textAlign: 'center', fontWeight: 700 }}>{marksMap['Mathematics'] ?? '85'}</td>
- <td style={{ textAlign: 'center', fontWeight: 700 }}>{marksMap['Physics'] ?? '88'}</td>
- <td style={{ textAlign: 'center', fontWeight: 700 }}>{marksMap['Chemistry'] ?? '80'}</td>
- <td style={{ textAlign: 'center', fontWeight: 700 }}>{marksMap['Tamil'] ?? '90'}</td>
- <td style={{ textAlign: 'center', fontWeight: 700 }}>{marksMap['English'] ?? '84'}</td>
- <td style={{ textAlign: 'center' }}>
+ <td data-label="Roll No"><code>{s.roll}</code></td>
+ <td data-label="Student Name"><strong>{s.name}</strong></td>
+ <td data-label="Class"><span className="badge badge-info">{s.class}</span></td>
+ <td data-label="Maths" style={{ textAlign: 'center', fontWeight: 700 }}>{marksMap['Mathematics'] ?? '85'}</td>
+ <td data-label="Physics" style={{ textAlign: 'center', fontWeight: 700 }}>{marksMap['Physics'] ?? '88'}</td>
+ <td data-label="Chemistry" style={{ textAlign: 'center', fontWeight: 700 }}>{marksMap['Chemistry'] ?? '80'}</td>
+ <td data-label="Tamil" style={{ textAlign: 'center', fontWeight: 700 }}>{marksMap['Tamil'] ?? '90'}</td>
+ <td data-label="English" style={{ textAlign: 'center', fontWeight: 700 }}>{marksMap['English'] ?? '84'}</td>
+ <td data-label="Term Grade" style={{ textAlign: 'center' }}>
  <span className="badge badge-success" style={{ fontWeight: 800 }}>Grade A+</span>
  </td>
  </tr>
@@ -6170,14 +6172,14 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <tbody>
  {feeRecords.map((f) => (
  <tr key={f.id}>
- <td><code>{f.roll}</code></td>
- <td><strong>{f.name}</strong></td>
- <td><span className="badge badge-info">{f.class}</span></td>
- <td>{f.parent}</td>
- <td><strong>{f.totalFee}</strong></td>
- <td style={{ color: '#059669', fontWeight: 700 }}>{f.paid}</td>
- <td style={{ color: f.due !== '₹0' ? '#dc2626' : '#64748b', fontWeight: 800 }}>{f.due}</td>
- <td>
+ <td data-label="Roll No"><code>{f.roll}</code></td>
+ <td data-label="Student Name"><strong>{f.name}</strong></td>
+ <td data-label="Class"><span className="badge badge-info">{f.class}</span></td>
+ <td data-label="Parent Name">{f.parent}</td>
+ <td data-label="Total Fee"><strong>{f.totalFee}</strong></td>
+ <td data-label="Paid" style={{ color: '#059669', fontWeight: 700 }}>{f.paid}</td>
+ <td data-label="Due Balance" style={{ color: f.due !== '₹0' ? '#dc2626' : '#64748b', fontWeight: 800 }}>{f.due}</td>
+ <td data-label="Audit Status">
  <span className={`badge ${f.status === 'PAID' ? 'badge-active' : f.status === 'PARTIAL' ? 'badge-warning' : 'badge-danger'}`}>
  {f.status}
  </span>
@@ -6203,12 +6205,12 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <tbody>
  {(data.teachers || []).map((t) => (
  <tr key={t.id}>
- <td><code>{t.id}</code></td>
- <td><strong>{t.name}</strong></td>
- <td><span className="badge badge-info">{t.subject}</span></td>
- <td><strong>{t.class}</strong></td>
- <td><strong style={{ color: 'var(--color-primary)' }}>18 Periods / Wk</strong></td>
- <td><span className="badge badge-success"> Full-Time Faculty</span></td>
+ <td data-label="Faculty ID"><code>{t.id}</code></td>
+ <td data-label="Teacher Name"><strong>{t.name}</strong></td>
+ <td data-label="Specialization"><span className="badge badge-info">{t.subject}</span></td>
+ <td data-label="Section"><strong>{t.class}</strong></td>
+ <td data-label="Weekly Periods"><strong style={{ color: 'var(--color-primary)' }}>18 Periods / Wk</strong></td>
+ <td data-label="Employment Status"><span className="badge badge-success">✓ Full-Time Faculty</span></td>
  </tr>
  ))}
  </tbody>
@@ -6229,28 +6231,28 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </thead>
  <tbody>
  <tr>
- <td><span className="badge badge-info">Grade 10-A</span></td>
- <td>38 Students</td>
- <td><strong style={{ color: '#059669' }}>94.6%</strong></td>
- <td>22 Days</td>
- <td>790 Logs</td>
- <td>32 SMS Dispatched</td>
+ <td data-label="Class Section"><span className="badge badge-info">Grade 10-A</span></td>
+ <td data-label="Strength">38 Students</td>
+ <td data-label="Avg Attendance"><strong style={{ color: '#059669' }}>94.6%</strong></td>
+ <td data-label="Working Days">22 Days</td>
+ <td data-label="Total Logs">790 Logs</td>
+ <td data-label="Alerts Dispatched">32 SMS Dispatched</td>
  </tr>
  <tr>
- <td><span className="badge badge-info">Grade 10-B</span></td>
- <td>36 Students</td>
- <td><strong style={{ color: '#059669' }}>95.2%</strong></td>
- <td>22 Days</td>
- <td>754 Logs</td>
- <td>28 SMS Dispatched</td>
+ <td data-label="Class Section"><span className="badge badge-info">Grade 10-B</span></td>
+ <td data-label="Strength">36 Students</td>
+ <td data-label="Avg Attendance"><strong style={{ color: '#059669' }}>95.2%</strong></td>
+ <td data-label="Working Days">22 Days</td>
+ <td data-label="Total Logs">754 Logs</td>
+ <td data-label="Alerts Dispatched">28 SMS Dispatched</td>
  </tr>
  <tr>
- <td><span className="badge badge-info">Grade 9-A</span></td>
- <td>40 Students</td>
- <td><strong style={{ color: '#059669' }}>93.8%</strong></td>
- <td>22 Days</td>
- <td>825 Logs</td>
- <td>41 SMS Dispatched</td>
+ <td data-label="Class Section"><span className="badge badge-info">Grade 9-A</span></td>
+ <td data-label="Strength">40 Students</td>
+ <td data-label="Avg Attendance"><strong style={{ color: '#059669' }}>93.8%</strong></td>
+ <td data-label="Working Days">22 Days</td>
+ <td data-label="Total Logs">825 Logs</td>
+ <td data-label="Alerts Dispatched">41 SMS Dispatched</td>
  </tr>
  </tbody>
  </table>
@@ -6270,28 +6272,28 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </thead>
  <tbody>
  <tr>
- <td><strong>Coding for Kids & Python</strong></td>
- <td><span className="badge badge-info">Technology</span></td>
- <td>42 Students</td>
- <td>Dr. Anandhi Rajan</td>
- <td>Mon & Wed (3:30 PM - 4:30 PM)</td>
- <td><span className="badge badge-success">Active</span></td>
+ <td data-label="Program"><strong>Coding for Kids & Python</strong></td>
+ <td data-label="Category"><span className="badge badge-info">Technology</span></td>
+ <td data-label="Enrolled">42 Students</td>
+ <td data-label="Instructor">Dr. Anandhi Rajan</td>
+ <td data-label="Schedule">Mon & Wed (3:30 PM - 4:30 PM)</td>
+ <td data-label="Status"><span className="badge badge-success">Active</span></td>
  </tr>
  <tr>
- <td><strong>Chess Grandmaster Academy</strong></td>
- <td><span className="badge badge-info">Mind Sports</span></td>
- <td>28 Students</td>
- <td>Mr. K. Manickam</td>
- <td>Tue & Thu (3:30 PM - 4:30 PM)</td>
- <td><span className="badge badge-success">Active</span></td>
+ <td data-label="Program"><strong>Chess Grandmaster Academy</strong></td>
+ <td data-label="Category"><span className="badge badge-info">Mind Sports</span></td>
+ <td data-label="Enrolled">28 Students</td>
+ <td data-label="Instructor">Mr. K. Manickam</td>
+ <td data-label="Schedule">Tue & Thu (3:30 PM - 4:30 PM)</td>
+ <td data-label="Status"><span className="badge badge-success">Active</span></td>
  </tr>
  <tr>
- <td><strong>Robotics & STEM Labs</strong></td>
- <td><span className="badge badge-info">STEM</span></td>
- <td>35 Students</td>
- <td>Mrs. Selvi Murugan</td>
- <td>Friday (2:45 PM - 4:15 PM)</td>
- <td><span className="badge badge-success">Active</span></td>
+ <td data-label="Program"><strong>Robotics & STEM Labs</strong></td>
+ <td data-label="Category"><span className="badge badge-info">STEM</span></td>
+ <td data-label="Enrolled">35 Students</td>
+ <td data-label="Instructor">Mrs. Selvi Murugan</td>
+ <td data-label="Schedule">Friday (2:45 PM - 4:15 PM)</td>
+ <td data-label="Status"><span className="badge badge-success">Active</span></td>
  </tr>
  </tbody>
  </table>

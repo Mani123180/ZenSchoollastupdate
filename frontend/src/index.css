@@ -3378,11 +3378,92 @@ img {
   }
 
   /* Right-hand side cell value container */
-  .table-responsive td > *:not(.sa-tbl-action) {
-    flex: 1 1 auto !important;
+  .table-responsive td > *:not(.sa-tbl-action):not(button):not(.school-meta-line):not(.school-meta-content) {
     text-align: right !important;
-    max-width: calc(100% - 120px) !important;
     word-break: break-word !important;
+  }
+
+  /* When cell content is text/spans or single items */
+  .table-responsive td > span,
+  .table-responsive td > code,
+  .table-responsive td > strong {
+    text-align: right !important;
+  }
+
+  /* When cell content has multiple direct children (e.g. Linked Ward: Name + Roll div, or multiple divs) */
+  .table-responsive td {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    padding: 10px 0 !important;
+    gap: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* Wrap all cell content other than ::before label in an automatic right-aligned column */
+  .table-responsive td > div:not(.sa-actions-cell) {
+    text-align: right !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    justify-content: flex-start !important;
+    max-width: calc(100% - 120px) !important;
+    margin-left: auto !important;
+  }
+
+  /* Address specific cell */
+  .table-responsive td[data-label="Address"] {
+    align-items: flex-start !important;
+  }
+  .table-responsive td[data-label="Address"] {
+    text-align: right !important;
+  }
+
+  /* Linked Ward cell */
+  .table-responsive td[data-label="Linked Ward"] {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+  }
+  .table-responsive td[data-label="Linked Ward"] > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    text-align: right !important;
+    margin-left: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* When cell content is a flex container (e.g. Avatar + Name/Username in Admin Profile) */
+  .table-responsive td > div[style*="display: 'flex'"],
+  .table-responsive td > div[style*="display: flex"] {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    text-align: right !important;
+    gap: 8px !important;
+    max-width: calc(100% - 120px) !important;
+    margin-left: auto !important;
+  }
+
+  .table-responsive td .school-meta-line {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    text-align: right !important;
+  }
+
+  .table-responsive td .school-meta-line strong {
+    text-align: right !important;
+  }
+
+  .table-responsive td .school-meta-line small {
+    text-align: right !important;
   }
 
   .table-responsive td .school-meta-content {
@@ -3500,29 +3581,52 @@ img {
     font-size: 0.8rem !important;
   }
 
-  .table-responsive td:last-child {
+  .table-responsive td:last-child,
+  .table-responsive td[data-label="Actions"],
+  .table-responsive td[data-label="Action"] {
+    display: flex !important;
     flex-direction: column !important;
     align-items: stretch !important;
     margin-top: 10px !important;
     padding-top: 10px !important;
     border-top: 1px solid #f1f5f9 !important;
+    width: 100% !important;
   }
 
-  .table-responsive td:last-child::before {
+  .table-responsive td:last-child::before,
+  .table-responsive td[data-label="Actions"]::before,
+  .table-responsive td[data-label="Action"]::before {
     flex: 0 0 100% !important;
     max-width: 100% !important;
     margin-bottom: 8px !important;
+    text-align: left !important;
   }
 
-  .table-responsive td:last-child > * {
+  .table-responsive td:last-child > *,
+  .table-responsive td[data-label="Actions"] > *,
+  .table-responsive td[data-label="Action"] > * {
     max-width: 100% !important;
     width: 100% !important;
   }
 
-  .table-responsive td:last-child button,
-  .table-responsive td:last-child .sa-tbl-action {
+  .table-responsive td .sa-actions-cell {
+    display: flex !important;
+    flex-direction: column !important;
     width: 100% !important;
-    margin-top: 6px !important;
+    gap: 6px !important;
+  }
+
+  .table-responsive td:last-child button,
+  .table-responsive td[data-label="Actions"] button,
+  .table-responsive td[data-label="Action"] button,
+  .table-responsive td .sa-actions-cell button,
+  .table-responsive td .sa-tbl-action {
+    width: 100% !important;
+    margin-top: 4px !important;
+    justify-content: center !important;
+    display: flex !important;
+    padding: 8px 12px !important;
+    font-size: 0.84rem !important;
   }
 
   /* Modal Drilldown Header & Footer Fixes on Mobile */
@@ -3560,6 +3664,48 @@ img {
     border-radius: 8px !important;
     padding: 10px 16px !important;
     font-size: 0.88rem !important;
+    justify-content: center !important;
+  }
+
+  /* Modal Container (Used in SchoolAdmin Report Viewer & Drilldowns) */
+  .modal-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    max-height: 94vh !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+
+  /* Report Viewer Toolbar Buttons & Ribbon Mobile Stack */
+  .modal-container .modal-header {
+    padding: 14px 16px !important;
+  }
+
+  .modal-container div[style*="overflowY: 'auto'"] {
+    padding: 14px 12px !important;
+  }
+
+  .modal-container div[style*="justifyContent: 'space-between'"][style*="flexWrap: 'wrap'"] > div:last-child {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    gap: 8px !important;
+    margin-top: 6px !important;
+  }
+
+  .modal-container div[style*="justifyContent: 'space-between'"][style*="flexWrap: 'wrap'"] > div:last-child button {
+    flex: 1 1 calc(50% - 4px) !important;
+    text-align: center !important;
+    justify-content: center !important;
+    padding: 9px 12px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .modal-container div[style*="justifyContent: 'flex-end'"] button {
+    width: 100% !important;
+    padding: 11px !important;
+    font-size: 0.92rem !important;
     justify-content: center !important;
   }
 }

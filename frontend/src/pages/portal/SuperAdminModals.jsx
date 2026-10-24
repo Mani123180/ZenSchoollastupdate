@@ -1159,14 +1159,14 @@ export function DashboardDetailModal({ isOpen, detailConfig, onClose, onNavigate
                       )}
                       {type === 'admins' && (
                         <>
-                          <td style={{ padding: '10px 14px', fontWeight: 600, color: '#1e293b' }}>{item.name}</td>
-                          <td style={{ padding: '10px 14px' }}>
+                          <td data-label="Admin Name" style={{ padding: '10px 14px', fontWeight: 600, color: '#1e293b' }}>{item.name}</td>
+                          <td data-label="Email / Login" style={{ padding: '10px 14px' }}>
                             <div><code style={{ color: '#2563eb' }}>{item.email}</code></div>
                             <small style={{ color: '#64748b' }}>User: {item.username || '—'}</small>
                           </td>
-                          <td style={{ padding: '10px 14px', color: '#0369a1', fontWeight: 500 }}>{item.schoolName || item.schoolId || 'Platform Central'}</td>
-                          <td style={{ padding: '10px 14px' }}>{item.phone || '—'}</td>
-                          <td style={{ padding: '10px 14px' }}>
+                          <td data-label="Assigned School" style={{ padding: '10px 14px', color: '#0369a1', fontWeight: 500 }}>{item.schoolName || item.schoolId || 'Platform Central'}</td>
+                          <td data-label="Contact Phone" style={{ padding: '10px 14px' }}>{item.phone || '—'}</td>
+                          <td data-label="Status" style={{ padding: '10px 14px' }}>
                             <span className={`badge ${item.status === 'Active' ? 'badge-success' : 'badge-danger'}`}>
                               {item.status}
                             </span>
@@ -1175,14 +1175,14 @@ export function DashboardDetailModal({ isOpen, detailConfig, onClose, onNavigate
                       )}
                       {type === 'subscriptions' && (
                         <>
-                          <td style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.id}</span></td>
-                          <td style={{ padding: '10px 14px', fontWeight: 600 }}>{item.school}</td>
-                          <td style={{ padding: '10px 14px', color: '#6366f1', fontWeight: 600 }}>{item.plan}</td>
-                          <td style={{ padding: '10px 14px', fontSize: '0.8rem', color: '#64748b' }}>
+                          <td data-label="Sub ID" style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.id}</span></td>
+                          <td data-label="School" style={{ padding: '10px 14px', fontWeight: 600 }}>{item.school}</td>
+                          <td data-label="Plan" style={{ padding: '10px 14px', color: '#6366f1', fontWeight: 600 }}>{item.plan}</td>
+                          <td data-label="Validity" style={{ padding: '10px 14px', fontSize: '0.8rem', color: '#64748b' }}>
                             {item.startDate} &rarr; {item.endDate}
                           </td>
-                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#047857' }}>{item.amount}</td>
-                          <td style={{ padding: '10px 14px' }}>
+                          <td data-label="Amount" style={{ padding: '10px 14px', fontWeight: 700, color: '#047857' }}>{item.amount}</td>
+                          <td data-label="Status" style={{ padding: '10px 14px' }}>
                             <span className={`badge ${item.status === 'ACTIVE' || item.status === 'Active' ? 'badge-success' : item.status === 'PENDING' ? 'badge-warning' : 'badge-danger'}`}>
                               {item.status}
                             </span>
@@ -1191,12 +1191,12 @@ export function DashboardDetailModal({ isOpen, detailConfig, onClose, onNavigate
                       )}
                       {type === 'bills' && (
                         <>
-                          <td style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.invoiceNo}</span></td>
-                          <td style={{ padding: '10px 14px', fontWeight: 600 }}>{item.school}</td>
-                          <td style={{ padding: '10px 14px', color: '#6366f1' }}>{item.plan}</td>
-                          <td style={{ padding: '10px 14px', color: '#64748b' }}>{item.dueDate}</td>
-                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#047857' }}>{item.amount}</td>
-                          <td style={{ padding: '10px 14px' }}>
+                          <td data-label="Invoice No" style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.invoiceNo}</span></td>
+                          <td data-label="School" style={{ padding: '10px 14px', fontWeight: 600 }}>{item.school}</td>
+                          <td data-label="Plan" style={{ padding: '10px 14px', color: '#6366f1' }}>{item.plan}</td>
+                          <td data-label="Due Date" style={{ padding: '10px 14px', color: '#64748b' }}>{item.dueDate}</td>
+                          <td data-label="Amount" style={{ padding: '10px 14px', fontWeight: 700, color: '#047857' }}>{item.amount}</td>
+                          <td data-label="Payment Status" style={{ padding: '10px 14px' }}>
                             <span className={`badge ${item.status === 'PAID' ? 'badge-success' : item.status === 'OVERDUE' ? 'badge-danger' : 'badge-warning'}`}>
                               {item.status}
                             </span>
@@ -1205,52 +1205,52 @@ export function DashboardDetailModal({ isOpen, detailConfig, onClose, onNavigate
                       )}
                       {type === 'people' && (
                         <>
-                          <td style={{ padding: '10px 14px', fontWeight: 600, color: '#1e3a8a' }}>{item.name}</td>
-                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#1d4ed8' }}>{(item.studentsCount || 0).toLocaleString()}</td>
-                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#6d28d9' }}>{item.teachersCount || 0}</td>
-                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#be185d' }}>{(item.parentsCount || 0).toLocaleString()}</td>
-                          <td style={{ padding: '10px 14px', color: '#475569' }}>{item.adminName || item.principal || '—'}</td>
+                          <td data-label="School Campus" style={{ padding: '10px 14px', fontWeight: 600, color: '#1e3a8a' }}>{item.name}</td>
+                          <td data-label="Students" style={{ padding: '10px 14px', fontWeight: 700, color: '#1d4ed8' }}>{(item.studentsCount || 0).toLocaleString()}</td>
+                          <td data-label="Teachers" style={{ padding: '10px 14px', fontWeight: 700, color: '#6d28d9' }}>{item.teachersCount || 0}</td>
+                          <td data-label="Parents" style={{ padding: '10px 14px', fontWeight: 700, color: '#be185d' }}>{(item.parentsCount || 0).toLocaleString()}</td>
+                          <td data-label="Admin Lead" style={{ padding: '10px 14px', color: '#475569' }}>{item.adminName || item.principal || '—'}</td>
                         </>
                       )}
                       {type === 'students' && (
                         <>
-                          <td style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.roll}</span></td>
-                          <td style={{ padding: '10px 14px', fontWeight: 600, color: '#1e3a8a' }}>{item.name}</td>
-                          <td style={{ padding: '10px 14px', color: '#475569', fontWeight: 500 }}>{item.class}</td>
-                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#047857' }}>{item.attendance || '95%'}</td>
-                          <td style={{ padding: '10px 14px' }}>
+                          <td data-label="Roll No" style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.roll}</span></td>
+                          <td data-label="Student Name" style={{ padding: '10px 14px', fontWeight: 600, color: '#1e3a8a' }}>{item.name}</td>
+                          <td data-label="Class" style={{ padding: '10px 14px', color: '#475569', fontWeight: 500 }}>{item.class}</td>
+                          <td data-label="Attendance" style={{ padding: '10px 14px', fontWeight: 700, color: '#047857' }}>{item.attendance || '95%'}</td>
+                          <td data-label="Performance" style={{ padding: '10px 14px' }}>
                             <span className="badge badge-success">{item.performance || 'Good'}</span>
                           </td>
                         </>
                       )}
                       {type === 'teachers' && (
                         <>
-                          <td style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.id}</span></td>
-                          <td style={{ padding: '10px 14px', fontWeight: 600, color: '#1e293b' }}>{item.name}</td>
-                          <td style={{ padding: '10px 14px', color: '#6366f1', fontWeight: 500 }}>{item.subject}</td>
-                          <td style={{ padding: '10px 14px', color: '#475569' }}>{item.class}</td>
-                          <td style={{ padding: '10px 14px' }}>
+                          <td data-label="Faculty ID" style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.id}</span></td>
+                          <td data-label="Teacher Name" style={{ padding: '10px 14px', fontWeight: 600, color: '#1e293b' }}>{item.name}</td>
+                          <td data-label="Subject" style={{ padding: '10px 14px', color: '#6366f1', fontWeight: 500 }}>{item.subject}</td>
+                          <td data-label="Assigned Class" style={{ padding: '10px 14px', color: '#475569' }}>{item.class}</td>
+                          <td data-label="Status" style={{ padding: '10px 14px' }}>
                             <span className="badge badge-success">{item.status || 'Active'}</span>
                           </td>
                         </>
                       )}
                       {type === 'classes' && (
                         <>
-                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#1e3a8a' }}>{item.name}</td>
-                          <td style={{ padding: '10px 14px', fontWeight: 500 }}>{item.teacher}</td>
-                          <td style={{ padding: '10px 14px', color: '#64748b' }}>{item.room || '—'}</td>
-                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#2563eb' }}>{item.strength} Students</td>
+                          <td data-label="Class Name" style={{ padding: '10px 14px', fontWeight: 700, color: '#1e3a8a' }}>{item.name}</td>
+                          <td data-label="Class Teacher" style={{ padding: '10px 14px', fontWeight: 500 }}>{item.teacher}</td>
+                          <td data-label="Classroom" style={{ padding: '10px 14px', color: '#64748b' }}>{item.room || '—'}</td>
+                          <td data-label="Total Strength" style={{ padding: '10px 14px', fontWeight: 700, color: '#2563eb' }}>{item.strength} Students</td>
                         </>
                       )}
                       {type === 'fees' && (
                         <>
-                          <td style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.roll || item.id}</span></td>
-                          <td style={{ padding: '10px 14px', fontWeight: 600 }}>{item.name}</td>
-                          <td style={{ padding: '10px 14px', color: '#475569' }}>{item.class}</td>
-                          <td style={{ padding: '10px 14px', fontWeight: 600 }}>{item.totalFee}</td>
-                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#047857' }}>{item.paid}</td>
-                          <td style={{ padding: '10px 14px', fontWeight: 700, color: item.due === '₹0' ? '#64748b' : '#dc2626' }}>{item.due}</td>
-                          <td style={{ padding: '10px 14px' }}>
+                          <td data-label="Roll / ID" style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.roll || item.id}</span></td>
+                          <td data-label="Student Name" style={{ padding: '10px 14px', fontWeight: 600 }}>{item.name}</td>
+                          <td data-label="Class" style={{ padding: '10px 14px', color: '#475569' }}>{item.class}</td>
+                          <td data-label="Total Fee" style={{ padding: '10px 14px', fontWeight: 600 }}>{item.totalFee}</td>
+                          <td data-label="Paid" style={{ padding: '10px 14px', fontWeight: 700, color: '#047857' }}>{item.paid}</td>
+                          <td data-label="Due" style={{ padding: '10px 14px', fontWeight: 700, color: item.due === '₹0' ? '#64748b' : '#dc2626' }}>{item.due}</td>
+                          <td data-label="Status" style={{ padding: '10px 14px' }}>
                             <span className={`badge ${item.status === 'PAID' ? 'badge-success' : item.status === 'PARTIAL' ? 'badge-warning' : 'badge-danger'}`}>
                               {item.status}
                             </span>
@@ -1259,15 +1259,15 @@ export function DashboardDetailModal({ isOpen, detailConfig, onClose, onNavigate
                       )}
                       {type === 'users' && (
                         <>
-                          <td style={{ padding: '10px 14px', fontWeight: 600, color: '#1e293b' }}>{item.name}</td>
-                          <td style={{ padding: '10px 14px' }}>
+                          <td data-label="Full Name" style={{ padding: '10px 14px', fontWeight: 600, color: '#1e293b' }}>{item.name}</td>
+                          <td data-label="Role" style={{ padding: '10px 14px' }}>
                             <span className={`badge ${item.role === 'SCHOOL_ADMIN' ? 'badge-primary' : item.role === 'PRINCIPAL' ? 'badge-indigo' : item.role === 'TEACHER' ? 'badge-success' : item.role === 'STUDENT' ? 'badge-warning' : 'badge-purple'}`}>
                               {item.role}
                             </span>
                           </td>
-                          <td style={{ padding: '10px 14px', fontWeight: 500 }}>{item.phone || '—'}</td>
-                          <td style={{ padding: '10px 14px', color: '#2563eb' }}>{item.email || item.username}</td>
-                          <td style={{ padding: '10px 14px' }}>
+                          <td data-label="Contact Phone" style={{ padding: '10px 14px', fontWeight: 500 }}>{item.phone || '—'}</td>
+                          <td data-label="Email / Login" style={{ padding: '10px 14px', color: '#2563eb' }}>{item.email || item.username}</td>
+                          <td data-label="Status" style={{ padding: '10px 14px' }}>
                             <span className="badge badge-success">{item.status || 'Active'}</span>
                           </td>
                         </>
