@@ -2442,7 +2442,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
 
  <div className="table-responsive">
- <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
+ <table className="timetable-grid" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
  <thead>
  <tr style={{ background: 'var(--color-bg-light)', borderBottom: '2px solid rgba(30,58,138,0.15)' }}>
  <th style={{ padding: '10px', minWidth: '120px', textAlign: 'left' }}>Time / Period</th>
@@ -5546,7 +5546,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <span></span> Weekly Timetable & Allocated Sections (Monday to Friday)
  </h4>
  <div className="table-responsive" style={{ border: '1px solid #e2e8f0', borderRadius: '8px' }}>
- <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '0.86rem' }}>
+ <table className="timetable-grid" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '0.86rem' }}>
  <thead>
  <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
  <th style={{ padding: '10px', textAlign: 'left', minWidth: '120px', color: '#334155' }}>Period / Time</th>

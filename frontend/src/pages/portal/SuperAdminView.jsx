@@ -1193,7 +1193,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
             /* =============================================================== */
             <div className="sa-school-deep-dive">
               {/* Clean Structured Header Bar */}
-              <div style={{
+              <div className="sa-campus-header-card" style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -1206,7 +1206,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 flexWrap: 'wrap',
                 gap: '14px'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div className="sa-campus-header-left" style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     onClick={() => setActiveCampusPortal(null)}
@@ -1228,25 +1228,25 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                     <span style={{ fontSize: '1.1rem' }}>&larr;</span> Back to All Schools
                   </button>
 
-                  <div style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '14px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-primary, #1e3a8a)' }}>
+                  <div className="sa-campus-header-info" style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '14px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-primary, #1e3a8a)' }}>
                         {activeCampusPortal.name}
                       </h2>
                       <span className="badge badge-info" style={{ fontWeight: 700 }}>
                         {activeCampusPortal.code || 'CAMPUS'}
                       </span>
                       <span className="badge badge-success">
-                        {activeCampusPortal.subscription || 'Pro Plan'}
+                        {activeCampusPortal.subscription || 'Enterprise Plan'}
                       </span>
                     </div>
-                    <div style={{ fontSize: '0.82rem', color: '#64748b', marginTop: '3px' }}>
+                    <div style={{ fontSize: '0.82rem', color: '#64748b', marginTop: '4px', lineHeight: 1.4 }}>
                       Partition ID: <code>{activeCampusPortal.id}</code> &bull; City: <strong>{activeCampusPortal.city || 'Tamil Nadu'}</strong> &bull; Students: <strong>{activeCampusPortal.studentsCount || 450}</strong> &bull; Teachers: <strong>{activeCampusPortal.teachersCount || 25}</strong>
                     </div>
                   </div>
                 </div>
 
-                <div style={{
+                <div className="sa-campus-header-badge" style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '8px',
@@ -1516,14 +1516,19 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                           setActiveCampusTab('school-admin-users');
                         }}
                       >
-                        <strong style={{ color: 'var(--color-primary, #1e3a8a)', fontSize: '0.94rem', display: 'block', lineHeight: 1.3 }}>
-                          {s.name}
-                        </strong>
-                        <small style={{ color: '#64748b', fontSize: '0.78rem' }}>{s.city || 'Tamil Nadu'}</small>
+                        <div className="school-meta-content">
+                          <strong style={{ color: 'var(--color-primary, #1e3a8a)', fontSize: '0.94rem', display: 'block', lineHeight: 1.3 }}>
+                            {s.name}
+                          </strong>
+                          <small style={{ color: '#64748b', fontSize: '0.78rem', display: 'block', marginTop: '2px' }}>{s.city || 'Tamil Nadu'}</small>
+                        </div>
                       </td>
                       <td data-label="School Code"><span className="badge badge-info">{s.code || ''}</span></td>
                       <td data-label="Admin" className="school-meta-line">
-                        <strong>{s.adminName || s.admin || 'Unassigned'}</strong><br /><small>{s.admin || ''}</small>
+                        <div className="school-meta-content">
+                          <strong style={{ display: 'block' }}>{s.adminName || s.admin || 'Unassigned'}</strong>
+                          <small style={{ display: 'block', marginTop: '2px' }}>{s.admin || ''}</small>
+                        </div>
                       </td>
                       <td data-label="Students">{s.studentsCount || 0}</td>
                       <td data-label="Teachers">{s.teachersCount || 0}</td>

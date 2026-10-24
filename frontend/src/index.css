@@ -1162,6 +1162,9 @@ img {
       border-color: #cbd5e1;
       box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
+    .mobile-chevron {
+      display: none;
+    }
     .typing-indicator {
       display: inline-flex;
       align-items: center;
@@ -1272,14 +1275,34 @@ img {
         z-index: 999;
       }
       .messaging-layout {
-        grid-template-columns: 1fr;
-        gap: 15px;
+        display: block !important;
+        padding: 12px !important;
+        position: relative;
+        overflow: hidden;
       }
-      .messaging-sidebar {
+      .messaging-layout.show-mobile-sidebar .messaging-sidebar {
+        display: block !important;
+        width: 100% !important;
         border-right: none;
-        border-bottom: 1px solid rgba(0,0,0,0.05);
         padding-right: 0;
-        padding-bottom: 15px;
+      }
+      .messaging-layout.show-mobile-sidebar .messaging-chat-pane {
+        display: none !important;
+      }
+      .messaging-layout.show-mobile-chat .messaging-sidebar {
+        display: none !important;
+      }
+      .messaging-layout.show-mobile-chat .messaging-chat-pane {
+        display: flex !important;
+        width: 100% !important;
+        height: 540px !important;
+      }
+      .mobile-chat-back-btn,
+      .mobile-close-chat-btn {
+        display: inline-flex !important;
+      }
+      .mobile-chevron {
+        display: block !important;
       }
       .table-responsive {
         display: block;
@@ -1390,18 +1413,26 @@ img {
         text-align: left;
         margin-right: 10px;
       }
-      .table-responsive table.timetable-table {
+      .table-responsive table.timetable-table,
+      .table-responsive table.timetable-grid,
+      .table-responsive .timetable-wrapper table {
         display: table !important;
-        min-width: 600px !important;
+        min-width: 620px !important;
         border-collapse: collapse;
       }
-      .table-responsive table.timetable-table thead {
+      .table-responsive table.timetable-table thead,
+      .table-responsive table.timetable-grid thead,
+      .table-responsive .timetable-wrapper table thead {
         display: table-header-group !important;
       }
-      .table-responsive table.timetable-table tbody {
+      .table-responsive table.timetable-table tbody,
+      .table-responsive table.timetable-grid tbody,
+      .table-responsive .timetable-wrapper table tbody {
         display: table-row-group !important;
       }
-      .table-responsive table.timetable-table tr {
+      .table-responsive table.timetable-table tr,
+      .table-responsive table.timetable-grid tr,
+      .table-responsive .timetable-wrapper table tr {
         display: table-row !important;
         background: transparent !important;
         border: none !important;
@@ -1410,7 +1441,11 @@ img {
         margin-bottom: 0 !important;
       }
       .table-responsive table.timetable-table td,
-      .table-responsive table.timetable-table th {
+      .table-responsive table.timetable-table th,
+      .table-responsive table.timetable-grid td,
+      .table-responsive table.timetable-grid th,
+      .table-responsive .timetable-wrapper table td,
+      .table-responsive .timetable-wrapper table th {
         display: table-cell !important;
         width: auto !important;
         padding: 8px 10px !important;
@@ -1419,11 +1454,17 @@ img {
         border-bottom: 1px solid rgba(30, 58, 138, 0.08) !important;
         white-space: nowrap;
       }
-      .table-responsive table.timetable-table td::before {
+      .table-responsive table.timetable-table td::before,
+      .table-responsive table.timetable-grid td::before,
+      .table-responsive .timetable-wrapper table td::before {
         display: none !important;
       }
       .table-responsive table.timetable-table th:first-child,
-      .table-responsive table.timetable-table td:first-child {
+      .table-responsive table.timetable-table td:first-child,
+      .table-responsive table.timetable-grid th:first-child,
+      .table-responsive table.timetable-grid td:first-child,
+      .table-responsive .timetable-wrapper table th:first-child,
+      .table-responsive .timetable-wrapper table td:first-child {
         position: sticky;
         left: 0;
         background-color: var(--color-bg-white) !important;
@@ -1431,7 +1472,9 @@ img {
         border-right: 2px solid rgba(30, 58, 138, 0.15) !important;
         box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
       }
-      .table-responsive table.timetable-table th:first-child {
+      .table-responsive table.timetable-table th:first-child,
+      .table-responsive table.timetable-grid th:first-child,
+      .table-responsive .timetable-wrapper table th:first-child {
         background-color: #f0f4ff !important;
       }
     }
@@ -2992,16 +3035,18 @@ img {
   width: 100%;
   max-width: 1000px;
   margin: 0 auto;
-  overflow-x: auto;
+  overflow-x: hidden;
   background: var(--color-bg-white);
   border: 1px solid rgba(30, 58, 138, 0.1);
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
 }
 
 .comparison-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   text-align: left;
 }
@@ -3039,6 +3084,55 @@ img {
 .comparison-table td i.fa-circle-xmark {
   font-size: 1.15rem;
   color: #ef4444;
+}
+
+.comparison-table th:not(:first-child),
+.comparison-table td:not(:first-child) {
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .comparison-table-wrapper {
+    padding: 0.75rem 0.5rem;
+    border-radius: 12px;
+    overflow-x: hidden;
+  }
+
+  .comparison-table {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: 8px 6px;
+    font-size: 0.78rem;
+    line-height: 1.25;
+  }
+
+  .comparison-table th:first-child,
+  .comparison-table td:first-child {
+    width: 46%;
+    padding-left: 6px;
+    word-break: break-word;
+  }
+
+  .comparison-table th:not(:first-child),
+  .comparison-table td:not(:first-child) {
+    width: 18%;
+    padding: 8px 2px;
+    text-align: center;
+  }
+
+  .comparison-table td.feature-category-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .comparison-table td i.fa-circle-check,
+  .comparison-table td i.fa-circle-xmark {
+    font-size: 0.95rem;
+  }
 }
 
 /* About Grid */
@@ -3220,59 +3314,252 @@ img {
     font-size: 0.95rem !important;
   }
 
-  /* Tables: Ensure smooth horizontal touch scrolling without page blowout */
-  .table-responsive {
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
-    margin-bottom: 16px;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-  }
-
-  .sa-schools-table {
-    min-width: 580px;
-  }
-
-  .sa-schools-table th, 
-  .sa-schools-table td {
-    padding: 10px 8px !important;
-    font-size: 0.8rem !important;
-    white-space: nowrap;
-  }
-
-  /* Header Toolbars & Role Switchers */
-  .sa-schools-header-bar {
-    flex-direction: column !important;
-    align-items: stretch !important;
+  /* Campus Header Responsive Card */
+  .sa-campus-header-card {
+    padding: 12px 14px !important;
     gap: 10px !important;
   }
 
-  .sa-filter-segment {
-    overflow-x: auto !important;
-    white-space: nowrap;
+  .sa-campus-header-left {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
     width: 100% !important;
-    display: flex !important;
-    -webkit-overflow-scrolling: touch;
   }
 
-  .sa-toolbar-right {
+  .sa-campus-header-left button {
     width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .sa-campus-header-info {
+    border-left: none !important;
+    padding-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .sa-campus-header-info h2 {
+    font-size: 1.15rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .sa-campus-header-badge {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Responsive Table Card Conversion Fixes */
+  .table-responsive tr {
+    padding: 10px 14px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .table-responsive td {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    padding: 10px 0 !important;
+    gap: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .table-responsive td::before {
+    content: attr(data-label) !important;
+    flex: 0 0 110px !important;
+    max-width: 110px !important;
+    font-weight: 700 !important;
+    color: var(--color-primary, #1e3a8a) !important;
+    text-align: left !important;
+    font-size: 0.82rem !important;
+    margin-right: 0 !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Right-hand side cell value container */
+  .table-responsive td > *:not(.sa-tbl-action) {
+    flex: 1 1 auto !important;
+    text-align: right !important;
+    max-width: calc(100% - 120px) !important;
+    word-break: break-word !important;
+  }
+
+  .table-responsive td .school-meta-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    text-align: right !important;
+    width: 100% !important;
+  }
+
+  .table-responsive td .school-meta-content strong {
+    color: var(--color-primary, #1e3a8a) !important;
+    text-align: right !important;
+  }
+
+  .table-responsive td .school-meta-content small {
+    color: #64748b !important;
+    text-align: right !important;
+  }
+
+  /* Ensure Timetable Tables Remain Tables with smooth horizontal touch scrolling */
+  .table-responsive table.timetable-grid,
+  .table-responsive table.timetable-table {
+    display: table !important;
+    min-width: 620px !important;
+  }
+  .table-responsive table.timetable-grid thead,
+  .table-responsive table.timetable-table thead {
+    display: table-header-group !important;
+  }
+  .table-responsive table.timetable-grid tbody,
+  .table-responsive table.timetable-table tbody {
+    display: table-row-group !important;
+  }
+  .table-responsive table.timetable-grid tr,
+  .table-responsive table.timetable-table tr {
+    display: table-row !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .table-responsive table.timetable-grid td,
+  .table-responsive table.timetable-grid th,
+  .table-responsive table.timetable-table td,
+  .table-responsive table.timetable-table th {
+    display: table-cell !important;
+    width: auto !important;
+    text-align: left !important;
+    border-bottom: 1px solid rgba(30, 58, 138, 0.08) !important;
+    white-space: nowrap !important;
+    padding: 8px 10px !important;
+  }
+  .table-responsive table.timetable-grid td::before,
+  .table-responsive table.timetable-table td::before {
+    display: none !important;
+  }
+  .table-responsive table.timetable-grid th:first-child,
+  .table-responsive table.timetable-grid td:first-child,
+  .table-responsive table.timetable-table th:first-child,
+  .table-responsive table.timetable-table td:first-child {
+    position: sticky !important;
+    left: 0 !important;
+    background-color: var(--color-bg-white) !important;
+    z-index: 2 !important;
+    border-right: 2px solid rgba(30, 58, 138, 0.15) !important;
+  }
+  .table-responsive table.timetable-grid th:first-child,
+  .table-responsive table.timetable-table th:first-child {
+    background-color: #f0f4ff !important;
+  }
+
+  /* Header Toolbar Mobile Stacking Fixes */
+  .sa-schools-header-bar {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .sa-schools-header-bar > div {
+    display: flex !important;
     flex-wrap: wrap !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
     gap: 8px !important;
   }
 
-  .sa-toolbar-right .btn {
-    flex: 1 1 auto !important;
-    text-align: center;
-    justify-content: center;
+  .sa-schools-header-bar .sa-search-wrap {
+    flex: 1 1 100% !important;
+    width: 100% !important;
   }
 
-  /* Campus Role Tabs strip */
-  div[style*="flexWrap: 'wrap'"] > button.btn-sm,
-  div[style*="flex-wrap: wrap"] > button.btn-sm {
-    font-size: 0.78rem !important;
-    padding: 6px 10px !important;
+  .sa-schools-header-bar select,
+  .sa-schools-header-bar .sa-filter-select {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+  }
+
+  .sa-toolbar-right {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .sa-toolbar-right button {
+    flex: 1 1 calc(50% - 4px) !important;
+    text-align: center !important;
+    justify-content: center !important;
+    padding: 8px 10px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .table-responsive td:last-child {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    margin-top: 10px !important;
+    padding-top: 10px !important;
+    border-top: 1px solid #f1f5f9 !important;
+  }
+
+  .table-responsive td:last-child::before {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 8px !important;
+  }
+
+  .table-responsive td:last-child > * {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .table-responsive td:last-child button,
+  .table-responsive td:last-child .sa-tbl-action {
+    width: 100% !important;
+    margin-top: 6px !important;
+  }
+
+  /* Modal Drilldown Header & Footer Fixes on Mobile */
+  .modal-overlay {
+    padding: 8px !important;
+  }
+
+  .modal-content.wizard-modal-lg {
+    max-height: 94vh !important;
+    border-radius: 12px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
+
+  .modal-header div[style*="alignItems: 'center'"] {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  /* View School Modal Footer */
+  .view-school-modal-footer {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  .view-school-footer-buttons {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .view-school-footer-buttons button {
+    width: 100% !important;
+    border-radius: 8px !important;
+    padding: 10px 16px !important;
+    font-size: 0.88rem !important;
+    justify-content: center !important;
   }
 }

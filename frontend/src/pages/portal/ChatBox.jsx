@@ -9,6 +9,7 @@ export default function ChatBox() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [showMobileChat, setShowMobileChat] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -110,18 +111,26 @@ export default function ChatBox() {
   };
 
   return (
-    <div className="messaging-layout">
+    <div className={`messaging-layout ${showMobileChat ? 'show-mobile-chat' : 'show-mobile-sidebar'}`}>
       {/* Contacts sidebar */}
       <div className="messaging-sidebar">
-        <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-primary)', marginBottom: '14px' }}>
-          Active Conversations
-        </h4>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+          <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-primary)', margin: 0 }}>
+            Active Conversations
+          </h4>
+          <span className="badge badge-info" style={{ fontSize: '0.72rem' }}>
+            {contacts.length} Contacts
+          </span>
+        </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {contacts.map((c) => (
             <button
               key={c.id}
               className={`contact-item-btn ${activeContact?.id === c.id ? 'active' : ''}`}
-              onClick={() => setActiveContact(c)}
+              onClick={() => {
+                setActiveContact(c);
+                setShowMobileChat(true);
+              }}
             >
               <div style={{ position: 'relative' }}>
                 <div
@@ -140,19 +149,22 @@ export default function ChatBox() {
                   }}
                 />
               </div>
-              <div style={{ textAlign: 'left', overflow: 'hidden' }}>
+              <div style={{ textAlign: 'left', overflow: 'hidden', flex: 1 }}>
                 <strong style={{ display: 'block', fontSize: '0.84rem', color: '#1e293b', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                   {c.name}
                 </strong>
                 <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{c.role}</span>
               </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" className="mobile-chevron">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
             </button>
           ))}
         </div>
       </div>
 
       {/* Chat pane */}
-      <div style={{ display: 'flex', flexDirection: 'column', height: '520px' }}>
+      <div className="messaging-chat-pane" style={{ display: 'flex', flexDirection: 'column', height: '520px' }}>
         {/* Chat header */}
         {activeContact && (
           <div
@@ -161,20 +173,41 @@ export default function ChatBox() {
               borderBottom: '1px solid #e2e8f0',
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
+              justifyContent: 'space-between',
               backgroundColor: '#f8fafc',
               borderRadius: '8px 8px 0 0',
+              gap: '10px'
             }}
           >
-            <div
-              style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#e2e8f0' }}
-            />
-            <div>
-              <strong style={{ fontSize: '0.92rem', color: 'var(--color-primary)' }}>{activeContact.name}</strong>
-              <div style={{ fontSize: '0.74rem', color: '#64748b' }}>
-                {activeContact.role} • <span style={{ color: '#16a34a' }}>Online</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm mobile-chat-back-btn"
+                onClick={() => setShowMobileChat(false)}
+                style={{ padding: '6px 10px', display: 'none', alignItems: 'center', gap: '4px', fontSize: '0.78rem' }}
+                title="Back to Contacts list"
+              >
+                &larr; Contacts
+              </button>
+              <div
+                style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#e2e8f0', flexShrink: 0 }}
+              />
+              <div>
+                <strong style={{ fontSize: '0.92rem', color: 'var(--color-primary)', display: 'block' }}>{activeContact.name}</strong>
+                <div style={{ fontSize: '0.74rem', color: '#64748b' }}>
+                  {activeContact.role} • <span style={{ color: '#16a34a', fontWeight: 600 }}>Online</span>
+                </div>
               </div>
             </div>
+
+            <button
+              type="button"
+              className="btn btn-outline btn-sm mobile-close-chat-btn"
+              onClick={() => setShowMobileChat(false)}
+              style={{ display: 'none', padding: '4px 10px', fontSize: '0.78rem' }}
+            >
+              List &larr;
+            </button>
           </div>
         )}
 

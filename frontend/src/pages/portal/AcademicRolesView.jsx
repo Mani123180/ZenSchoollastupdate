@@ -2153,7 +2153,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
             </div>
 
             <div className="table-responsive">
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
+              <table className="timetable-grid" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
                 <thead>
                   <tr style={{ background: 'var(--color-bg-light)', borderBottom: '2px solid rgba(30,58,138,0.15)' }}>
                     <th style={{ padding: '10px', minWidth: '120px', textAlign: 'left' }}>Time / Period</th>
@@ -2495,7 +2495,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
 
         {role === 'student' && activeTab === 'view-timetable' && (
           <div className="table-responsive">
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
+            <table className="timetable-grid" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
               <thead>
                 <tr style={{ background: 'var(--color-bg-light)', borderBottom: '2px solid rgba(30,58,138,0.15)' }}>
                   <th style={{ padding: '10px', minWidth: '120px', textAlign: 'left' }}>Time / Period</th>

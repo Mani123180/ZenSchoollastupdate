@@ -98,15 +98,22 @@ export function CampusOverviewModal({ isOpen, school, onClose, onEdit, onEnterSc
           </div>
 
           {/* Action Footer */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+          <div className="view-school-modal-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid #e2e8f0', flexWrap: 'wrap', gap: '12px' }}>
             <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Partition ID: <code>{school.id || school.schoolId}</code></span>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button type="button" className="btn btn-outline btn-sm" onClick={onClose}>Close</button>
+            <div className="view-school-footer-buttons" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
               <button
                 type="button"
-                className="btn btn-primary btn-sm"
+                className="btn btn-outline"
+                onClick={onClose}
+                style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
                 onClick={() => { onClose(); onEdit(school); }}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -117,11 +124,11 @@ export function CampusOverviewModal({ isOpen, school, onClose, onEdit, onEnterSc
               {onEnterSchool && (
                 <button
                   type="button"
-                  className="btn btn-sm"
-                  style={{ background: '#7c3aed', color: '#ffffff', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                  className="btn"
+                  style={{ background: '#7c3aed', color: '#ffffff', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', fontSize: '0.85rem' }}
                   onClick={() => { onClose(); onEnterSchool(school); }}
                 >
-                  🏫 Open School Dashboard &rarr;
+                  Open School Dashboard &rarr;
                 </button>
               )}
             </div>
@@ -1135,15 +1142,15 @@ export function DashboardDetailModal({ isOpen, detailConfig, onClose, onNavigate
                     <tr key={item.id || item.invoiceNo || idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
                       {type === 'schools' && (
                         <>
-                          <td style={{ padding: '10px 14px', fontWeight: 600, color: '#1e3a8a' }}>{item.name}</td>
-                          <td style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.code || item.id}</span></td>
-                          <td style={{ padding: '10px 14px' }}>{item.city || '—'}</td>
-                          <td style={{ padding: '10px 14px' }}>
+                          <td data-label="School Name" style={{ padding: '10px 14px', fontWeight: 600, color: '#1e3a8a' }}>{item.name}</td>
+                          <td data-label="School Code" style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.code || item.id}</span></td>
+                          <td data-label="City" style={{ padding: '10px 14px' }}>{item.city || '—'}</td>
+                          <td data-label="Admin / Principal" style={{ padding: '10px 14px' }}>
                             <div>{item.adminName || item.principal || '—'}</div>
                             <small style={{ color: '#64748b' }}>{item.email || item.admin || ''}</small>
                           </td>
-                          <td style={{ padding: '10px 14px', fontWeight: 700 }}>{item.studentsCount || 0}</td>
-                          <td style={{ padding: '10px 14px' }}>
+                          <td data-label="Students" style={{ padding: '10px 14px', fontWeight: 700 }}>{item.studentsCount || 0}</td>
+                          <td data-label="Status" style={{ padding: '10px 14px' }}>
                             <span className={`badge ${item.status === 'Active' ? 'badge-success' : 'badge-danger'}`}>
                               {item.status}
                             </span>
