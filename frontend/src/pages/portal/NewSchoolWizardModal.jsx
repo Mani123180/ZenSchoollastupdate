@@ -11,6 +11,8 @@ const getInitialWizardData = () => {
     phone: '',
     email: '',
     principal: '',
+    plan: 'Pro Plan',
+    subdomain: '',
     adminName: '',
     adminEmail: '',
     adminUsername: '',
@@ -51,7 +53,13 @@ export default function NewSchoolWizardModal({ isOpen, onClose, onSchoolCreated 
       }
       const city = wizardData.city.trim() || 'TN';
       const cityCode = city.substring(0, 3).toUpperCase();
-      setWizardData((prev) => ({ ...prev, schoolName: name, schoolCode: `${acronym}-${cityCode}` }));
+      const cleanSub = acronym.toLowerCase();
+      setWizardData((prev) => ({
+        ...prev,
+        schoolName: name,
+        schoolCode: `${acronym}-${cityCode}`,
+        subdomain: prev.subdomain || `${cleanSub}.zenschool.edu`,
+      }));
     } else {
       setWizardData((prev) => ({ ...prev, schoolName: name }));
     }
@@ -70,6 +78,7 @@ export default function NewSchoolWizardModal({ isOpen, onClose, onSchoolCreated 
       const cleanCode = (wizardData.schoolCode || 'school').toLowerCase().replace(/[^a-z0-9]/g, '');
       setWizardData((prev) => ({
         ...prev,
+        subdomain: prev.subdomain || `${cleanCode.substring(0, 8)}.zenschool.edu`,
         adminName: prev.adminName || `Admin ${cleanWord}`,
         adminEmail: prev.adminEmail || `admin@${cleanCode}.edu`,
         adminUsername: prev.adminUsername || `admin_${cleanCode.substring(0, 5)}`,
@@ -77,6 +86,8 @@ export default function NewSchoolWizardModal({ isOpen, onClose, onSchoolCreated 
       setStep(2);
     } else if (currentStep === 2) {
       setStep(3);
+    } else if (currentStep === 3) {
+      setStep(4);
     }
   };
 
@@ -96,7 +107,8 @@ export default function NewSchoolWizardModal({ isOpen, onClose, onSchoolCreated 
       studentsCount: 0,
       teachersCount: 0,
       parentsCount: 0,
-      subscription: 'Pending Activation',
+      subscription: wizardData.plan || 'Pro Plan',
+      subdomain: wizardData.subdomain || 'school.zenschool.edu',
       createdDate: new Date().toISOString().split('T')[0],
       address: wizardData.address,
       board: wizardData.board,
@@ -109,7 +121,7 @@ export default function NewSchoolWizardModal({ isOpen, onClose, onSchoolCreated 
     onClose();
   };
 
-  const progressPercent = (step - 1) * 50;
+  const progressPercent = ((step - 1) / 3) * 100;
 
   return (
     <div className="modal-overlay" style={{ display: 'flex' }}>
@@ -131,23 +143,27 @@ export default function NewSchoolWizardModal({ isOpen, onClose, onSchoolCreated 
         </div>
 
         <div id="modal-body">
-          {/* Wizard Progress Track */}
+          {/* 4-Step Onboarding Progress Bar */}
           <div className="wizard-stepper-wrap">
             <div className="wizard-progress-track">
               <div className="wizard-progress-bar" style={{ width: `${progressPercent}%` }}></div>
             </div>
-            <div className="wizard-steps">
+            <div className="wizard-steps" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
               <div className={`wizard-step ${step === 1 ? 'active' : step > 1 ? 'completed' : ''}`}>
                 <div className="step-circle">{step > 1 ? '✓' : '1'}</div>
-                <div className="step-label">School Profile</div>
+                <div className="step-label">Basic Info</div>
               </div>
               <div className={`wizard-step ${step === 2 ? 'active' : step > 2 ? 'completed' : ''}`}>
                 <div className="step-circle">{step > 2 ? '✓' : '2'}</div>
-                <div className="step-label">Admin Access</div>
+                <div className="step-label">Plan Tier</div>
               </div>
-              <div className={`wizard-step ${step === 3 ? 'active' : ''}`}>
-                <div className="step-circle">3</div>
-                <div className="step-label">Review & Launch</div>
+              <div className={`wizard-step ${step === 3 ? 'active' : step > 3 ? 'completed' : ''}`}>
+                <div className="step-circle">{step > 3 ? '✓' : '3'}</div>
+                <div className="step-label">Admin Account</div>
+              </div>
+              <div className={`wizard-step ${step === 4 ? 'active' : ''}`}>
+                <div className="step-circle">4</div>
+                <div className="step-label">Domain & Launch</div>
               </div>
             </div>
           </div>
@@ -270,36 +286,88 @@ export default function NewSchoolWizardModal({ isOpen, onClose, onSchoolCreated 
               </div>
 
               <div className="wizard-footer">
-                <span className="step-count-text">Step 1 of 3: School Profile</span>
+                <span className="step-count-text">Step 1 of 4: School Profile</span>
                 <div className="wizard-footer-actions">
                   <button type="button" className="btn btn-outline btn-sm" onClick={onClose}>Cancel</button>
-                  <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>Next: Admin Access →</button>
+                  <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>Next: Plan Selection →</button>
                 </div>
               </div>
             </form>
           )}
 
-          {/* STEP 2: Administrator Account */}
+          {/* STEP 2: Plan Selection */}
           {step === 2 && (
             <form onSubmit={(e) => handleNext(e, 2)}>
               <div className="wizard-form-box">
                 <div className="wizard-header-strip">
-                  <div className="wizard-header-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  <div className="wizard-header-icon" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line>
                     </svg>
                   </div>
                   <div className="wizard-header-titles">
-                    <h4>Step 2: School Administrator Account</h4>
-                    <p>Setup the primary login credentials for this campus administrator.</p>
+                    <h4>Step 2: SaaS Plan & License Tier</h4>
+                    <p>Select the subscription bundle that best fits this school's expected student capacity.</p>
                   </div>
                 </div>
 
-                <div className="wizard-callout">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
-                  </svg>
-                  <span>This administrator will be added to <strong>Admin Management</strong> with full school-level master access for <strong>{wizardData.schoolName || 'this campus'}</strong>.</span>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
+                  {[
+                    { name: 'Basic Plan', cap: 'Up to 500 Students', price: '₹15,000/yr', desc: 'Attendance, Marks, Notices & Student Records' },
+                    { name: 'Pro Plan', cap: 'Up to 1,500 Students', price: '₹35,000/yr', desc: 'Basic + Online Fee Portal, SMS Gateway, Assignments' },
+                    { name: 'Enterprise Plan', cap: 'Up to 5,000 Students', price: '₹75,000/yr', desc: 'Pro + Custom Mobile App, GPS Tracking, Dedicated Support' },
+                  ].map((p) => {
+                    const isSelected = (wizardData.plan || 'Pro Plan') === p.name;
+                    return (
+                      <div
+                        key={p.name}
+                        onClick={() => setWizardData({ ...wizardData, plan: p.name })}
+                        style={{
+                          border: isSelected ? '2px solid #2563eb' : '1px solid #e2e8f0',
+                          background: isSelected ? '#eff6ff' : '#ffffff',
+                          borderRadius: '10px',
+                          padding: '16px',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <h4 style={{ margin: 0, color: '#1e3a8a', fontSize: '1rem' }}>{p.name}</h4>
+                          <input type="radio" checked={isSelected} readOnly />
+                        </div>
+                        <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#047857', margin: '8px 0 4px' }}>{p.price}</div>
+                        <div style={{ fontSize: '0.78rem', color: '#6366f1', fontWeight: 600 }}>{p.cap}</div>
+                        <p style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '8px', lineHeight: 1.4 }}>{p.desc}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="wizard-footer">
+                <span className="step-count-text">Step 2 of 4: Plan Selection</span>
+                <div className="wizard-footer-actions">
+                  <button type="button" className="btn btn-outline btn-sm" onClick={() => setStep(1)}>← Back</button>
+                  <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>Next: Admin Account →</button>
+                </div>
+              </div>
+            </form>
+          )}
+
+          {/* STEP 3: Admin Access */}
+          {step === 3 && (
+            <form onSubmit={(e) => handleNext(e, 3)}>
+              <div className="wizard-form-box">
+                <div className="wizard-header-strip">
+                  <div className="wizard-header-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  <div className="wizard-header-titles">
+                    <h4>Step 3: Primary Campus Administrator Account</h4>
+                    <p>Initialize the master login credentials for this school's administrative office.</p>
+                  </div>
                 </div>
 
                 <div className="wizard-grid-2">
@@ -349,94 +417,73 @@ export default function NewSchoolWizardModal({ isOpen, onClose, onSchoolCreated 
                       </button>
                     </div>
                   </div>
-
-                  <div className="wizard-field span-2">
-                    <label>Campus Assignment</label>
-                    <input
-                      type="text"
-                      value={`${wizardData.schoolName} (${wizardData.schoolCode})`}
-                      disabled
-                      style={{ background: '#f8fafc', color: '#64748b', fontWeight: 600 }}
-                    />
-                  </div>
                 </div>
               </div>
 
               <div className="wizard-footer">
-                <span className="step-count-text">Step 2 of 3: Admin Access</span>
+                <span className="step-count-text">Step 3 of 4: Admin Account</span>
                 <div className="wizard-footer-actions">
-                  <button type="button" className="btn btn-outline btn-sm" onClick={() => setStep(1)}>← Back</button>
-                  <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>Next: Review Details →</button>
+                  <button type="button" className="btn btn-outline btn-sm" onClick={() => setStep(2)}>← Back</button>
+                  <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>Next: Subdomain & Review →</button>
                 </div>
               </div>
             </form>
           )}
 
-          {/* STEP 3: Review & Launch */}
-          {step === 3 && (
+          {/* STEP 4: Domain & Review Launch */}
+          {step === 4 && (
             <div>
               <div className="wizard-form-box">
                 <div className="wizard-header-strip">
                   <div className="wizard-header-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                     </svg>
                   </div>
                   <div className="wizard-header-titles">
-                    <h4>Step 3: Review Onboarding Information</h4>
-                    <p>Verify campus details and administrator account before provisioning.</p>
+                    <h4>Step 4: Domain Routing & Review Launch</h4>
+                    <p>Verify sub-domain host and provision the new isolated multi-tenant environment.</p>
+                  </div>
+                </div>
+
+                <div className="wizard-field span-2" style={{ marginBottom: '18px' }}>
+                  <label>Dedicated School Subdomain / Custom Domain Routing <span className="req">*</span></label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <input
+                      type="text"
+                      value={wizardData.subdomain}
+                      onChange={(e) => setWizardData({ ...wizardData, subdomain: e.target.value })}
+                      required
+                      style={{ fontWeight: 700, color: '#1e3a8a' }}
+                    />
+                    <span className="badge badge-success" style={{ whiteSpace: 'nowrap' }}>DNS Ready ✓</span>
                   </div>
                 </div>
 
                 <div className="review-grid">
                   <div className="review-card">
-                    <div className="review-card-title">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M3 21h18"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path>
-                      </svg>
-                      Campus Details
-                    </div>
-                    <div className="review-row"><span className="review-label">School Name:</span><span className="review-value">{wizardData.schoolName}</span></div>
-                    <div className="review-row"><span className="review-label">School Code:</span><span className="review-value"><span className="badge badge-info">{wizardData.schoolCode}</span></span></div>
-                    <div className="review-row"><span className="review-label">Affiliation:</span><span className="review-value">{wizardData.board || 'State Board'}</span></div>
-                    <div className="review-row"><span className="review-label">Academic Year:</span><span className="review-value">{wizardData.academicYear}</span></div>
-                    <div className="review-row"><span className="review-label">Principal:</span><span className="review-value">{wizardData.principal}</span></div>
-                    <div className="review-row"><span className="review-label">Campus Location:</span><span className="review-value">{wizardData.city || 'Tamil Nadu'}</span></div>
+                    <div className="review-card-title">Campus Details</div>
+                    <div className="review-row"><span className="review-label">School:</span><span className="review-value">{wizardData.schoolName}</span></div>
+                    <div className="review-row"><span className="review-label">Code:</span><span className="review-value"><span className="badge badge-info">{wizardData.schoolCode}</span></span></div>
+                    <div className="review-row"><span className="review-label">Affiliation:</span><span className="review-value">{wizardData.board}</span></div>
+                    <div className="review-row"><span className="review-label">City:</span><span className="review-value">{wizardData.city || 'Tamil Nadu'}</span></div>
                   </div>
 
                   <div className="review-card">
-                    <div className="review-card-title">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle>
-                      </svg>
-                      Admin Master Account
-                    </div>
-                    <div className="review-row"><span className="review-label">Full Name:</span><span className="review-value">{wizardData.adminName}</span></div>
+                    <div className="review-card-title">Admin & License</div>
+                    <div className="review-row"><span className="review-label">Admin Name:</span><span className="review-value">{wizardData.adminName}</span></div>
                     <div className="review-row"><span className="review-label">Login Email:</span><span className="review-value">{wizardData.adminEmail}</span></div>
-                    <div className="review-row"><span className="review-label">Username:</span><span className="review-value"><code>{wizardData.adminUsername}</code></span></div>
-                    <div className="review-row"><span className="review-label">Temporary Password:</span><span className="review-value"><code style={{ background: '#e0e7ff', color: '#3730a3', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>{wizardData.adminPassword}</code></span></div>
-                    <div className="review-row"><span className="review-label">Role Assigned:</span><span className="review-value"><span className="badge badge-success">SCHOOL_ADMIN</span></span></div>
-                  </div>
-
-                  <div className="review-card span-2" style={{ background: '#f8fafc', border: '1px dashed #cbd5e1' }}>
-                    <div className="review-card-title" style={{ color: 'var(--color-primary)' }}>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line>
-                      </svg>
-                      Subscription & Plan Status
-                    </div>
-                    <p style={{ margin: '6px 0 0 0', fontSize: '0.88rem', color: '#475569', lineHeight: 1.5 }}>
-                      Campus will be registered with status <strong>Pending Activation</strong>. You can configure the subscription plan tier and payment terms from the <strong>Subscriptions</strong> tab using <em>+ New Subscription</em>.
-                    </p>
+                    <div className="review-row"><span className="review-label">Assigned Plan:</span><span className="review-value"><span className="badge badge-primary">{wizardData.plan}</span></span></div>
+                    <div className="review-row"><span className="review-label">Subdomain:</span><span className="review-value"><code>{wizardData.subdomain}</code></span></div>
                   </div>
                 </div>
               </div>
 
               <div className="wizard-footer">
-                <span className="step-count-text">Step 3 of 3: Review Details</span>
+                <span className="step-count-text">Step 4 of 4: Provision & Launch</span>
                 <div className="wizard-footer-actions">
                   <button type="button" className="btn btn-outline btn-sm" onClick={handleReset} style={{ color: '#64748b' }}>↻ Reset Form</button>
-                  <button type="button" className="btn btn-outline btn-sm" onClick={() => setStep(2)}>← Back</button>
+                  <button type="button" className="btn btn-outline btn-sm" onClick={() => setStep(3)}>← Back</button>
                   <button type="button" className="btn btn-primary btn-sm" style={{ padding: '9px 24px', fontWeight: 700 }} onClick={handleFinalize}>
                     Provision School & Launch ✓
                   </button>

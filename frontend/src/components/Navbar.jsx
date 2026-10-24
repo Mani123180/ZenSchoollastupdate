@@ -15,33 +15,76 @@ export default function Navbar() {
       <div className="container nav-container">
         <Link to="/" className="logo" onClick={closeMenu}>
           <img
-            src="/images/emblem.png"
-            alt="Sri Sankara Vidhyasala Emblem"
-            style={{ height: '55px', width: 'auto', borderRadius: 0 }}
+            src="/images/zenschool_logo.jpg"
+            alt="ZenSkool Logo"
+            style={{ height: '48px', width: 'auto', borderRadius: '10px', objectFit: 'contain', boxShadow: '0 2px 8px rgba(124, 58, 237, 0.15)' }}
           />
-          <div className="logo-text">
-            Sri Sankara Vidhyasala
-            <span className="logo-sub">Girls High School, Kodumudi</span>
+          <div className="zenskool-brand-wrap">
+            <div className="zenskool-brand-text">
+              <span className="brand-zen">ZEN</span>
+              <span className="brand-skool">SKOOLL</span>
+            </div>
           </div>
         </Link>
 
         <nav className={`nav-links ${mobileMenuOpen ? 'active' : ''}`}>
-          <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={closeMenu}>
+          <a
+            href="/#home"
+            className="nav-link"
+            onClick={(e) => {
+              closeMenu();
+              if (window.location.pathname === '/') {
+                e.preventDefault();
+                document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
             Home
-          </NavLink>
-          <NavLink to="/about" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={closeMenu}>
+          </a>
+          <a
+            href="/#features-section"
+            className="nav-link"
+            onClick={(e) => {
+              closeMenu();
+              if (window.location.pathname === '/') {
+                e.preventDefault();
+                document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
+            Features
+          </a>
+          <a
+            href="/#pricing-section"
+            className="nav-link"
+            onClick={(e) => {
+              closeMenu();
+              if (window.location.pathname === '/') {
+                e.preventDefault();
+                document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
+            Pricing
+          </a>
+          <a
+            href="/#about-section"
+            className="nav-link"
+            onClick={(e) => {
+              closeMenu();
+              if (window.location.pathname === '/') {
+                e.preventDefault();
+                document.getElementById('about-section')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
             About Us
-          </NavLink>
-          <NavLink to="/academics" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={closeMenu}>
-            Academics
-          </NavLink>
-          <NavLink to="/student-life" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={closeMenu}>
-            Student Life
-          </NavLink>
-          <NavLink to="/admissions" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={closeMenu}>
-            Admissions
-          </NavLink>
-          <NavLink to="/contact" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} onClick={closeMenu}>
+          </a>
+          <NavLink
+            to="/contact"
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+            onClick={closeMenu}
+          >
             Contact Us
           </NavLink>
 

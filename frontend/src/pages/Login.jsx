@@ -85,9 +85,18 @@ export default function Login() {
       <div className="login-container">
         {/* Login Header matching login.html lines 138-142 */}
         <div className="login-header">
-          <img src="/images/emblem.png" alt="ZenSchool Emblem" className="login-logo-img" />
-          <h2>ZenSchool Platform Portal</h2>
-          <p>Select role or enter credentials to sign in</p>
+          <img
+            src="/images/zenschool_logo.jpg"
+            alt="ZenSkool Logo"
+            className="login-logo-img"
+            style={{ borderRadius: '16px', background: '#ffffff', padding: '6px', height: '68px', width: '68px', objectFit: 'contain', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }}
+          />
+          <div className="zenskool-brand-wrap" style={{ alignItems: 'center', marginTop: '6px' }}>
+            <div className="zenskool-brand-text light" style={{ fontSize: '1.75rem', letterSpacing: '3px' }}>
+              <span className="brand-zen">ZEN</span>
+              <span className="brand-skool">SKOOLL</span>
+            </div>
+          </div>
         </div>
 
         {/* Login Body matching login.html lines 143-170 */}

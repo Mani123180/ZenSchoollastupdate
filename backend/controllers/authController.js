@@ -10,10 +10,10 @@ const additionalPortalUsers = [
     username: 'superadmin',
     email: 'superadmin@zenschool.com',
     password: 'SuperAdmin@123',
-    name: 'ZenSchool Super Admin',
+    name: 'Super Administrator',
     role: 'superadmin',
     schoolId: null,
-    schoolName: 'Platform Central',
+    schoolName: '',
     status: 'Active',
   },
   {

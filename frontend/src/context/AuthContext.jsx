@@ -57,8 +57,30 @@ export const AuthProvider = ({ children }) => {
     return { success: false, message: 'Account not found' };
   };
 
+  const impersonate = (targetUser) => {
+    // Save original super admin for exit masquerade
+    const originalAdmin = localStorage.getItem('originalAdmin') || JSON.stringify(user);
+    localStorage.setItem('originalAdmin', originalAdmin);
+    setUser(targetUser);
+    localStorage.setItem('user', JSON.stringify(targetUser));
+  };
+
+  const exitImpersonation = () => {
+    const original = localStorage.getItem('originalAdmin');
+    if (original) {
+      const parsed = JSON.parse(original);
+      setUser(parsed);
+      localStorage.setItem('user', original);
+      localStorage.removeItem('originalAdmin');
+      return true;
+    }
+    return false;
+  };
+
+  const isImpersonating = !!localStorage.getItem('originalAdmin');
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, demoAccounts, login, logout, switchUser }}>
+    <AuthContext.Provider value={{ user, token, loading, demoAccounts, login, logout, switchUser, impersonate, exitImpersonation, isImpersonating }}>
       {children}
     </AuthContext.Provider>
   );

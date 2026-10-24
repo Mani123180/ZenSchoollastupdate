@@ -4,9 +4,11 @@ import {
   savePortalData
 } from '../../services/portalData';
 import ChatBox from './ChatBox';
+import InteractiveServicePlayerModal from './InteractiveServicePlayerModal';
 
 export default function AcademicRolesView({ role, user, activeTab }) {
   const [data, setData] = useState(getPortalData());
+  const [activePlayService, setActivePlayService] = useState(null);
   const [filterCategory, setFilterCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -18,7 +20,8 @@ export default function AcademicRolesView({ role, user, activeTab }) {
     title: '',
     grade: 'Grade 10-A',
     due: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
-    instructions: ''
+    instructions: '',
+    attachmentName: '',
   });
   const [isAnnouncementOpen, setIsAnnouncementOpen] = useState(false);
   const [announcementForm, setAnnouncementForm] = useState({
@@ -40,6 +43,17 @@ export default function AcademicRolesView({ role, user, activeTab }) {
   // Feedback modal
   const [feedback, setFeedback] = useState(null);
 
+  // New Feature States
+  const [staffLeaves, setStaffLeaves] = useState([
+    { id: 'LV-101', teacher: 'Mrs. Selvi Murugan', subject: 'Chemistry', dates: '2026-10-24 to 2026-10-25', reason: 'Family Function in Madurai', status: 'Pending' },
+    { id: 'LV-102', teacher: 'Dr. Anandhi Rajan', subject: 'Physics', dates: '2026-10-28', reason: 'Medical Appointment', status: 'Pending' },
+    { id: 'LV-100', teacher: 'Mr. Anand Narayanan', subject: 'Physics', dates: '2026-10-15', reason: 'Educational Conference', status: 'Approved' },
+  ]);
+
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('UPI');
+  const [reportCardStudent, setReportCardStudent] = useState(null);
+
   useEffect(() => {
     setData(getPortalData());
   }, [activeTab]);
@@ -52,6 +66,10 @@ export default function AcademicRolesView({ role, user, activeTab }) {
   const getTabTitle = () => {
     const titles = {
       'attendance-reports': 'Attendance Reports',
+      'principal-services-tab': 'Campus Extracurricular & Enrichment Services',
+      'teacher-services-tab': 'Assigned Service Activities & Student Labs',
+      'student-services-tab': 'My Active Enrichment Programs & Practice Labs',
+      'parent-services-tab': 'Enrolled Student Services & Progress',
       'academic-performance': 'Academic Performance',
       'school-announcements': 'School Announcements',
       'communication-teachers': 'Communication with Teachers',
@@ -76,9 +94,10 @@ export default function AcademicRolesView({ role, user, activeTab }) {
       'track-exams': 'Track Upcoming Exams',
       'child-information': 'Child Information',
       'attendance-tracking': 'Attendance Tracking',
-      'homework': 'Homework & Assignments',
-      'exam-results': 'Exam Results',
-      'fee-reminders': 'Fee Reminders',
+      'staff-leave-approvals': 'Faculty & Staff Leave Approvals',
+      'transport-tracking': 'School Bus Live GPS Tracking',
+      'exam-results': 'Exam Results & Academic Report Card',
+      'fee-reminders': 'Online Fee Payments & Receipts',
       'messaging-teachers': 'Messaging with Teachers'
     };
     return titles[activeTab] || 'Dashboard';
@@ -165,6 +184,7 @@ export default function AcademicRolesView({ role, user, activeTab }) {
       grade: homeworkForm.grade,
       due: homeworkForm.due,
       instructions: homeworkForm.instructions,
+      attachmentName: homeworkForm.attachmentName || null,
       subject: 'Mathematics',
       assignedBy: user?.name || 'Mrs. Priya Krishnan',
       schoolId: 'SCHOOL002',
@@ -178,11 +198,39 @@ export default function AcademicRolesView({ role, user, activeTab }) {
       title: '',
       grade: 'Grade 10-A',
       due: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
-      instructions: ''
+      instructions: '',
+      attachmentName: ''
     });
     setFeedback({
       title: 'Homework Assigned',
-      body: `"${newHw.title}" has been published to ${newHw.grade}.`
+      body: `"${newHw.title}" has been published to ${newHw.grade}${newHw.attachmentName ? ` with attachment "${newHw.attachmentName}"` : ''}.`
+    });
+  };
+
+  // Grade Book CSV Export
+  const handleExportGradeBook = () => {
+    const students = data.students.filter((s) => s.class === 'Grade 10-A');
+    let csv = 'Roll No,Student Name,Class,Attendance,Maths,Physics,Chemistry,Tamil,English,Status\n';
+    students.forEach((s) => {
+      const m = s.marks || [];
+      const math = m.find((x) => x.subject === 'Mathematics')?.scored || '-';
+      const phy = m.find((x) => x.subject === 'Physics')?.scored || '-';
+      const chem = m.find((x) => x.subject === 'Chemistry')?.scored || '-';
+      const tam = m.find((x) => x.subject === 'Tamil')?.scored || '-';
+      const eng = m.find((x) => x.subject === 'English')?.scored || '-';
+      csv += `"${s.roll}","${s.name}","${s.class}","${s.attendance}","${math}","${phy}","${chem}","${tam}","${eng}","${s.performance || 'Good'}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Grade_Book_Grade_10A_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setFeedback({
+      title: 'Grade Book Exported',
+      body: 'Successfully generated and downloaded Class 10-A Grade Book (.CSV) spreadsheet.',
     });
   };
 
@@ -271,6 +319,124 @@ export default function AcademicRolesView({ role, user, activeTab }) {
 
       <div id="portal-content">
         {/* =================================================================== */}
+        {/* ENRICHMENT SERVICES & LABS TAB FOR PRINCIPAL, TEACHER, STUDENT, PARENT */}
+        {/* Controlled by Super Admin Role Portal Visibility Settings */}
+        {/* =================================================================== */}
+        {['principal-services-tab', 'teacher-services-tab', 'student-services-tab', 'parent-services-tab'].includes(activeTab) && (() => {
+          const currentStore = getPortalData();
+          const masterServices = (currentStore.services || [
+            { id: 'SRV-01', name: 'Coding for Kids', icon: '💻', category: 'Technology', status: 'Active', cost: '0/yr', description: 'Interactive Python, Scratch block coding, and basic algorithmic thinking for students.', visibleRoles: ['schooladmin', 'teacher', 'student'] },
+            { id: 'SRV-02', name: 'Chess Academy', icon: '♟️', category: 'Mind Sports', status: 'Active', cost: '0/yr', description: 'Grandmaster tactics, opening strategies, and tournament training.', visibleRoles: ['schooladmin', 'principal', 'teacher', 'student', 'parent'] },
+            { id: 'SRV-03', name: 'Robotics', icon: '🤖', category: 'STEM', status: 'Active', cost: '0/yr', description: 'Arduino, sensor kits, circuit building and autonomous robot design.', visibleRoles: ['schooladmin', 'teacher', 'student'] },
+            { id: 'SRV-04', name: 'Drawing & Art', icon: '🎨', category: 'Creative Arts', status: 'Active', cost: '0/yr', description: 'Watercolors, canvas painting, sketch portraiture and digital design.', visibleRoles: ['schooladmin', 'student', 'parent'] },
+            { id: 'SRV-05', name: 'Spoken English', icon: '🗣️', category: 'Communication', status: 'Active', cost: '0/yr', description: 'Vocabulary building, public speaking, pronunciation and phonics.', visibleRoles: ['schooladmin', 'principal', 'teacher', 'student', 'parent'] },
+            { id: 'SRV-06', name: 'Abacus & Vedic Maths', icon: '🧮', category: 'Mathematics', status: 'Active', cost: '0/yr', description: 'Fast mental calculation techniques, memory retention, and number speed.', visibleRoles: ['schooladmin', 'teacher', 'student', 'parent'] },
+            { id: 'SRV-07', name: 'Dance & Music', icon: '🎵', category: 'Performing Arts', status: 'Active', cost: '0/yr', description: 'Classical & contemporary dance, vocal music, keyboard and guitar lessons.', visibleRoles: ['schooladmin', 'student', 'parent'] },
+            { id: 'SRV-08', name: 'Sports & Fitness', icon: '⚽', category: 'Athletics', status: 'Active', cost: '0/yr', description: 'Football, basketball, athletics coaching, yoga and physical agility.', visibleRoles: ['schooladmin', 'principal', 'teacher', 'student', 'parent'] },
+          ]).map((s) => ({ ...s, cost: '0/yr' }));
+
+          // Filter by current role's authorization from Super Admin
+          const visibleServices = masterServices.filter((srv) => {
+            const allowed = srv.visibleRoles || ['schooladmin', 'teacher', 'student'];
+            return allowed.includes(role);
+          });
+
+          return (
+            <div>
+              <div style={{
+                background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                color: '#ffffff',
+                padding: '18px 22px',
+                borderRadius: '12px',
+                marginBottom: '20px',
+                boxShadow: '0 4px 12px rgba(30, 58, 138, 0.15)'
+              }}>
+                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.85, fontWeight: 700 }}>
+                  Active Campus Services Authorized by Super Admin
+                </div>
+                <h3 style={{ margin: '4px 0', fontSize: '1.25rem', color: '#ffffff', fontWeight: 800 }}>
+                  Enrichment & Extracurricular Activities ({visibleServices.length} Programs)
+                </h3>
+                <div style={{ fontSize: '0.86rem', opacity: 0.9 }}>
+                  These services have been made visible to the <strong>{role.toUpperCase()}</strong> portal. You can interact, practice, and explore live labs below.
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '18px' }}>
+                {visibleServices.map((srv) => (
+                  <div
+                    key={srv.id}
+                    style={{
+                      background: '#ffffff',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '14px',
+                      padding: '20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                        <div style={{
+                          width: '46px',
+                          height: '46px',
+                          borderRadius: '12px',
+                          background: '#eff6ff',
+                          border: '1px solid #dbeafe',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '1.5rem'
+                        }}>
+                          {srv.icon || '🌟'}
+                        </div>
+                        <span className="badge badge-success">Enrolled & Active</span>
+                      </div>
+
+                      <h4 style={{ margin: '0 0 4px', fontSize: '1.08rem', fontWeight: 800, color: '#1e3a8a' }}>
+                        {srv.name}
+                      </h4>
+                      <div style={{ fontSize: '0.76rem', color: '#4f46e5', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px' }}>
+                        {srv.category}
+                      </div>
+                      <p style={{ fontSize: '0.84rem', color: '#64748b', lineHeight: 1.45, margin: '0 0 16px' }}>
+                        {srv.description}
+                      </p>
+                    </div>
+
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => setActivePlayService(srv)}
+                        style={{
+                          width: '100%',
+                          padding: '9px 12px',
+                          borderRadius: '8px',
+                          background: '#2563eb',
+                          color: '#ffffff',
+                          border: 'none',
+                          fontWeight: 700,
+                          fontSize: '0.85rem',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px',
+                          boxShadow: '0 2px 4px rgba(37,99,235,0.25)'
+                        }}
+                      >
+                        <span>▶</span> Open & Practice
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+        {/* =================================================================== */}
         {/* PRINCIPAL DASHBOARD TABS */}
         {/* =================================================================== */}
         {role === 'principal' && activeTab === 'attendance-reports' && (
@@ -338,22 +504,81 @@ export default function AcademicRolesView({ role, user, activeTab }) {
           </div>
         )}
 
-        {role === 'principal' && activeTab === 'dashboard-analytics' && (
+        {role === 'principal' && activeTab === 'staff-leave-approvals' && (
           <div>
-            <h3>Key Performance Indicators</h3>
-            <div className="grid-3" style={{ marginTop: '20px' }}>
-              <div className="portal-card">
-                <h4>Total Teachers</h4>
-                <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--color-primary)' }}>34 Professional Staff</p>
+            <div className="sa-schools-header-bar" style={{ marginBottom: '16px' }}>
+              <div className="sa-filter-segment">
+                <span style={{ fontWeight: 700, color: 'var(--color-primary)', fontSize: '0.92rem', padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  Faculty Leave Applications — Approval Queue
+                </span>
               </div>
-              <div className="portal-card">
-                <h4>STEM Stream Ratio</h4>
-                <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--color-secondary)' }}>68% of Students</p>
-              </div>
-              <div className="portal-card">
-                <h4>Parent App Active</h4>
-                <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--color-success)' }}>91.5% Active</p>
-              </div>
+            </div>
+            <div className="table-responsive">
+              <table className="sa-schools-table">
+                <thead>
+                  <tr>
+                    <th>Ref ID</th>
+                    <th>Faculty Member</th>
+                    <th>Department</th>
+                    <th>Leave Dates</th>
+                    <th>Reason / Purpose</th>
+                    <th style={{ textAlign: 'center' }}>Status</th>
+                    <th style={{ textAlign: 'center' }}>Principal Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {staffLeaves.map((lv) => (
+                    <tr key={lv.id}>
+                      <td><code>{lv.id}</code></td>
+                      <td><strong>{lv.teacher}</strong></td>
+                      <td>{lv.subject}</td>
+                      <td>{lv.dates}</td>
+                      <td>{lv.reason}</td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span className={`badge ${lv.status === 'Approved' ? 'badge-success' : lv.status === 'Rejected' ? 'badge-danger' : 'badge-warning'}`}>
+                          {lv.status}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        {lv.status === 'Pending' ? (
+                          <div className="sa-actions-cell" style={{ justifyContent: 'center' }}>
+                            <button
+                              className="sa-tbl-action success"
+                              onClick={() => {
+                                setStaffLeaves((prev) =>
+                                  prev.map((item) => (item.id === lv.id ? { ...item, status: 'Approved' } : item))
+                                );
+                                setFeedback({
+                                  title: 'Leave Approved',
+                                  body: `Leave request ${lv.id} for ${lv.teacher} approved. Automatic substitute notification dispatched.`,
+                                });
+                              }}
+                            >
+                              Approve ✓
+                            </button>
+                            <button
+                              className="sa-tbl-action delete"
+                              onClick={() => {
+                                setStaffLeaves((prev) =>
+                                  prev.map((item) => (item.id === lv.id ? { ...item, status: 'Rejected' } : item))
+                                );
+                                setFeedback({
+                                  title: 'Leave Declined',
+                                  body: `Leave request ${lv.id} has been declined.`,
+                                });
+                              }}
+                            >
+                              Decline ✕
+                            </button>
+                          </div>
+                        ) : (
+                          <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Processed</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
@@ -381,7 +606,7 @@ export default function AcademicRolesView({ role, user, activeTab }) {
                   <span className="sa-filter-count">{data.students.filter((s) => s.class === 'Grade 10-A').length}</span>
                 </button>
               </div>
-              <div className="sa-toolbar-right">
+              <div className="sa-toolbar-right" style={{ display: 'flex', gap: '8px' }}>
                 <div className="sa-search-wrap">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                   <input
@@ -392,6 +617,15 @@ export default function AcademicRolesView({ role, user, activeTab }) {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  onClick={handleExportGradeBook}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                  Export Grade Book (.CSV)
+                </button>
               </div>
             </div>
             <div className="table-responsive">
@@ -446,11 +680,53 @@ export default function AcademicRolesView({ role, user, activeTab }) {
 
         {role === 'teacher' && activeTab === 'attendance-management' && (
           <div>
-            <div className="sa-schools-header-bar" style={{ marginBottom: '16px' }}>
+            <div className="sa-schools-header-bar" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
               <div className="sa-filter-segment">
                 <span style={{ fontWeight: 700, color: 'var(--color-primary)', fontSize: '0.92rem', padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                   Roll Call & Attendance Logging — Grade 10-A
                 </span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  onClick={() => {
+                    const allP = {};
+                    data.students.filter((s) => s.class === 'Grade 10-A').forEach((s) => {
+                      allP[s.roll] = 'present';
+                    });
+                    setRollCall(allP);
+                  }}
+                >
+                  ✓ Mark All Present
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  onClick={() => {
+                    const allA = {};
+                    data.students.filter((s) => s.class === 'Grade 10-A').forEach((s) => {
+                      allA[s.roll] = 'absent';
+                    });
+                    setRollCall(allA);
+                  }}
+                >
+                  ✕ Mark All Absent
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => {
+                    const presentCount = Object.values(rollCall).filter((v) => v === 'present').length;
+                    const total = data.students.filter((s) => s.class === 'Grade 10-A').length;
+                    setFeedback({
+                      title: 'Attendance Saved',
+                      body: `Today's attendance successfully locked.\n${presentCount} of ${total} students present (${Math.round((presentCount / (total || 1)) * 100)}%).`,
+                    });
+                  }}
+                >
+                  Save Attendance ✓
+                </button>
               </div>
             </div>
             <div className="table-responsive">
@@ -821,9 +1097,20 @@ export default function AcademicRolesView({ role, user, activeTab }) {
 
         {role === 'parent' && activeTab === 'exam-results' && (
           <div>
-            <div className="portal-card" style={{ marginBottom: '20px' }}>
-              <h4>Exam Results — Aishwarya Kumar (96.5% Distinction)</h4>
-              <p>Mathematics: 98/100 (A+) | Physics: 92/100 (A+) | Chemistry: 86/100 (A)</p>
+            <div className="portal-card" style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <h4>Exam Results & Evaluation — Aishwarya Kumar (96.5% Distinction)</h4>
+                <p style={{ margin: 0 }}>Mathematics: 98/100 (A+) | Physics: 92/100 (A+) | Chemistry: 86/100 (A)</p>
+              </div>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() => setReportCardStudent(data.students[0])}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /></svg>
+                View & Print Official Term Report Card
+              </button>
             </div>
             <div className="table-responsive">
               <table className="sa-schools-table">
@@ -851,23 +1138,133 @@ export default function AcademicRolesView({ role, user, activeTab }) {
         )}
 
         {role === 'parent' && activeTab === 'fee-reminders' && (
-          <div className="portal-card" style={{ borderLeftColor: 'var(--color-secondary)' }}>
-            <div className="portal-card-header">
-              <strong>Term-II School Fee</strong>
-              <span className="badge badge-warning">Due: 2026-08-10</span>
+          <div>
+            <div className="portal-card" style={{ borderLeftColor: 'var(--color-secondary)', marginBottom: '20px' }}>
+              <div className="portal-card-header">
+                <div>
+                  <h4 style={{ margin: '0 0 4px 0' }}>Term-II Academic & Facility Fee 2026-27</h4>
+                  <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Student: Aishwarya Kumar &bull; Grade 10-A</div>
+                </div>
+                <span className="badge badge-warning">Due: 2026-08-10</span>
+              </div>
+              <p style={{ fontSize: '1.25rem', margin: '14px 0 18px' }}>Total Outstanding Due: <strong style={{ color: '#b91c1c' }}>₹12,500/-</strong></p>
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => setIsPaymentModalOpen(true)}
+                style={{ padding: '8px 24px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+              >
+                ⚡ Pay via UPI / Razorpay Gateway
+              </button>
             </div>
-            <p>Total Due: <strong>₹12,500/-</strong></p>
-            <button
-              className="btn btn-primary btn-sm"
-              onClick={() =>
-                setFeedback({
-                  title: 'Fee Payment',
-                  body: 'Receipt generated for ₹12,500/-. Official acknowledgement sent to registered phone.'
-                })
-              }
-            >
-              Pay Securely Online
-            </button>
+
+            <div className="table-responsive">
+              <table className="sa-schools-table">
+                <thead>
+                  <tr>
+                    <th>Receipt No</th>
+                    <th>Fee Description</th>
+                    <th>Amount Paid</th>
+                    <th>Date</th>
+                    <th>Payment Mode</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>REC-2026-084</code></td>
+                    <td>Term-I Tuition & Lab Fee</td>
+                    <td>₹15,000</td>
+                    <td>2026-05-12</td>
+                    <td>UPI / PhonePe</td>
+                    <td><span className="badge badge-success">PAID</span></td>
+                  </tr>
+                  <tr>
+                    <td><code>REC-2026-012</code></td>
+                    <td>Annual Sports & Library Fee</td>
+                    <td>₹3,500</td>
+                    <td>2026-04-10</td>
+                    <td>Net Banking</td>
+                    <td><span className="badge badge-success">PAID</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* LIVE BUS / TRANSPORT GPS TRACKER (Student & Parent) */}
+        {(role === 'student' || role === 'parent') && activeTab === 'transport-tracking' && (
+          <div>
+            <div className="sa-schools-header-bar" style={{ marginBottom: '16px' }}>
+              <div className="sa-filter-segment">
+                <span style={{ fontWeight: 700, color: 'var(--color-primary)', fontSize: '0.92rem', padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  🚌 Route #14 &mdash; Kodumudi Central to SSV Girls High School
+                </span>
+              </div>
+              <div className="sa-toolbar-right">
+                <span className="badge badge-success" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }}></span>
+                  Live GPS Broadcasting (Speed: 38 km/h)
+                </span>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px', marginBottom: '20px' }}>
+              <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Assigned Bus & Driver</div>
+                <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#1e3a8a', marginTop: '4px' }}>TN 33 BM 4521</div>
+                <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '4px' }}>Driver: Mr. K. Murugesan (+91 97890 23145)</div>
+              </div>
+              <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Next Designated Stop</div>
+                <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#047857', marginTop: '4px' }}>Anna Nagar Junction (Stop #5)</div>
+                <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '4px' }}>Estimated Arrival: In 6 Minutes (08:24 AM)</div>
+              </div>
+              <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Campus Distance</div>
+                <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#6366f1', marginTop: '4px' }}>3.4 Kilometers Away</div>
+                <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '4px' }}>On-Time Schedule: Morning Pickup</div>
+              </div>
+            </div>
+
+            {/* Simulated Live Route Timeline */}
+            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '24px' }}>
+              <h4 style={{ margin: '0 0 20px 0', color: '#1e3a8a' }}>Route Stops & Timestamp Progress</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>✓</div>
+                  <div style={{ flex: 1 }}>
+                    <strong>Starting Depot — Railway Colony</strong>
+                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Departed at 07:50 AM</div>
+                  </div>
+                  <span className="badge badge-success">Completed</span>
+                </div>
+                <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>✓</div>
+                  <div style={{ flex: 1 }}>
+                    <strong>Stop #3 — Main Bazaar & Clock Tower</strong>
+                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Passed at 08:10 AM (Boarded 8 students)</div>
+                  </div>
+                  <span className="badge badge-success">Completed</span>
+                </div>
+                <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#fef3c7', color: '#b45309', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>⚡</div>
+                  <div style={{ flex: 1 }}>
+                    <strong>Stop #5 — Anna Nagar Junction (Your Child's Stop)</strong>
+                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Approaching now &bull; Expected at 08:24 AM</div>
+                  </div>
+                  <span className="badge badge-warning">En Route</span>
+                </div>
+                <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#f1f5f9', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>4</div>
+                  <div style={{ flex: 1 }}>
+                    <strong>Destination — Sri Sankara Vidhyasala School Gate</strong>
+                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Expected arrival 08:35 AM</div>
+                  </div>
+                  <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Upcoming</span>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -1049,6 +1446,33 @@ export default function AcademicRolesView({ role, user, activeTab }) {
                       onChange={(e) => setHomeworkForm({ ...homeworkForm, instructions: e.target.value })}
                     ></textarea>
                   </div>
+                  <div className="wizard-field span-2">
+                    <label>Attach Assignment Worksheet / Reference PDF (Optional)</label>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      <input
+                        type="file"
+                        id="hw-attachment-file"
+                        style={{ display: 'none' }}
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            setHomeworkForm({ ...homeworkForm, attachmentName: e.target.files[0].name });
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        onClick={() => document.getElementById('hw-attachment-file').click()}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
+                        Choose Worksheet File
+                      </button>
+                      <span style={{ fontSize: '0.85rem', color: homeworkForm.attachmentName ? '#047857' : '#94a3b8', fontWeight: homeworkForm.attachmentName ? 600 : 'normal' }}>
+                        {homeworkForm.attachmentName ? `✓ ${homeworkForm.attachmentName}` : 'No file selected (Supports PDF, DOCX, JPG)'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
@@ -1150,6 +1574,156 @@ export default function AcademicRolesView({ role, user, activeTab }) {
           </div>
         </div>
       )}
+
+      {/* 5. Online Fee Payment Modal (Razorpay / UPI) */}
+      {isPaymentModalOpen && (
+        <div className="modal-overlay" style={{ display: 'flex' }}>
+          <div className="modal-content" style={{ maxWidth: '480px' }}>
+            <div className="modal-header">
+              <h3>Secure Online Fee Checkout</h3>
+              <button className="modal-close" onClick={() => setIsPaymentModalOpen(false)}>&times;</button>
+            </div>
+            <div style={{ padding: '20px' }}>
+              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Term-II School Fee:</span>
+                  <span style={{ fontWeight: 800, fontSize: '1.25rem', color: '#1e3a8a' }}>₹12,500/-</span>
+                </div>
+                <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '4px' }}>
+                  Student: Aishwarya Kumar (Grade 10-A, SSV Girls School)
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '18px' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px' }}>Select Payment Mode</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                  {['UPI', 'Card', 'NetBanking'].map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      className={`btn btn-sm ${paymentMethod === m ? 'btn-primary' : 'btn-outline'}`}
+                      style={{ padding: '10px 4px', fontSize: '0.85rem' }}
+                      onClick={() => setPaymentMethod(m)}
+                    >
+                      {m === 'UPI' ? '⚡ UPI / GPay' : m === 'Card' ? '💳 Debit/Credit' : '🏦 Net Banking'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {paymentMethod === 'UPI' && (
+                <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '12px', borderRadius: '8px', textAlign: 'center', marginBottom: '20px' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#047857', marginBottom: '4px' }}>Instant UPI VPA</div>
+                  <code>zenschool.ssv@hdfcbank</code>
+                  <div style={{ fontSize: '0.75rem', color: '#065f46', marginTop: '4px' }}>Supports Google Pay, PhonePe, Paytm, BHIM</div>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', paddingTop: '12px', borderTop: '1px solid #e2e8f0' }}>
+                <button type="button" className="btn btn-outline btn-sm" onClick={() => setIsPaymentModalOpen(false)}>
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => {
+                    setIsPaymentModalOpen(false);
+                    setFeedback({
+                      title: 'Payment Successful',
+                      body: '₹12,500/- received successfully via Razorpay/UPI gateway.\nReceipt REC-2026-118 generated & SMS acknowledgement sent.',
+                    });
+                  }}
+                >
+                  Pay ₹12,500 Securely ✓
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Printable Official Student Report Card Modal */}
+      {reportCardStudent && (
+        <div className="modal-overlay" style={{ display: 'flex' }}>
+          <div className="modal-content" style={{ maxWidth: '640px', padding: 0, overflow: 'hidden' }}>
+            <div className="modal-header" style={{ padding: '14px 20px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#1e3a8a' }}>Official Academic Term Report Card</h3>
+              <button className="modal-close" onClick={() => setReportCardStudent(null)}>&times;</button>
+            </div>
+            <div style={{ padding: '24px 28px' }} id="printable-report-card">
+              <div style={{ textAlign: 'center', borderBottom: '2px solid #1e3a8a', paddingBottom: '14px', marginBottom: '18px' }}>
+                <h3 style={{ margin: '0 0 4px 0', color: '#1e3a8a', fontSize: '1.3rem' }}>Sri Sankara Vidhyasala Girls High School</h3>
+                <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Affiliated to State Board &bull; Kodumudi, Tamil Nadu</div>
+                <div style={{ fontWeight: 700, marginTop: '8px', fontSize: '0.95rem', color: '#0f172a' }}>
+                  CONTINUOUS & COMPREHENSIVE EVALUATION (CCE) REPORT — 2026-27
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', background: '#f8fafc', padding: '12px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '18px', fontSize: '0.88rem' }}>
+                <div>Student Name: <strong>{reportCardStudent.name}</strong></div>
+                <div>Roll Number: <strong>{reportCardStudent.roll}</strong></div>
+                <div>Standard / Section: <strong>{reportCardStudent.class}</strong></div>
+                <div>Overall Attendance: <strong style={{ color: '#047857' }}>{reportCardStudent.attendance || '96%'}</strong></div>
+              </div>
+
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '18px', fontSize: '0.88rem' }}>
+                <thead>
+                  <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
+                    <th style={{ textAlign: 'left', padding: '8px 10px' }}>Subject</th>
+                    <th style={{ textAlign: 'center', padding: '8px 10px' }}>Maximum</th>
+                    <th style={{ textAlign: 'center', padding: '8px 10px' }}>Marks Scored</th>
+                    <th style={{ textAlign: 'center', padding: '8px 10px' }}>Grade</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(reportCardStudent.marks || []).map((m) => (
+                    <tr key={m.subject} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '8px 10px' }}><strong>{m.subject}</strong></td>
+                      <td style={{ textAlign: 'center', padding: '8px 10px' }}>{m.max}</td>
+                      <td style={{ textAlign: 'center', padding: '8px 10px', fontWeight: 700 }}>{m.scored}</td>
+                      <td style={{ textAlign: 'center', padding: '8px 10px' }}>
+                        <span className={`badge ${m.grade === 'A+' || m.grade === 'A' ? 'badge-success' : 'badge-primary'}`}>
+                          {m.grade}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '20px', fontSize: '0.85rem' }}>
+                <strong>Class Teacher Remarks:</strong>
+                <p style={{ margin: '4px 0 0 0', color: '#475569', fontStyle: 'italic' }}>
+                  "Exemplary dedication in STEM and languages. Demonstrates keen analytical understanding and active participation."
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: '20px', borderTop: '1px dashed #cbd5e1', fontSize: '0.8rem', color: '#64748b' }}>
+                <div>Class Teacher: <strong>Mrs. Priya Krishnan</strong></div>
+                <div>Principal: <strong>Dr. Savithri Raman</strong></div>
+                <div>Date of Issue: <strong>{new Date().toLocaleDateString()}</strong></div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', padding: '12px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+              <button type="button" className="btn btn-outline btn-sm" onClick={() => setReportCardStudent(null)}>
+                Close
+              </button>
+              <button type="button" className="btn btn-primary btn-sm" onClick={() => window.print()} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
+                Print / Save PDF Report Card
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Interactive Service Player Modal */}
+      <InteractiveServicePlayerModal
+        isOpen={!!activePlayService}
+        service={activePlayService}
+        onClose={() => setActivePlayService(null)}
+      />
     </div>
   );
 }

@@ -8,25 +8,25 @@ export default function Footer() {
         <div>
           <Link to="/" className="logo footer-logo">
             <img
-              src="/images/emblem.png"
-              alt="Sri Sankara Vidhyasala Emblem"
+              src="/images/zenschool_logo.jpg"
+              alt="ZenSkool Logo"
               style={{
-                height: '45px',
+                height: '46px',
                 width: 'auto',
-                borderRadius: '50%',
+                borderRadius: '8px',
                 backgroundColor: 'var(--color-bg-white)',
                 padding: '2px',
               }}
             />
-            <div className="logo-text" style={{ color: 'var(--color-bg-white)' }}>
-              Sri Sankara Vidhyasala
-              <span className="logo-sub" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                GIRLS HIGH SCHOOL, KODUMUDI
-              </span>
+            <div className="zenskool-brand-wrap">
+              <div className="zenskool-brand-text light">
+                <span className="brand-zen">ZEN</span>
+                <span className="brand-skool">SKOOLL</span>
+              </div>
             </div>
           </Link>
           <p className="footer-desc">
-            Enabling academic excellence, critical inquiry, and female leadership since 1976.
+            Smart School Management Platform empowering schools with seamless digital administration and real-time communication.
           </p>
         </div>
 
@@ -51,27 +51,27 @@ export default function Footer() {
         </div>
 
         <div>
-          <h4 className="footer-title">Contact Office</h4>
+          <h4 className="footer-title">Contact</h4>
           <ul className="footer-contact">
             <li>
-              <span className="footer-contact-icon">📍</span>
-              <span>SSV Aided Girls High School, Salaipudur, Kodumudi, Erode, Tamilnadu - 638151</span>
-            </li>
-            <li>
               <span className="footer-contact-icon">📞</span>
-              <span>+91 4204 222 345</span>
+              <span>+91 98765 43210</span>
             </li>
             <li>
               <span className="footer-contact-icon">✉️</span>
-              <span>admissions@srisankaragirls.edu.in</span>
+              <span>info@zenskooll.com</span>
+            </li>
+            <li>
+              <span className="footer-contact-icon">🌐</span>
+              <span>www.zenskooll.com</span>
             </li>
           </ul>
         </div>
       </div>
 
       <div className="container footer-bottom">
-        <p>&copy; 2026 Sri Sankara Vidhyasala Girls High School. All rights reserved.</p>
-        <p>Designed & Powered by ZenSchool Multi-Campus Platform</p>
+        <p>&copy; {new Date().getFullYear()} ZenSkooll. All rights reserved.</p>
+        <p>Designed & Powered by <strong>Zen4Tech Solutions</strong></p>
       </div>
     </footer>
   );

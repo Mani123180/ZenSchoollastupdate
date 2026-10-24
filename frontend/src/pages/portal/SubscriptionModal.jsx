@@ -13,11 +13,11 @@ export default function SubscriptionModal({ isOpen, onClose, defaultTab = 'subsc
   const [subStatus, setSubStatus] = useState('ACTIVE');
   const [subStart, setSubStart] = useState(today);
   const [subEnd, setSubEnd] = useState(nextYearDate);
-  const [subAmount, setSubAmount] = useState('₹35,000');
+  const [subAmount, setSubAmount] = useState('0/yr');
 
   // Plan Form State
   const [planName, setPlanName] = useState('');
-  const [planPrice, setPlanPrice] = useState('');
+  const [planPrice, setPlanPrice] = useState('0/yr');
   const [planStudents, setPlanStudents] = useState(2500);
   const [planFeatures, setPlanFeatures] = useState('');
 
@@ -186,9 +186,9 @@ export default function SubscriptionModal({ isOpen, onClose, defaultTab = 'subsc
                     <input type="date" value={subEnd} required onChange={(e) => setSubEnd(e.target.value)} />
                   </div>
                   <div className="wizard-field span-2">
-                    <label>Annual Subscription Fee (₹) <span className="req">*</span></label>
+                    <label>Annual Subscription Fee <span className="req">*</span></label>
                     <input type="text" value={subAmount} required onChange={(e) => setSubAmount(e.target.value)} />
-                    <span className="input-hint">Default pricing matches selected tier; customize if special institutional terms apply.</span>
+                    <span className="input-hint">Subscription billing rate (e.g. 0/yr). Customize if institutional terms apply.</span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
@@ -213,11 +213,11 @@ export default function SubscriptionModal({ isOpen, onClose, defaultTab = 'subsc
                     />
                   </div>
                   <div className="wizard-field">
-                    <label>Annual Price (₹) <span className="req">*</span></label>
+                    <label>Annual Price <span className="req">*</span></label>
                     <input
                       type="text"
                       value={planPrice}
-                      placeholder="e.g. ₹45,000/yr"
+                      placeholder="e.g. 0/yr"
                       required
                       onChange={(e) => setPlanPrice(e.target.value)}
                     />

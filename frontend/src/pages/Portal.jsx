@@ -59,7 +59,7 @@ const schIcons = {
 };
 
 export default function Portal() {
-  const { user, logout } = useAuth();
+  const { user, logout, exitImpersonation, isImpersonating } = useAuth();
   const navigate = useNavigate();
 
   const currentRole = user ? user.role.toLowerCase() : 'superadmin';
@@ -77,20 +77,23 @@ export default function Portal() {
       { id: 'sa-settings', label: 'Settings', icon: saIcons.settings },
     ],
     schooladmin: [
-      { id: 'school-admin-users', label: 'User Management', icon: schIcons.users },
-      { id: 'manage-principal', label: 'Manage Principal', icon: schIcons.principal },
-      { id: 'manage-teachers', label: 'Manage Teachers', icon: schIcons.teachers },
+      { id: 'school-admin-users', label: 'DashBoard', icon: saIcons.dashboard },
+      { id: 'school-services-tab', label: 'Campus Services & Activities', icon: saIcons.services },
+      { id: 'manage-staff', label: 'Manage Staff', icon: schIcons.teachers },
       { id: 'manage-students', label: 'Manage Students', icon: schIcons.students },
       { id: 'manage-parents', label: 'Manage Parents', icon: schIcons.parents },
       { id: 'manage-classes', label: 'Manage Classes', icon: schIcons.classes },
       { id: 'manage-subjects', label: 'Manage Subjects', icon: schIcons.subjects },
+      { id: 'fee-collection-tracker', label: 'Fee Collection & Dues', icon: saIcons.billing },
       { id: 'publish-announcements', label: 'Announcements', icon: schIcons.announcements },
       { id: 'view-reports', label: 'School Reports', icon: schIcons.reports },
       { id: 'secure-messaging', label: 'Secure Messaging', icon: schIcons.messaging },
     ],
     principal: [
       { id: 'attendance-reports', label: 'Attendance Reports', icon: schIcons.reports },
+      { id: 'principal-services-tab', label: 'Enrichment Programs & Services', icon: saIcons.services },
       { id: 'academic-performance', label: 'Academic Performance', icon: saIcons.dashboard },
+      { id: 'staff-leave-approvals', label: 'Staff Leave Approvals', icon: schIcons.users },
       { id: 'school-announcements', label: 'School Announcements', icon: schIcons.announcements },
       { id: 'communication-teachers', label: 'Communication with Teachers', icon: schIcons.messaging },
       { id: 'school-reports', label: 'School Reports', icon: schIcons.reports },
@@ -98,6 +101,7 @@ export default function Portal() {
     ],
     teacher: [
       { id: 'my-classes', label: 'My Classes', icon: schIcons.classes },
+      { id: 'teacher-services-tab', label: 'Activities & Service Labs', icon: saIcons.services },
       { id: 'student-list', label: 'Student List', icon: schIcons.students },
       { id: 'attendance-management', label: 'Attendance Management', icon: schIcons.users },
       { id: 'assignments', label: 'Homework & Assignments', icon: schIcons.subjects },
@@ -108,21 +112,25 @@ export default function Portal() {
     ],
     student: [
       { id: 'view-dashboard', label: 'View Dashboard', icon: saIcons.dashboard },
+      { id: 'student-services-tab', label: 'My Active Services & Play', icon: saIcons.services },
       { id: 'check-attendance', label: 'Check Attendance', icon: schIcons.reports },
       { id: 'view-timetable', label: 'View Timetable', icon: saIcons.dashboard },
       { id: 'download-materials', label: 'Study Materials', icon: schIcons.subjects },
       { id: 'submit-assignments', label: 'Submit Homework & Assignments', icon: schIcons.subjects },
       { id: 'view-homework', label: 'View Homework', icon: schIcons.subjects },
+      { id: 'transport-tracking', label: 'Bus / Transport GPS', icon: saIcons.services },
       { id: 'receive-announcements', label: 'Announcements', icon: schIcons.announcements },
       { id: 'chat-teachers', label: 'Chat with Teachers', icon: schIcons.messaging },
       { id: 'track-exams', label: 'Track Upcoming Exams', icon: schIcons.reports },
     ],
     parent: [
       { id: 'child-information', label: 'Child Information', icon: schIcons.students },
+      { id: 'parent-services-tab', label: 'Student Enrolled Services', icon: saIcons.services },
       { id: 'attendance-tracking', label: 'Attendance Tracking', icon: schIcons.reports },
       { id: 'homework', label: 'Homework & Assignments', icon: schIcons.subjects },
-      { id: 'exam-results', label: 'Exam Results', icon: schIcons.reports },
-      { id: 'fee-reminders', label: 'Fee Reminders', icon: saIcons.billing },
+      { id: 'exam-results', label: 'Exam Results & Report Card', icon: schIcons.reports },
+      { id: 'fee-reminders', label: 'Fee Payments', icon: saIcons.billing },
+      { id: 'transport-tracking', label: 'School Bus GPS Tracker', icon: saIcons.services },
       { id: 'school-announcements', label: 'School Announcements', icon: schIcons.announcements },
       { id: 'messaging-teachers', label: 'Messaging with Teachers', icon: schIcons.messaging },
     ],
@@ -148,7 +156,7 @@ export default function Portal() {
   };
 
   const getSchoolDisplayName = () => {
-    if (currentRole === 'superadmin') return 'Platform Central Multi-Tenant';
+    if (currentRole === 'superadmin') return '';
     return user?.schoolName || 'Sri Sankara Vidhyasala Girls High School';
   };
 
@@ -159,10 +167,17 @@ export default function Portal() {
       {/* Clean Portal Header matching portal.html lines 1315-1332 */}
       <header className="header" style={{ position: 'sticky', top: 0, zIndex: 100, background: '#ffffff', borderBottom: '1px solid rgba(30, 58, 138, 0.1)' }}>
         <div className="container nav-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '70px', padding: '0 20px' }}>
-          <Link to="/" className="logo" style={{ textDecoration: 'none' }}>
-            <img src="/images/emblem.png" alt="ZenSchool Emblem" style={{ height: '48px', width: 'auto', borderRadius: 0 }} />
-            <div className="logo-text">
-              ZenSchool Platform
+          <Link to="/" className="logo" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <img
+              src="/images/zenschool_logo.jpg"
+              alt="ZenSkool Logo"
+              style={{ height: '48px', width: 'auto', borderRadius: '10px', objectFit: 'contain', boxShadow: '0 2px 8px rgba(124, 58, 237, 0.15)' }}
+            />
+            <div className="zenskool-brand-wrap">
+              <div className="zenskool-brand-text">
+                <span className="brand-zen">ZEN</span>
+                <span className="brand-skool">SKOOLL</span>
+              </div>
             </div>
           </Link>
           <button 
@@ -180,8 +195,8 @@ export default function Portal() {
       </header>
 
       {/* Main Portal Section */}
-      <div className="portal-section" style={{ minHeight: 'calc(100vh - 70px)', padding: '30px 0' }}>
-        <div className="container portal-layout">
+      <div className="portal-section">
+        <div className="container portal-layout" style={{ height: '100%' }}>
           {/* Sidebar matching portal.html lines 1337-1350 */}
           <aside className={`portal-sidebar ${isMobileMenuOpen ? 'active' : ''}`}>
             <div className="sidebar-close-btn" onClick={() => setIsMobileMenuOpen(false)} style={{ position: 'absolute', top: '15px', right: '15px', cursor: 'pointer', display: 'none' }}>
@@ -192,11 +207,24 @@ export default function Portal() {
                 {userInitial}
               </div>
               <div className="user-info">
-                <h3 id="user-display-name">{user?.name || (currentRole === 'superadmin' ? 'ZenSchool Super Admin' : 'User')}</h3>
-                <span id="user-display-role">{getRoleDisplayName()}</span>
-                <div id="user-display-school" style={{ fontSize: '0.75rem', color: 'var(--color-text-light)', marginTop: '2px' }}>
-                  {getSchoolDisplayName()}
-                </div>
+                {currentRole === 'superadmin' ? (
+                  <h3 id="user-display-name" style={{ margin: 0, fontSize: '0.98rem', fontWeight: 700, color: 'var(--color-primary)' }}>
+                    Super Administrator
+                  </h3>
+                ) : currentRole === 'schooladmin' ? (
+                  <h3 id="user-display-name" style={{ margin: 0, fontSize: '0.98rem', fontWeight: 700, color: 'var(--color-primary)' }}>
+                    School Administrator
+                  </h3>
+                ) : (
+                  <>
+                    <h3 id="user-display-name" style={{ margin: '0 0 2px 0', fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-primary)' }}>
+                      {user?.name || getRoleDisplayName()}
+                    </h3>
+                    <span id="user-display-role" style={{ fontSize: '0.78rem', color: 'var(--color-secondary)', fontWeight: 600 }}>
+                      {getRoleDisplayName()}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
@@ -228,7 +256,7 @@ export default function Portal() {
           {/* Main Panel matching portal.html lines 1353-1366 */}
           <main className="portal-main">
             {currentRole === 'superadmin' && <SuperAdminView activeTab={activeTab} setActiveTab={setActiveTab} />}
-            {currentRole === 'schooladmin' && <SchoolAdminView activeTab={activeTab} />}
+            {currentRole === 'schooladmin' && <SchoolAdminView activeTab={activeTab} setActiveTab={setActiveTab} />}
             {['principal', 'teacher', 'student', 'parent'].includes(currentRole) && (
               <AcademicRolesView role={currentRole} user={user} activeTab={activeTab} />
             )}

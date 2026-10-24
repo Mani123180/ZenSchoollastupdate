@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { downloadInvoicePDF } from '../../services/pdfDownloadUtil';
 
 // 1. Campus Overview Modal (viewSchoolDetails)
-export function CampusOverviewModal({ isOpen, school, onClose, onEdit }) {
+export function CampusOverviewModal({ isOpen, school, onClose, onEdit, onEnterSchool }) {
   if (!isOpen || !school) return null;
 
   return (
@@ -113,6 +114,16 @@ export function CampusOverviewModal({ isOpen, school, onClose, onEdit }) {
                 </svg>
                 Edit School Details
               </button>
+              {onEnterSchool && (
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  style={{ background: '#7c3aed', color: '#ffffff', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                  onClick={() => { onClose(); onEnterSchool(school); }}
+                >
+                  🏫 Open School Dashboard &rarr;
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -586,6 +597,273 @@ export function FeedbackModal({ isOpen, title, message, onClose }) {
   );
 }
 
+// 7b. Action Confirmation Modal
+export function ConfirmationModal({ isOpen, title, message, confirmText = 'Confirm', onConfirm, onClose }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay" style={{ display: 'flex' }}>
+      <div className="modal-content" style={{ maxWidth: '440px' }}>
+        <div className="modal-header">
+          <h3 id="modal-title" style={{ color: '#b91c1c' }}>{title}</h3>
+          <button className="modal-close" onClick={onClose}>&times;</button>
+        </div>
+        <div style={{ padding: '20px' }}>
+          <p style={{ color: 'var(--color-text-dark)', marginBottom: '20px', lineHeight: 1.6 }}>{message}</p>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <button className="btn btn-outline btn-sm" onClick={onClose}>Cancel</button>
+            <button
+              className="btn btn-primary btn-sm"
+              style={{ background: '#dc2626', borderColor: '#dc2626' }}
+              onClick={() => {
+                onConfirm();
+                onClose();
+              }}
+            >
+              {confirmText}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 7c. Printable Official Invoice Modal
+export function PrintableInvoiceModal({ isOpen, bill, onClose }) {
+  if (!isOpen || !bill) return null;
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleDownloadInvoice = () => {
+    const invoiceHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Invoice_${bill.invoiceNo}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { background: #f1f5f9; padding: 40px 20px; color: #1e293b; }
+    .invoice-card { max-width: 680px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.06); padding: 36px 40px; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #e2e8f0; padding-bottom: 22px; margin-bottom: 24px; }
+    .brand-title { color: #1e3a8a; font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+    .brand-sub { font-size: 13px; color: #64748b; line-height: 1.4; }
+    .badge { display: inline-block; padding: 6px 14px; border-radius: 9999px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+    .badge-paid { background: #dcfce7; color: #15803d; }
+    .badge-unpaid { background: #fee2e2; color: #b91c1c; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 26px; }
+    .info-box { background: #f8fafc; padding: 14px 18px; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .info-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .info-val { font-size: 15px; font-weight: 700; color: #0f172a; }
+    .info-sub { font-size: 12px; color: #64748b; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 28px; }
+    th { background: #f1f5f9; text-align: left; padding: 12px 14px; font-size: 12px; text-transform: uppercase; color: #475569; letter-spacing: 0.5px; border-bottom: 1px solid #cbd5e1; }
+    td { padding: 16px 14px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+    .total-bar { display: flex; justify-content: space-between; align-items: center; border-top: 2px dashed #cbd5e1; padding-top: 20px; }
+    .footer-note { font-size: 12px; color: #94a3b8; }
+    .total-amount { font-size: 26px; font-weight: 800; color: #047857; }
+    @media print {
+      body { background: white; padding: 0; }
+      .invoice-card { box-shadow: none; border: none; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-card">
+    <div class="header">
+      <div>
+        <div class="brand-title">ZenSchool ERP</div>
+        <div class="brand-sub">Platform Central Multi-Tenant Cloud</div>
+        <div class="brand-sub">support@zenschool.edu | +91 98401 11001</div>
+      </div>
+      <div style="text-align: right;">
+        <span class="badge ${bill.status === 'PAID' ? 'badge-paid' : 'badge-unpaid'}">${bill.status}</span>
+        <div style="margin-top: 10px; font-size: 14px; color: #475569;">
+          Invoice: <strong>${bill.invoiceNo}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-box">
+        <div class="info-label">Billed To Campus</div>
+        <div class="info-val">${bill.school}</div>
+        <div class="info-sub">Campus ID: ${bill.schoolId || 'SCH001'}</div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">Invoice Dates</div>
+        <div class="info-sub" style="color: #334155; font-size: 13px;">Due Date: <strong>${bill.dueDate}</strong></div>
+        <div class="info-sub" style="color: #334155; font-size: 13px; margin-top: 4px;">Paid Date: <strong>${bill.paymentDate || 'Pending payment'}</strong></div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Description / Plan</th>
+          <th style="text-align: center;">Duration</th>
+          <th style="text-align: right;">Total Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <strong style="color: #0f172a;">${bill.plan}</strong>
+            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Annual Cloud ERP License & Multi-Campus Access</div>
+          </td>
+          <td style="text-align: center; color: #475569;">1 Year</td>
+          <td style="text-align: right; font-weight: 700; font-size: 16px; color: #1e3a8a;">${bill.amount}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="total-bar">
+      <div class="footer-note">
+        Digitally generated by ZenSchool Platform &bull; Valid without physical signature
+      </div>
+      <div style="text-align: right;">
+        <div style="font-size: 12px; color: #64748b; text-transform: uppercase;">Total Billed</div>
+        <div class="total-amount">${bill.amount}</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([invoiceHtml], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Invoice_${bill.invoiceNo}_${(bill.school || 'Campus').replace(/[^a-zA-Z0-9]/g, '_')}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="modal-overlay" style={{ display: 'flex' }}>
+      <div className="modal-content" style={{ maxWidth: '640px', padding: 0, overflow: 'hidden' }}>
+        <div className="modal-header" style={{ borderBottom: '1px solid #e2e8f0', padding: '16px 24px', background: '#f8fafc' }}>
+          <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#1e3a8a' }}>
+            Official Invoice & Receipt — {bill.invoiceNo}
+          </h3>
+          <button className="modal-close" onClick={onClose}>&times;</button>
+        </div>
+
+        <div style={{ padding: '28px 32px' }} id="printable-invoice-content">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #e2e8f0', paddingBottom: '20px', marginBottom: '20px' }}>
+            <div>
+              <h2 style={{ margin: '0 0 6px 0', color: '#1e3a8a', fontSize: '1.4rem' }}>ZenSchool ERP</h2>
+              <div style={{ fontSize: '0.82rem', color: '#64748b' }}>Platform Central Multi-Tenant Cloud</div>
+              <div style={{ fontSize: '0.82rem', color: '#64748b' }}>support@zenschool.edu | +91 98401 11001</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <span className={`badge ${bill.status === 'PAID' ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '0.88rem', padding: '6px 14px' }}>
+                {bill.status}
+              </span>
+              <div style={{ marginTop: '8px', fontSize: '0.85rem', color: '#475569' }}>
+                Invoice: <strong>{bill.invoiceNo}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+            <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Billed To Campus</div>
+              <div style={{ fontWeight: 700, color: '#0f172a', marginTop: '4px' }}>{bill.school}</div>
+              <div style={{ fontSize: '0.82rem', color: '#64748b', marginTop: '2px' }}>Campus ID: {bill.schoolId || 'SCH001'}</div>
+            </div>
+            <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Invoice Dates</div>
+              <div style={{ fontSize: '0.85rem', color: '#334155', marginTop: '4px' }}>
+                Due Date: <strong>{bill.dueDate}</strong>
+              </div>
+              <div style={{ fontSize: '0.85rem', color: '#334155', marginTop: '2px' }}>
+                Paid Date: <strong>{bill.paymentDate || 'Pending payment'}</strong>
+              </div>
+            </div>
+          </div>
+
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '24px' }}>
+            <thead>
+              <tr style={{ background: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
+                <th style={{ textAlign: 'left', padding: '10px 12px', fontSize: '0.82rem' }}>Description / Plan</th>
+                <th style={{ textAlign: 'center', padding: '10px 12px', fontSize: '0.82rem' }}>Duration</th>
+                <th style={{ textAlign: 'right', padding: '10px 12px', fontSize: '0.82rem' }}>Total Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                <td style={{ padding: '14px 12px' }}>
+                  <strong>{bill.plan}</strong>
+                  <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Annual Cloud ERP License & Multi-Campus Access</div>
+                </td>
+                <td style={{ textAlign: 'center', padding: '14px 12px', color: '#475569' }}>1 Year</td>
+                <td style={{ textAlign: 'right', padding: '14px 12px', fontWeight: 700, fontSize: '1.05rem', color: '#1e3a8a' }}>
+                  {bill.amount}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px dashed #cbd5e1', paddingTop: '16px' }}>
+            <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+              Digitally generated by ZenSchool Platform &bull; Valid without physical signature
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '0.82rem', color: '#64748b' }}>Total Billed</div>
+              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#047857' }}>{bill.amount}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', padding: '14px 24px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', flexWrap: 'wrap' }}>
+          <button className="btn btn-outline btn-sm" onClick={onClose}>Close</button>
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={() => downloadInvoicePDF(bill)}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#1e3a8a', borderColor: '#bfdbfe', background: '#eff6ff', fontWeight: 600 }}
+            title="Download official PDF document"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="12" y1="18" x2="12" y2="12" />
+              <line x1="9" y1="15" x2="12" y2="18" />
+              <line x1="15" y1="15" x2="12" y2="18" />
+            </svg>
+            Download PDF
+          </button>
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={handleDownloadInvoice}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#047857', borderColor: '#a7f3d0', background: '#ecfdf5' }}
+            title="Download HTML invoice file"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Download HTML
+          </button>
+          <button className="btn btn-primary btn-sm" onClick={handlePrint} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="6 9 6 2 18 2 18 9" />
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+              <rect x="6" y="14" width="12" height="8" />
+            </svg>
+            Print / Save as PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // 8. Dashboard Card Drill-down Modal (shows details when cards are clicked)
 export function DashboardDetailModal({ isOpen, detailConfig, onClose, onNavigate }) {
   if (!isOpen || !detailConfig) return null;
@@ -636,6 +914,48 @@ export function DashboardDetailModal({ isOpen, detailConfig, onClose, onNavigate
         (item.name || '').toLowerCase().includes(q) ||
         (item.code || '').toLowerCase().includes(q) ||
         (item.adminName || item.principal || '').toLowerCase().includes(q)
+      );
+    }
+    if (type === 'students') {
+      return (
+        (item.name || '').toLowerCase().includes(q) ||
+        (item.roll || '').toLowerCase().includes(q) ||
+        (item.class || '').toLowerCase().includes(q) ||
+        (item.performance || '').toLowerCase().includes(q)
+      );
+    }
+    if (type === 'teachers') {
+      return (
+        (item.name || '').toLowerCase().includes(q) ||
+        (item.id || '').toLowerCase().includes(q) ||
+        (item.subject || '').toLowerCase().includes(q) ||
+        (item.class || '').toLowerCase().includes(q) ||
+        (item.status || '').toLowerCase().includes(q)
+      );
+    }
+    if (type === 'classes') {
+      return (
+        (item.name || '').toLowerCase().includes(q) ||
+        (item.teacher || '').toLowerCase().includes(q) ||
+        (item.room || '').toLowerCase().includes(q)
+      );
+    }
+    if (type === 'fees') {
+      return (
+        (item.name || '').toLowerCase().includes(q) ||
+        (item.roll || '').toLowerCase().includes(q) ||
+        (item.class || '').toLowerCase().includes(q) ||
+        (item.parent || '').toLowerCase().includes(q) ||
+        (item.status || '').toLowerCase().includes(q)
+      );
+    }
+    if (type === 'users') {
+      return (
+        (item.name || '').toLowerCase().includes(q) ||
+        (item.role || '').toLowerCase().includes(q) ||
+        (item.email || '').toLowerCase().includes(q) ||
+        (item.username || '').toLowerCase().includes(q) ||
+        (item.phone || '').toLowerCase().includes(q)
       );
     }
     return true;
@@ -762,6 +1082,52 @@ export function DashboardDetailModal({ isOpen, detailConfig, onClose, onNavigate
                         <th style={{ padding: '10px 14px' }}>Admin Lead</th>
                       </>
                     )}
+                    {type === 'students' && (
+                      <>
+                        <th style={{ padding: '10px 14px' }}>Roll No</th>
+                        <th style={{ padding: '10px 14px' }}>Student Name</th>
+                        <th style={{ padding: '10px 14px' }}>Class</th>
+                        <th style={{ padding: '10px 14px' }}>Attendance</th>
+                        <th style={{ padding: '10px 14px' }}>Performance</th>
+                      </>
+                    )}
+                    {type === 'teachers' && (
+                      <>
+                        <th style={{ padding: '10px 14px' }}>Faculty ID</th>
+                        <th style={{ padding: '10px 14px' }}>Teacher Name</th>
+                        <th style={{ padding: '10px 14px' }}>Subject</th>
+                        <th style={{ padding: '10px 14px' }}>Assigned Class</th>
+                        <th style={{ padding: '10px 14px' }}>Status</th>
+                      </>
+                    )}
+                    {type === 'classes' && (
+                      <>
+                        <th style={{ padding: '10px 14px' }}>Class Name</th>
+                        <th style={{ padding: '10px 14px' }}>Class Teacher</th>
+                        <th style={{ padding: '10px 14px' }}>Classroom</th>
+                        <th style={{ padding: '10px 14px' }}>Total Strength</th>
+                      </>
+                    )}
+                    {type === 'fees' && (
+                      <>
+                        <th style={{ padding: '10px 14px' }}>Roll / ID</th>
+                        <th style={{ padding: '10px 14px' }}>Student Name</th>
+                        <th style={{ padding: '10px 14px' }}>Class</th>
+                        <th style={{ padding: '10px 14px' }}>Total Fee</th>
+                        <th style={{ padding: '10px 14px' }}>Paid</th>
+                        <th style={{ padding: '10px 14px' }}>Due</th>
+                        <th style={{ padding: '10px 14px' }}>Status</th>
+                      </>
+                    )}
+                    {type === 'users' && (
+                      <>
+                        <th style={{ padding: '10px 14px' }}>Full Name</th>
+                        <th style={{ padding: '10px 14px' }}>Role</th>
+                        <th style={{ padding: '10px 14px' }}>Contact Phone</th>
+                        <th style={{ padding: '10px 14px' }}>Email / Login</th>
+                        <th style={{ padding: '10px 14px' }}>Status</th>
+                      </>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -837,6 +1203,66 @@ export function DashboardDetailModal({ isOpen, detailConfig, onClose, onNavigate
                           <td style={{ padding: '10px 14px', fontWeight: 700, color: '#6d28d9' }}>{item.teachersCount || 0}</td>
                           <td style={{ padding: '10px 14px', fontWeight: 700, color: '#be185d' }}>{(item.parentsCount || 0).toLocaleString()}</td>
                           <td style={{ padding: '10px 14px', color: '#475569' }}>{item.adminName || item.principal || '—'}</td>
+                        </>
+                      )}
+                      {type === 'students' && (
+                        <>
+                          <td style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.roll}</span></td>
+                          <td style={{ padding: '10px 14px', fontWeight: 600, color: '#1e3a8a' }}>{item.name}</td>
+                          <td style={{ padding: '10px 14px', color: '#475569', fontWeight: 500 }}>{item.class}</td>
+                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#047857' }}>{item.attendance || '95%'}</td>
+                          <td style={{ padding: '10px 14px' }}>
+                            <span className="badge badge-success">{item.performance || 'Good'}</span>
+                          </td>
+                        </>
+                      )}
+                      {type === 'teachers' && (
+                        <>
+                          <td style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.id}</span></td>
+                          <td style={{ padding: '10px 14px', fontWeight: 600, color: '#1e293b' }}>{item.name}</td>
+                          <td style={{ padding: '10px 14px', color: '#6366f1', fontWeight: 500 }}>{item.subject}</td>
+                          <td style={{ padding: '10px 14px', color: '#475569' }}>{item.class}</td>
+                          <td style={{ padding: '10px 14px' }}>
+                            <span className="badge badge-success">{item.status || 'Active'}</span>
+                          </td>
+                        </>
+                      )}
+                      {type === 'classes' && (
+                        <>
+                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#1e3a8a' }}>{item.name}</td>
+                          <td style={{ padding: '10px 14px', fontWeight: 500 }}>{item.teacher}</td>
+                          <td style={{ padding: '10px 14px', color: '#64748b' }}>{item.room || '—'}</td>
+                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#2563eb' }}>{item.strength} Students</td>
+                        </>
+                      )}
+                      {type === 'fees' && (
+                        <>
+                          <td style={{ padding: '10px 14px' }}><span className="badge badge-info">{item.roll || item.id}</span></td>
+                          <td style={{ padding: '10px 14px', fontWeight: 600 }}>{item.name}</td>
+                          <td style={{ padding: '10px 14px', color: '#475569' }}>{item.class}</td>
+                          <td style={{ padding: '10px 14px', fontWeight: 600 }}>{item.totalFee}</td>
+                          <td style={{ padding: '10px 14px', fontWeight: 700, color: '#047857' }}>{item.paid}</td>
+                          <td style={{ padding: '10px 14px', fontWeight: 700, color: item.due === '₹0' ? '#64748b' : '#dc2626' }}>{item.due}</td>
+                          <td style={{ padding: '10px 14px' }}>
+                            <span className={`badge ${item.status === 'PAID' ? 'badge-success' : item.status === 'PARTIAL' ? 'badge-warning' : 'badge-danger'}`}>
+                              {item.status}
+                            </span>
+                          </td>
+                        </>
+                      )}
+                      {type === 'users' && (
+                        <>
+                          <td style={{ padding: '10px 14px', fontWeight: 600, color: '#1e293b' }}>{item.name}</td>
+                          <td style={{ padding: '10px 14px' }}>
+                            <span className={`badge ${item.role === 'SCHOOL_ADMIN' ? 'badge-primary' : item.role === 'PRINCIPAL' ? 'badge-indigo' : item.role === 'TEACHER' ? 'badge-success' : item.role === 'STUDENT' ? 'badge-warning' : 'badge-purple'}`}>
+                              {item.role}
+                            </span>
+                          </td>
+                          <td style={{ padding: '10px 14px', fontWeight: 500 }}>{item.phone || '—'}</td>
+                          <td style={{ padding: '10px 14px', color: '#2563eb' }}>{item.email || item.username}</td>
+                          <td style={{ padding: '10px 14px' }}>
+                            <span className="badge badge-success">{item.status || 'Active'}</span>
+                          </td>
                         </>
                       )}
                     </tr>
