@@ -11,7 +11,7 @@ export default function Navbar() {
   const closeMenu = () => setMobileMenuOpen(false);
 
   return (
-    <header className="header">
+    <header className="header public-header">
       <div className="container nav-container">
         <Link to="/" className="logo" onClick={closeMenu}>
           <img
