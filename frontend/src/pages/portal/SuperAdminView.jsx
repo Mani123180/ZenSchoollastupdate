@@ -1366,6 +1366,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                       <button className={`btn btn-sm ${activeCampusTab === 'assignments' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('assignments')}>Homework & Assignments</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'study-materials' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('study-materials')}>Study Materials</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'announcements' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('announcements')}>Announcements</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'leave-request' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('leave-request')}>Leave Requests & Approvals</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'secure-messaging' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('secure-messaging')}>Secure Messaging</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'timetable' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('timetable')}>Timetable</button>
                     </>

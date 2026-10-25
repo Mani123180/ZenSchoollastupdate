@@ -553,20 +553,20 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  return titles[activeTab] || 'Dashboard';
  };
 
- // Staff Handlers (Unified Principal & Teacher)
+ // Staff Handlers (Unified Principal, Teacher, Non-Teaching & Works)
  const handleOpenStaffModal = (staff = null, defaultRole = 'Teacher') => {
  setEditingStaff(staff);
  if (staff) {
  setStaffForm({
  name: staff.name || '',
- role: staff.roleType || (staff.id && staff.id.startsWith('PR') ? 'Principal' : 'Teacher'),
+ role: staff.roleType || (staff.id && staff.id.startsWith('PR') ? 'Principal' : staff.id && staff.id.startsWith('NT') ? 'Non-Teaching' : staff.id && staff.id.startsWith('WRK') ? 'Operations Works' : 'Teacher'),
  phone: staff.phone || '',
  email: staff.email || '',
  address: staff.address || '',
  bloodGroup: staff.bloodGroup || 'O+',
  qualification: staff.qualification || '',
- onboardSubject: staff.onboardSubject || staff.subject || '',
- class: staff.class || 'Grade 10-A',
+ onboardSubject: staff.onboardSubject || staff.department || staff.subject || '',
+ class: staff.class || staff.shift || staff.workAssigned || staff.deadline || 'General Duty',
  experience: staff.experience || '5 Years',
  status: staff.status || 'Active'
  });
@@ -580,7 +580,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  bloodGroup: 'O+',
  qualification: '',
  onboardSubject: '',
- class: 'Grade 10-A',
+ class: defaultRole === 'Non-Teaching' ? '08:30 AM - 04:30 PM' : defaultRole === 'Operations Works' ? 'Priority: High' : 'Grade 10-A',
  experience: '3 Years',
  status: 'Active'
  });
@@ -588,17 +588,41 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  setIsStaffModalOpen(true);
  };
 
+ const handleDeleteStaff = (staff) => {
+ if (!window.confirm(`Are you sure you want to remove ${staff.name} (${staff.roleType}) from the staff registry?`)) {
+ return;
+ }
+ const current = getPortalData();
+ if (staff.roleType === 'Principal') {
+ current.principals = (current.principals || []).filter(p => p.id !== staff.id);
+ } else if (staff.roleType === 'Non-Teaching') {
+ current.nonTeachingStaff = (current.nonTeachingStaff || []).filter(nt => nt.id !== staff.id);
+ } else if (staff.roleType === 'Operations Works') {
+ current.operationsWorks = (current.operationsWorks || []).filter(w => w.id !== staff.id);
+ } else {
+ current.teachers = (current.teachers || []).filter(t => t.id !== staff.id);
+ }
+ current.users = (current.users || []).filter(u => u.id !== staff.id && u.email !== staff.email);
+ savePortalData(current);
+ refreshData();
+ setFeedback({
+ title: 'Staff Record Removed',
+ body: `${staff.name} has been successfully deleted from ${staff.roleType}.`
+ });
+ };
+
  const handleSaveStaff = (e) => {
  e.preventDefault();
  const current = getPortalData();
  if (!current.teachers) current.teachers = [];
  if (!current.principals) current.principals = [];
+ if (!current.nonTeachingStaff) current.nonTeachingStaff = [];
+ if (!current.operationsWorks) current.operationsWorks = [];
  if (!current.users) current.users = [];
 
- const isPrincipal = staffForm.role === 'Principal';
+ const role = staffForm.role;
 
  if (editingStaff) {
- // Check if updating in teachers or principals
  if (editingStaff.roleType === 'Principal' || (editingStaff.id && editingStaff.id.startsWith('PR'))) {
  const pIdx = current.principals.findIndex((p) => p.id === editingStaff.id);
  if (pIdx > -1) {
@@ -613,6 +637,36 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  qualification: staffForm.qualification,
  experience: staffForm.experience,
  status: staffForm.status
+ };
+ }
+ } else if (editingStaff.roleType === 'Non-Teaching' || (editingStaff.id && editingStaff.id.startsWith('NT'))) {
+ const ntIdx = current.nonTeachingStaff.findIndex((nt) => nt.id === editingStaff.id);
+ if (ntIdx > -1) {
+ current.nonTeachingStaff[ntIdx] = {
+ ...current.nonTeachingStaff[ntIdx],
+ name: staffForm.name,
+ role: staffForm.qualification || current.nonTeachingStaff[ntIdx].role,
+ department: staffForm.onboardSubject || current.nonTeachingStaff[ntIdx].department,
+ phone: staffForm.phone,
+ email: staffForm.email,
+ address: staffForm.address,
+ bloodGroup: staffForm.bloodGroup,
+ shift: staffForm.class || current.nonTeachingStaff[ntIdx].shift,
+ workAssigned: staffForm.class || current.nonTeachingStaff[ntIdx].workAssigned,
+ status: staffForm.status
+ };
+ }
+ } else if (editingStaff.roleType === 'Operations Works' || (editingStaff.id && editingStaff.id.startsWith('WRK'))) {
+ const wIdx = current.operationsWorks.findIndex((w) => w.id === editingStaff.id);
+ if (wIdx > -1) {
+ current.operationsWorks[wIdx] = {
+ ...current.operationsWorks[wIdx],
+ assignedTo: staffForm.name,
+ title: staffForm.qualification || current.operationsWorks[wIdx].title,
+ department: staffForm.onboardSubject || current.operationsWorks[wIdx].department,
+ phone: staffForm.phone,
+ deadline: staffForm.class || current.operationsWorks[wIdx].deadline,
+ status: staffForm.status === 'Active' ? 'In Progress' : staffForm.status
  };
  }
  } else {
@@ -635,7 +689,6 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  }
  }
 
- // Update in users table too
  const uIdx = current.users.findIndex((u) => u.id === editingStaff.id || u.email === editingStaff.email);
  if (uIdx > -1) {
  current.users[uIdx].name = staffForm.name;
@@ -644,8 +697,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  current.users[uIdx].status = staffForm.status;
  }
  } else {
- // Register New Staff Member
- if (isPrincipal) {
+ if (role === 'Principal') {
  const nextId = 'PR0' + (current.principals.length + 1);
  const newPrincipal = {
  id: nextId,
@@ -674,6 +726,50 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  createdDate: new Date().toISOString().split('T')[0],
  schoolId: 'SCHOOL002'
  });
+ } else if (role === 'Non-Teaching') {
+ const nextId = 'NT0' + (current.nonTeachingStaff.length + 1);
+ const newNonTeaching = {
+ id: nextId,
+ name: staffForm.name,
+ role: staffForm.qualification || 'Administrative Support',
+ department: staffForm.onboardSubject || 'General Administration',
+ phone: staffForm.phone,
+ email: staffForm.email,
+ address: staffForm.address,
+ bloodGroup: staffForm.bloodGroup,
+ shift: staffForm.class || '08:30 AM - 04:30 PM',
+ workAssigned: staffForm.class || 'Campus Operations & Support',
+ status: staffForm.status === 'Active' ? 'On Duty' : staffForm.status,
+ qualification: staffForm.qualification || 'Graduate / Diploma'
+ };
+ current.nonTeachingStaff.push(newNonTeaching);
+ current.users.push({
+ id: 'USR0' + (current.users.length + 1),
+ name: staffForm.name,
+ role: 'STAFF',
+ phone: staffForm.phone,
+ email: staffForm.email,
+ username: staffForm.email ? staffForm.email.split('@')[0] : `staff${nextId}`,
+ status: staffForm.status,
+ createdDate: new Date().toISOString().split('T')[0],
+ schoolId: 'SCHOOL002'
+ });
+ } else if (role === 'Operations Works') {
+ const nextId = 'WRK-0' + (current.operationsWorks.length + 1);
+ const newWork = {
+ id: nextId,
+ title: staffForm.qualification || `${staffForm.name}'s Operational Duty`,
+ department: staffForm.onboardSubject || 'Campus Operations',
+ assignedTo: staffForm.name,
+ phone: staffForm.phone,
+ email: staffForm.email,
+ priority: 'High',
+ status: staffForm.status === 'Active' ? 'In Progress' : 'Scheduled',
+ deadline: staffForm.class || 'Today, 04:30 PM',
+ progress: 50,
+ qualification: staffForm.qualification || 'Certified Technician / Specialist'
+ };
+ current.operationsWorks.push(newWork);
  } else {
  const nextId = 'T0' + (current.teachers.length + 1);
  const newTeacher = {
@@ -1883,7 +1979,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  {/* 1C. MANAGE STAFF (manage-staff) - UNIFIED PRINCIPALS & TEACHERS */}
  {/* =================================================================== */}
  {activeTab === 'manage-staff' && (() => {
- // Combine principals and teachers into a unified staff list
+ // Combine principals, teachers, non-teaching, and operations works into a unified staff list
  const principalsList = (data.principals || []).map((p) => ({
  ...p,
  roleType: 'Principal',
@@ -1900,7 +1996,34 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  badgeClass: 'badge-info'
  }));
 
- const allStaff = [...principalsList, ...teachersList];
+ const nonTeachingList = (data.nonTeachingStaff || []).map((nt) => ({
+ ...nt,
+ roleType: 'Non-Teaching',
+ qualification: nt.role || 'Staff Specialist',
+ onboardSubject: nt.department || 'Administrative Support',
+ class: nt.shift || '08:30 AM - 04:30 PM',
+ address: 'Staff Quarters / Support Wing',
+ bloodGroup: nt.bloodGroup || 'B+',
+ badgeClass: 'badge-amber',
+ status: nt.status === 'On Duty' ? 'Active' : nt.status || 'Active'
+ }));
+
+ const operationsWorksList = (data.operationsWorks || []).map((w) => ({
+ ...w,
+ name: w.assignedTo || 'Facility Team',
+ roleType: 'Operations Works',
+ qualification: w.title || 'Operational Work Task',
+ onboardSubject: w.department || 'Campus Operations',
+ class: w.deadline || 'Daily Task',
+ address: 'Campus Facilities Wing',
+ phone: w.phone || '+91 98401 55600',
+ email: 'works@ssvschool.com',
+ bloodGroup: 'O+',
+ badgeClass: 'badge-purple',
+ status: w.status === 'Completed' || w.status === 'In Progress' ? 'Active' : 'Scheduled'
+ }));
+
+ const allStaff = [...principalsList, ...teachersList, ...nonTeachingList, ...operationsWorksList];
 
  const filteredStaff = allStaff.filter((s) => {
  const matchesRole =
@@ -1926,9 +2049,21 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  return (
  <div>
  {/* Header Bar */}
- <div className="sa-schools-header-bar" style={{ flexWrap: 'wrap', gap: '12px' }}>
- <div style={{ display: 'flex', gap: '10px', flex: 1, minWidth: '280px', maxWidth: '540px' }}>
- <div className="sa-search-wrap" style={{ flex: 1 }}>
+ <div
+ className="sa-schools-header-bar"
+ style={{
+ display: 'flex',
+ justifyContent: 'space-between',
+ alignItems: 'center',
+ flexWrap: 'wrap',
+ gap: '20px',
+ rowGap: '16px',
+ width: '100%',
+ marginBottom: '20px'
+ }}
+ >
+ <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', alignItems: 'center', flex: '1 1 auto', minWidth: '320px' }}>
+ <div className="sa-search-wrap" style={{ flex: '1 1 240px', minWidth: '220px', maxWidth: '360px', margin: 0 }}>
  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
  <input
  type="text"
@@ -1944,46 +2079,83 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  value={staffRoleFilter}
  onChange={(e) => setStaffRoleFilter(e.target.value)}
  style={{
- padding: '8px 14px',
+ padding: '9px 16px',
  borderRadius: '8px',
- border: '1px solid #cbd5e1',
+ border: '1.5px solid #cbd5e1',
  background: '#ffffff',
  fontSize: '0.85rem',
- fontWeight: 600,
+ fontWeight: 700,
  color: '#0f172a',
- cursor: 'pointer'
+ cursor: 'pointer',
+ flexShrink: 0,
+ width: 'auto',
+ minWidth: '180px',
+ margin: 0
  }}
  >
  <option value="ALL">All Roles ({allStaff.length})</option>
  <option value="Principal">Principals ({principalsList.length})</option>
- <option value="Teacher">Teachers ({teachersList.length})</option>
+ <option value="Teacher">Teachers / Faculty ({teachersList.length})</option>
+ <option value="Non-Teaching">Non-Teaching Staff ({nonTeachingList.length})</option>
+ <option value="Operations Works">Operations Works ({operationsWorksList.length})</option>
  </select>
  </div>
 
- <div className="sa-toolbar-right" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
- <button className="btn btn-outline btn-sm" onClick={() => setIsBulkTeacherOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
- <span></span> Bulk Import (Excel)
+ <div
+ className="sa-toolbar-right"
+ style={{
+ display: 'inline-flex',
+ gap: '12px',
+ alignItems: 'center',
+ flexShrink: 0,
+ margin: 0
+ }}
+ >
+ <button
+ className="btn btn-outline btn-sm"
+ onClick={() => setIsBulkTeacherOpen(true)}
+ style={{
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '8px',
+ whiteSpace: 'nowrap',
+ margin: 0
+ }}
+ >
+ <span>📥</span> Bulk Import (Excel)
  </button>
  <button
  className="btn btn-primary btn-sm"
- onClick={() => handleOpenStaffModal(null, 'Teacher')}
- style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+ onClick={() => handleOpenStaffModal(null, staffRoleFilter !== 'ALL' ? staffRoleFilter : 'Teacher')}
+ style={{
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '8px',
+ whiteSpace: 'nowrap',
+ margin: 0
+ }}
  >
- <span>+</span> Add Staff
+ <span>+</span> Add Staff Member
  </button>
  </div>
  </div>
 
  {/* Quick Summary Pill Strip */}
- <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
- <div style={{ background: '#f1f5f9', padding: '6px 14px', borderRadius: '20px', fontSize: '0.82rem', color: '#334155', fontWeight: 600 }}>
- Total Staff: <strong style={{ color: '#0f172a' }}>{allStaff.length}</strong>
+ <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
+ <div onClick={() => setStaffRoleFilter('ALL')} style={{ cursor: 'pointer', background: staffRoleFilter === 'ALL' ? '#0f172a' : '#f1f5f9', color: staffRoleFilter === 'ALL' ? '#ffffff' : '#334155', padding: '6px 14px', borderRadius: '20px', fontSize: '0.82rem', fontWeight: 600 }}>
+ Total Staff: <strong>{allStaff.length}</strong>
  </div>
- <div style={{ background: '#eff6ff', padding: '6px 14px', borderRadius: '20px', fontSize: '0.82rem', color: '#1d4ed8', fontWeight: 600 }}>
- Principals: <strong style={{ color: '#1e40af' }}>{principalsList.length}</strong>
+ <div onClick={() => setStaffRoleFilter('Principal')} style={{ cursor: 'pointer', background: staffRoleFilter === 'Principal' ? '#1d4ed8' : '#eff6ff', color: staffRoleFilter === 'Principal' ? '#ffffff' : '#1d4ed8', padding: '6px 14px', borderRadius: '20px', fontSize: '0.82rem', fontWeight: 600 }}>
+ Principals: <strong>{principalsList.length}</strong>
  </div>
- <div style={{ background: '#f5f3ff', padding: '6px 14px', borderRadius: '20px', fontSize: '0.82rem', color: '#6d28d9', fontWeight: 600 }}>
- Teachers / Faculty: <strong style={{ color: '#5b21b6' }}>{teachersList.length}</strong>
+ <div onClick={() => setStaffRoleFilter('Teacher')} style={{ cursor: 'pointer', background: staffRoleFilter === 'Teacher' ? '#6d28d9' : '#f5f3ff', color: staffRoleFilter === 'Teacher' ? '#ffffff' : '#6d28d9', padding: '6px 14px', borderRadius: '20px', fontSize: '0.82rem', fontWeight: 600 }}>
+ Teachers / Faculty: <strong>{teachersList.length}</strong>
+ </div>
+ <div onClick={() => setStaffRoleFilter('Non-Teaching')} style={{ cursor: 'pointer', background: staffRoleFilter === 'Non-Teaching' ? '#0891b2' : '#ecfeff', color: staffRoleFilter === 'Non-Teaching' ? '#ffffff' : '#0891b2', padding: '6px 14px', borderRadius: '20px', fontSize: '0.82rem', fontWeight: 600 }}>
+ Non-Teaching: <strong>{nonTeachingList.length}</strong>
+ </div>
+ <div onClick={() => setStaffRoleFilter('Operations Works')} style={{ cursor: 'pointer', background: staffRoleFilter === 'Operations Works' ? '#be185d' : '#fdf2f8', color: staffRoleFilter === 'Operations Works' ? '#ffffff' : '#be185d', padding: '6px 14px', borderRadius: '20px', fontSize: '0.82rem', fontWeight: 600 }}>
+ Operations Works: <strong>{operationsWorksList.length}</strong>
  </div>
  </div>
 
@@ -1994,7 +2166,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <tr>
  <th style={{ minWidth: '90px' }}>Staff ID</th>
  <th style={{ minWidth: '170px' }}>Staff Name</th>
- <th style={{ minWidth: '100px' }}>Role</th>
+ <th style={{ minWidth: '110px' }}>Role</th>
  <th style={{ minWidth: '130px' }}>Phone Number</th>
  <th style={{ minWidth: '170px' }}>Email Address</th>
  <th style={{ minWidth: '140px' }}>Address</th>
@@ -2002,14 +2174,14 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <th style={{ minWidth: '140px' }}>Qualification</th>
  <th style={{ minWidth: '140px' }}>Subject / Department</th>
  <th style={{ minWidth: '90px', textAlign: 'center' }}>Status</th>
- <th style={{ minWidth: '130px', textAlign: 'center' }}>Actions</th>
+ <th style={{ minWidth: '160px', textAlign: 'center' }}>Actions</th>
  </tr>
  </thead>
  <tbody>
  {filteredStaff.length === 0 ? (
  <tr>
  <td colSpan="11" style={{ textAlign: 'center', padding: '36px', color: '#64748b' }}>
- No staff records found matching your filters. Click <strong>+ Add Staff</strong> to onboard a new staff member.
+ No staff records found matching your filters. Click <strong>+ Add Staff Member</strong> to onboard a new staff member.
  </td>
  </tr>
  ) : (
@@ -2020,8 +2192,8 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <strong>{staff.name}</strong>
  </td>
  <td data-label="Role">
- <span className={`badge ${staff.roleType === 'Principal' ? 'badge-primary' : 'badge-info'}`}>
- {staff.roleType === 'Principal' ? ' Principal' : ' Teacher'}
+ <span className={`badge ${staff.roleType === 'Principal' ? 'badge-primary' : staff.roleType === 'Teacher' ? 'badge-info' : staff.roleType === 'Non-Teaching' ? 'badge-amber' : 'badge-purple'}`} style={{ fontWeight: 700 }}>
+ {staff.roleType === 'Principal' ? '👨‍🏫 Principal' : staff.roleType === 'Teacher' ? '👩‍🏫 Teacher' : staff.roleType === 'Non-Teaching' ? '👥 Non-Teaching' : '📋 Operations Works'}
  </span>
  </td>
  <td data-label="Phone Number">{staff.phone || '—'}</td>
@@ -2081,6 +2253,15 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  >
  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="7.5" cy="15.5" r="5.5" /><path d="m21 2-9.6 9.6" /><path d="m15.5 7.5 3 3L22 7l-3-3" /></svg>
  Pass
+ </button>
+ <button
+ className="sa-tbl-action delete"
+ onClick={() => handleDeleteStaff(staff)}
+ title="Delete staff record"
+ style={{ color: '#ef4444', borderColor: '#fca5a5' }}
+ >
+ <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+ Delete
  </button>
  </div>
  </td>
@@ -4078,23 +4259,69 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
- {/* 1S. Add / Edit Staff Modal (Unified Principal & Teacher) */}
+ {/* 1S. Add / Edit Staff Modal (Dynamic fields based on Selected Staff Role) */}
  {isStaffModalOpen && (
  <div className="modal-overlay" style={{ display: 'flex' }}>
- <div className="modal-content wizard-modal-lg" style={{ maxWidth: '680px' }}>
+ <div className="modal-content wizard-modal-lg" style={{ maxWidth: '720px' }}>
  <div className="modal-header">
- <h3>{editingStaff ? 'Edit Staff Member' : 'Onboard New Staff Member'}</h3>
+ <h3>
+   {editingStaff
+     ? `Edit ${staffForm.role} Profile`
+     : staffForm.role === 'Non-Teaching'
+     ? '👥 Onboard Non-Teaching Staff'
+     : staffForm.role === 'Operations Works'
+     ? '📋 Create & Assign Operational Work Duty'
+     : staffForm.role === 'Principal'
+     ? '👨‍🏫 Onboard School Principal'
+     : '👩‍🏫 Onboard Teaching Faculty'}
+ </h3>
  <button className="modal-close" onClick={() => setIsStaffModalOpen(false)}>&times;</button>
  </div>
  <form onSubmit={handleSaveStaff}>
  <div className="wizard-form-box">
  <div className="wizard-header-strip">
- <div className="wizard-header-icon" style={{ background: 'rgba(30, 58, 138, 0.08)', color: 'var(--color-primary)' }}>
- <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+ <div
+   className="wizard-header-icon"
+   style={{
+     background:
+       staffForm.role === 'Non-Teaching'
+         ? 'rgba(8, 145, 178, 0.12)'
+         : staffForm.role === 'Operations Works'
+         ? 'rgba(190, 24, 93, 0.12)'
+         : staffForm.role === 'Principal'
+         ? 'rgba(30, 58, 138, 0.12)'
+         : 'rgba(109, 40, 217, 0.12)',
+     color:
+       staffForm.role === 'Non-Teaching'
+         ? '#0891b2'
+         : staffForm.role === 'Operations Works'
+         ? '#be185d'
+         : staffForm.role === 'Principal'
+         ? '#1e3a8a'
+         : '#6d28d9',
+   }}
+ >
+   {staffForm.role === 'Non-Teaching' ? '👥' : staffForm.role === 'Operations Works' ? '📋' : staffForm.role === 'Principal' ? '👨‍🏫' : '👩‍🏫'}
  </div>
  <div className="wizard-header-titles">
- <h4>{editingStaff ? 'Update Staff Profile' : 'Staff Onboarding Record'}</h4>
- <p>Enter comprehensive staff details: name, contact, blood group, qualification, and onboard subject.</p>
+ <h4>
+   {staffForm.role === 'Non-Teaching'
+     ? 'Non-Teaching Staff Details & Shift'
+     : staffForm.role === 'Operations Works'
+     ? 'Operations Work Duty & Assignee Specifications'
+     : staffForm.role === 'Principal'
+     ? 'Principal Leadership & Administration'
+     : 'Teacher Faculty & Academic Details'}
+ </h4>
+ <p>
+   {staffForm.role === 'Non-Teaching'
+     ? 'Fill in non-academic staff information: support post, department, duty shift, contact number and address.'
+     : staffForm.role === 'Operations Works'
+     ? 'Fill in operational work details: task title, responsible assignee/team, department, and completion deadline.'
+     : staffForm.role === 'Principal'
+     ? 'Fill in institutional leadership details: executive credentials, administrative specialization, and contact.'
+     : 'Fill in academic faculty details: teaching subject, assigned classroom section, qualification, and contact.'}
+ </p>
  </div>
  </div>
 
@@ -4104,41 +4331,82 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <label>Staff Role <span className="req">*</span></label>
  <select
  value={staffForm.role}
- onChange={(e) => setStaffForm({ ...staffForm, role: e.target.value })}
+ onChange={(e) => {
+   const newRole = e.target.value;
+   setStaffForm({
+     ...staffForm,
+     role: newRole,
+     class:
+       newRole === 'Non-Teaching' && (!staffForm.class || staffForm.class.includes('Grade'))
+         ? '08:30 AM - 04:30 PM'
+         : newRole === 'Operations Works' && (!staffForm.class || staffForm.class.includes('Grade'))
+         ? 'Today, 05:00 PM'
+         : newRole === 'Teacher' && (!staffForm.class || staffForm.class.includes('AM'))
+         ? 'Grade 10-A'
+         : staffForm.class
+   });
+ }}
+ style={{ fontWeight: 800, color: '#0f172a' }}
  >
- <option value="Teacher"> Teacher / Faculty</option>
- <option value="Principal"> School Principal</option>
+ <option value="Teacher">Teacher / Faculty</option>
+ <option value="Principal">School Principal</option>
+ <option value="Non-Teaching">Non-Teaching Staff</option>
+ <option value="Operations Works">Operations Works</option>
  </select>
  </div>
 
  {/* Status */}
  <div className="wizard-field">
- <label>Status <span className="req">*</span></label>
+ <label>
+   {staffForm.role === 'Operations Works' ? 'Task Status' : 'Duty Status'} <span className="req">*</span>
+ </label>
  <select
  value={staffForm.status}
  onChange={(e) => setStaffForm({ ...staffForm, status: e.target.value })}
  >
- <option value="Active">Active</option>
- <option value="On Leave">On Leave</option>
- <option value="Inactive">Inactive</option>
+ {staffForm.role === 'Operations Works' ? (
+   <>
+     <option value="Active">In Progress / Active</option>
+     <option value="Completed">Completed</option>
+     <option value="Scheduled">Scheduled</option>
+   </>
+ ) : (
+   <>
+     <option value="Active">Active / On Duty</option>
+     <option value="On Leave">On Leave</option>
+     <option value="Inactive">Inactive</option>
+   </>
+ )}
  </select>
  </div>
 
- {/* Name */}
+ {/* Name / Assigned Person */}
  <div className="wizard-field span-2">
- <label>Full Name <span className="req">*</span></label>
+ <label>
+   {staffForm.role === 'Operations Works' ? 'Assigned Person / Responsible Team' : 'Full Name'} <span className="req">*</span>
+ </label>
  <input
  type="text"
  required
- placeholder="e.g. Mrs. Priya Krishnan"
+ placeholder={
+   staffForm.role === 'Non-Teaching'
+     ? 'e.g. Mr. R. Muthuraman / Mrs. S. Gandhimathi'
+     : staffForm.role === 'Operations Works'
+     ? 'e.g. Housekeeping Team / Mr. K. Palanivel'
+     : staffForm.role === 'Principal'
+     ? 'e.g. Dr. K. Meenakshi Sundaram'
+     : 'e.g. Mrs. Priya Krishnan'
+ }
  value={staffForm.name}
  onChange={(e) => setStaffForm({ ...staffForm, name: e.target.value })}
  />
  </div>
 
- {/* Phone Number */}
+ {/* Contact Phone Number */}
  <div className="wizard-field">
- <label>Phone Number <span className="req">*</span></label>
+ <label>
+   {staffForm.role === 'Operations Works' ? 'In-charge Contact Phone' : 'Phone Number'} <span className="req">*</span>
+ </label>
  <input
  type="text"
  required
@@ -4148,13 +4416,21 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  />
  </div>
 
- {/* Email */}
+ {/* Email Address */}
  <div className="wizard-field">
- <label>Email Address <span className="req">*</span></label>
+ <label>
+   {staffForm.role === 'Operations Works' ? 'Official / Department Email' : 'Email Address'} <span className="req">*</span>
+ </label>
  <input
  type="email"
  required
- placeholder="staff@ssvschool.com"
+ placeholder={
+   staffForm.role === 'Operations Works'
+     ? 'works@ssvschool.com'
+     : staffForm.role === 'Non-Teaching'
+     ? 'adminstaff@ssvschool.com'
+     : 'staff@ssvschool.com'
+ }
  value={staffForm.email}
  onChange={(e) => setStaffForm({ ...staffForm, email: e.target.value })}
  />
@@ -4162,11 +4438,17 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
  {/* Address */}
  <div className="wizard-field span-2">
- <label>Residential / Contact Address <span className="req">*</span></label>
+ <label>
+   {staffForm.role === 'Operations Works' ? 'Campus Location / Station' : 'Residential / Quarters Address'} <span className="req">*</span>
+ </label>
  <input
  type="text"
  required
- placeholder="e.g. 14, Gandhi Road, Chennai, Tamil Nadu - 600028"
+ placeholder={
+   staffForm.role === 'Operations Works'
+     ? 'e.g. Science Labs Block / Central Maintenance Wing'
+     : 'e.g. 14, Gandhi Road, Chennai, Tamil Nadu - 600028'
+ }
  value={staffForm.address}
  onChange={(e) => setStaffForm({ ...staffForm, address: e.target.value })}
  />
@@ -4174,7 +4456,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
  {/* Blood Group */}
  <div className="wizard-field">
- <label>Blood Group <span className="req">*</span></label>
+ <label>Blood Group {staffForm.role !== 'Operations Works' && <span className="req">*</span>}</label>
  <select
  value={staffForm.bloodGroup}
  onChange={(e) => setStaffForm({ ...staffForm, bloodGroup: e.target.value })}
@@ -4190,38 +4472,88 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </select>
  </div>
 
- {/* Qualification */}
+ {/* Qualification / Designation / Task Title */}
  <div className="wizard-field">
- <label>Academic Qualification <span className="req">*</span></label>
+ <label>
+   {staffForm.role === 'Non-Teaching'
+     ? 'Designation / Staff Role'
+     : staffForm.role === 'Operations Works'
+     ? 'Task Title / Work Specification'
+     : staffForm.role === 'Principal'
+     ? 'Leadership Qualification'
+     : 'Academic Qualification'}{' '}
+   <span className="req">*</span>
+ </label>
  <input
  type="text"
  required
- placeholder="e.g. M.Sc., B.Ed / Ph.D., M.Ed"
+ placeholder={
+   staffForm.role === 'Non-Teaching'
+     ? 'e.g. Head Clerk / Chief Accountant / Senior Lab Attender / Librarian'
+     : staffForm.role === 'Operations Works'
+     ? 'e.g. Daily Campus Cleanliness Audit / RO Water Inspection'
+     : staffForm.role === 'Principal'
+     ? 'e.g. Ph.D., M.Ed / 20+ Years Educational Leadership'
+     : 'e.g. M.Sc., B.Ed'
+ }
  value={staffForm.qualification}
  onChange={(e) => setStaffForm({ ...staffForm, qualification: e.target.value })}
  />
  </div>
 
- {/* Onboard Subject */}
+ {/* Subject / Department */}
  <div className="wizard-field">
  <label>
- {staffForm.role === 'Principal' ? 'Specialization / Discipline' : 'Onboard Subject (Teaching)'} <span className="req">*</span>
+   {staffForm.role === 'Principal'
+     ? 'Specialization / Institutional Wing'
+     : staffForm.role === 'Non-Teaching'
+     ? 'Department / Operating Office'
+     : staffForm.role === 'Operations Works'
+     ? 'Facility Department'
+     : 'Teaching Subject'}{' '}
+   <span className="req">*</span>
  </label>
  <input
  type="text"
  required
- placeholder="e.g. Mathematics / Physics / English"
+ placeholder={
+   staffForm.role === 'Non-Teaching'
+     ? 'e.g. Administrative Office / Accounts & Billing / Security'
+     : staffForm.role === 'Operations Works'
+     ? 'e.g. Sanitation & Hygiene / Campus Maintenance / Security & Safety'
+     : staffForm.role === 'Principal'
+     ? 'e.g. Institutional Governance & Academic Quality'
+     : 'e.g. Mathematics / Physics / English / Social Science'
+ }
  value={staffForm.onboardSubject}
  onChange={(e) => setStaffForm({ ...staffForm, onboardSubject: e.target.value })}
  />
  </div>
 
- {/* Assigned Section / Classroom */}
+ {/* Assigned Class / Shift / Work Deadline */}
  <div className="wizard-field">
- <label>Assigned Section / Responsibility</label>
+ <label>
+   {staffForm.role === 'Principal'
+     ? 'Executive Office'
+     : staffForm.role === 'Non-Teaching'
+     ? 'Work Shift & Daily Routine'
+     : staffForm.role === 'Operations Works'
+     ? 'Duty Deadline / Target Schedule'
+     : 'Assigned Classroom Section'}{' '}
+   <span className="req">*</span>
+ </label>
  <input
  type="text"
- placeholder={staffForm.role === 'Principal' ? 'Institutional Head' : 'e.g. Grade 10-A'}
+ required
+ placeholder={
+   staffForm.role === 'Principal'
+     ? 'Main Admin Block, Office 101'
+     : staffForm.role === 'Non-Teaching'
+     ? 'e.g. 08:00 AM - 04:30 PM (Morning Shift)'
+     : staffForm.role === 'Operations Works'
+     ? 'e.g. Today, 05:00 PM / Daily 08:30 AM'
+     : 'e.g. Grade 10-A / Grade 11-B'
+ }
  value={staffForm.class}
  onChange={(e) => setStaffForm({ ...staffForm, class: e.target.value })}
  />
@@ -4232,873 +4564,16 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
  <button type="button" className="btn btn-outline btn-sm" onClick={() => setIsStaffModalOpen(false)}>Cancel</button>
  <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>
- {editingStaff ? 'Update Staff Member ' : 'Add Staff Member '}
+ {editingStaff
+   ? 'Update Profile '
+   : staffForm.role === 'Non-Teaching'
+   ? 'Add Non-Teaching Staff '
+   : staffForm.role === 'Operations Works'
+   ? 'Assign Operational Work '
+   : staffForm.role === 'Principal'
+   ? 'Add Principal '
+   : 'Add Teacher '}
  </button>
- </div>
- </form>
- </div>
- </div>
- )}
-
- {/* 2. Add / Edit Teacher Modal */}
- {isTeacherModalOpen && (
- <div className="modal-overlay" style={{ display: 'flex' }}>
- <div className="modal-content wizard-modal-lg" style={{ maxWidth: '640px' }}>
- <div className="modal-header">
- <h3>{editingTeacher ? 'Edit Faculty Member' : 'Register Faculty Member'}</h3>
- <button className="modal-close" onClick={() => setIsTeacherModalOpen(false)}>&times;</button>
- </div>
- <form onSubmit={handleSaveTeacher}>
- <div className="wizard-form-box">
- <div className="wizard-header-strip">
- <div className="wizard-header-icon" style={{ background: 'rgba(30, 58, 138, 0.08)', color: 'var(--color-primary)' }}>
- <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 14l9-5-9-5-9 5 9 5z" /><path d="M12 14l6.16-3.422a12.083 12.083 0 0 1 .665 6.479A11.952 11.952 0 0 0 12 20.055a11.952 11.952 0 0 0-6.824-2.998 12.078 12.078 0 0 1 .665-6.479L12 14z" /></svg>
- </div>
- <div className="wizard-header-titles">
- <h4>{editingTeacher ? 'Update Faculty Record' : 'Register New Faculty'}</h4>
- <p>Maintain teacher identity, primary subject mastery, and classroom assignment.</p>
- </div>
- </div>
- <div className="wizard-grid-2">
- <div className="wizard-field span-2">
- <label>Teacher Full Name <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="e.g. Mrs. Priya Krishnan"
- value={teacherForm.name}
- onChange={(e) => setTeacherForm({ ...teacherForm, name: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Primary Teaching Subject <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="e.g. Mathematics / Physics"
- value={teacherForm.subject}
- onChange={(e) => setTeacherForm({ ...teacherForm, subject: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Assigned Classroom / Section <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="e.g. Grade 10-A"
- value={teacherForm.class}
- onChange={(e) => setTeacherForm({ ...teacherForm, class: e.target.value })}
- />
- </div>
- </div>
- </div>
- <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
- <button type="button" className="btn btn-outline btn-sm" onClick={() => setIsTeacherModalOpen(false)}>Cancel</button>
- <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>
- {editingTeacher ? 'Update Faculty Record ' : 'Add Faculty Member '}
- </button>
- </div>
- </form>
- </div>
- </div>
- )}
-
- {/* 3. Add / Edit Student Modal */}
- {isStudentModalOpen && (
- <div className="modal-overlay" style={{ display: 'flex' }}>
- <div className="modal-content wizard-modal-lg" style={{ maxWidth: '780px' }}>
- <div className="modal-header">
- <h3>{editingStudent ? 'Edit Student Record' : 'Enroll New Student'}</h3>
- <button className="modal-close" onClick={() => setIsStudentModalOpen(false)}>&times;</button>
- </div>
- <form onSubmit={handleSaveStudent}>
- <div className="wizard-form-box">
- <div className="wizard-header-strip">
- <div className="wizard-header-icon" style={{ background: 'rgba(30, 58, 138, 0.08)', color: 'var(--color-primary)' }}>
- <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
- </div>
- <div className="wizard-header-titles">
- <h4>{editingStudent ? 'Update Student Record' : 'Student Enrollment Profile'}</h4>
- <p>Maintain academic registration, parent contact details, and student health info.</p>
- </div>
- </div>
-
- {/* Section A: Student Personal Details */}
- <div style={{ fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--color-primary)', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px', marginBottom: '14px' }}>
- 1. Basic & Academic Details
- </div>
- <div className="wizard-grid-2">
- <div className="wizard-field">
- <label>Student Full Name <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="e.g. Aishwarya Kumar"
- value={studentForm.name}
- onChange={(e) => setStudentForm({ ...studentForm, name: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Gender <span className="req">*</span></label>
- <select
- value={studentForm.gender}
- onChange={(e) => setStudentForm({ ...studentForm, gender: e.target.value })}
- >
- <option value="Female">Female</option>
- <option value="Male">Male</option>
- <option value="Other">Other</option>
- </select>
- </div>
- <div className="wizard-field">
- <label>Grade / Class Section <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="e.g. Grade 10-A"
- value={studentForm.class}
- onChange={(e) => setStudentForm({ ...studentForm, class: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Roll / Admission No.</label>
- <input
- type="text"
- disabled
- value={editingStudent ? editingStudent.roll : 'Auto-generated upon save (e.g. S107)'}
- style={{ background: '#f1f5f9', color: '#64748b' }}
- />
- </div>
- <div className="wizard-field">
- <label>Date of Birth <span className="req">*</span></label>
- <input
- type="date"
- required
- value={studentForm.dob}
- onChange={(e) => setStudentForm({ ...studentForm, dob: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Blood Group <span className="req">*</span></label>
- <select
- value={studentForm.bloodGroup}
- onChange={(e) => setStudentForm({ ...studentForm, bloodGroup: e.target.value })}
- >
- <option value="A+">A+</option>
- <option value="A-">A-</option>
- <option value="B+">B+</option>
- <option value="B-">B-</option>
- <option value="O+">O+</option>
- <option value="O-">O-</option>
- <option value="AB+">AB+</option>
- <option value="AB-">AB-</option>
- </select>
- </div>
- <div className="wizard-field">
- <label>Admission Date</label>
- <input
- type="date"
- value={studentForm.admissionDate}
- onChange={(e) => setStudentForm({ ...studentForm, admissionDate: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Enrollment Status</label>
- <select
- value={studentForm.status}
- onChange={(e) => setStudentForm({ ...studentForm, status: e.target.value })}
- >
- <option value="Active">Active</option>
- <option value="Inactive">Inactive</option>
- <option value="Transferred">Transferred</option>
- </select>
- </div>
- </div>
-
- {/* Section B: Parent / Guardian & Emergency Contact */}
- <div style={{ fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--color-primary)', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px', margin: '18px 0 14px' }}>
- 2. Parent / Guardian & Contact Details
- </div>
- <div className="wizard-grid-2">
- <div className="wizard-field">
- <label>Parent / Guardian Name</label>
- <input
- type="text"
- placeholder="e.g. Ramesh Kumar"
- value={studentForm.parentName}
- onChange={(e) => setStudentForm({ ...studentForm, parentName: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Parent Mobile Number</label>
- <input
- type="tel"
- placeholder="e.g. +91 98401 23456"
- value={studentForm.parentPhone}
- onChange={(e) => setStudentForm({ ...studentForm, parentPhone: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Parent Email ID</label>
- <input
- type="email"
- placeholder="e.g. parent@example.com"
- value={studentForm.parentEmail}
- onChange={(e) => setStudentForm({ ...studentForm, parentEmail: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Emergency Contact Phone</label>
- <input
- type="tel"
- placeholder="e.g. +91 98456 12301"
- value={studentForm.emergencyContact}
- onChange={(e) => setStudentForm({ ...studentForm, emergencyContact: e.target.value })}
- />
- </div>
- <div className="wizard-field span-2">
- <label>Residential Address</label>
- <input
- type="text"
- placeholder="e.g. 14, Gandhi Road, Chennai, Tamil Nadu - 600028"
- value={studentForm.address}
- onChange={(e) => setStudentForm({ ...studentForm, address: e.target.value })}
- />
- </div>
- </div>
- </div>
- <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
- <button type="button" className="btn btn-outline btn-sm" onClick={() => setIsStudentModalOpen(false)}>Cancel</button>
- <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>
- {editingStudent ? 'Update Student Record ' : 'Enroll Student '}
- </button>
- </div>
- </form>
- </div>
- </div>
- )}
-
- {/* 4. Add / Edit Class Modal */}
- {isClassModalOpen && (
- <div className="modal-overlay" style={{ display: 'flex' }}>
- <div className="modal-content wizard-modal-lg" style={{ maxWidth: '640px' }}>
- <div className="modal-header">
- <h3>{editingClass ? 'Edit Class Section' : 'Create Class Section'}</h3>
- <button className="modal-close" onClick={() => setIsClassModalOpen(false)}>&times;</button>
- </div>
- <form onSubmit={handleSaveClass}>
- <div className="wizard-form-box">
- <div className="wizard-header-strip">
- <div className="wizard-header-icon" style={{ background: 'rgba(30, 58, 138, 0.08)', color: 'var(--color-primary)' }}>
- <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4" /></svg>
- </div>
- <div className="wizard-header-titles">
- <h4>{editingClass ? 'Update Classroom Section' : 'Add Class Section'}</h4>
- <p>Assign section name, class teacher in charge, and physical room number.</p>
- </div>
- </div>
- <div className="wizard-grid-2">
- <div className="wizard-field">
- <label>Class / Section Name <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="e.g. Grade 10-A"
- disabled={!!editingClass}
- value={classForm.name}
- onChange={(e) => setClassForm({ ...classForm, name: e.target.value })}
- style={editingClass ? { background: '#f1f5f9', color: '#64748b' } : {}}
- />
- </div>
- <div className="wizard-field">
- <label>Assigned Class Teacher <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="e.g. Mrs. Priya Krishnan"
- value={classForm.teacher}
- onChange={(e) => setClassForm({ ...classForm, teacher: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Physical Room No. <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="e.g. Room 204"
- value={classForm.room}
- onChange={(e) => setClassForm({ ...classForm, room: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Maximum Student Capacity <span className="req">*</span></label>
- <input
- type="number"
- required
- min="1"
- max="100"
- value={classForm.strength}
- onChange={(e) => setClassForm({ ...classForm, strength: e.target.value })}
- />
- </div>
- </div>
- </div>
- <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
- <button type="button" className="btn btn-outline btn-sm" onClick={() => setIsClassModalOpen(false)}>Cancel</button>
- <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>Save Class Section </button>
- </div>
- </form>
- </div>
- </div>
- )}
-
- {/* 5. Assign Work / Period Timetable Slot Modal */}
- {assignWorkSlot && (
- <div className="modal-overlay" style={{ display: 'flex' }}>
- <div className="modal-content wizard-modal-lg" style={{ maxWidth: '640px' }}>
- <div className="modal-header">
- <h3>Assign Period Work &mdash; {assignWorkSlot.className}</h3>
- <button className="modal-close" onClick={() => setAssignWorkSlot(null)}>&times;</button>
- </div>
- <form onSubmit={handleSaveAssignWork}>
- <div className="wizard-form-box">
- <div className="wizard-header-strip">
- <div className="wizard-header-icon" style={{ background: 'rgba(30, 58, 138, 0.08)', color: 'var(--color-primary)' }}>
- <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
- </div>
- <div className="wizard-header-titles">
- <h4>Assign Timetable Period & Faculty</h4>
- <p>Schedule subject class and designated teacher for the timetable schedule.</p>
- </div>
- </div>
-
- <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px 14px', marginBottom: '18px', display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '0.88rem', alignItems: 'center' }}>
- <span>Day: <strong>{assignWorkSlot.day}</strong></span>
- <span style={{ color: '#cbd5e1' }}>|</span>
- <span>Time Slot: <span className="badge badge-info">Period {assignWorkSlot.period}</span></span>
- {assignWorkSlot.lockedTeacher && (
- <>
- <span style={{ color: '#cbd5e1' }}>|</span>
- <span>Faculty: <strong style={{ color: 'var(--color-primary)' }}>{assignWorkSlot.lockedTeacher}</strong></span>
- </>
- )}
- </div>
-
- <div className="wizard-grid-2">
- <div className="wizard-field">
- <label>Target Classroom Section <span className="req">*</span></label>
- <select
- required
- value={assignWorkForm.className}
- onChange={(e) => setAssignWorkForm({ ...assignWorkForm, className: e.target.value })}
- >
- {data.classes.map((c) => (
- <option key={c.name} value={c.name}>{c.name} (Room {c.room})</option>
- ))}
- </select>
- </div>
- <div className="wizard-field">
- <label>Subject Course Name <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="e.g. Mathematics, Physics, Chemistry"
- value={assignWorkForm.subject}
- onChange={(e) => setAssignWorkForm({ ...assignWorkForm, subject: e.target.value })}
- />
- </div>
- <div className="wizard-field span-2">
- <label>Designated Faculty Instructor <span className="req">*</span></label>
- <select
- required
- value={assignWorkForm.teacherName}
- onChange={(e) => setAssignWorkForm({ ...assignWorkForm, teacherName: e.target.value })}
- >
- {data.teachers.map((t) => (
- <option key={t.id} value={t.name}>{t.name} ({t.subject || 'Faculty'})</option>
- ))}
- </select>
- </div>
- </div>
- </div>
-
- <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
- <button
- type="button"
- className="btn btn-outline btn-sm"
- style={{ color: '#dc2626', borderColor: '#dc2626' }}
- onClick={() => handleClearAssignWork(assignWorkSlot.className, assignWorkSlot.day, assignWorkSlot.period)}
- >
- Clear Slot
- </button>
- <div style={{ display: 'flex', gap: '10px' }}>
- <button type="button" className="btn btn-outline btn-sm" onClick={() => setAssignWorkSlot(null)}>Cancel</button>
- <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>Save Assignment </button>
- </div>
- </div>
- </form>
- </div>
- </div>
- )}
-
- {/* 6. Add / Edit Subject Modal */}
- {isSubjectModalOpen && (
- <div className="modal-overlay" style={{ display: 'flex' }}>
- <div className="modal-content wizard-modal-lg" style={{ maxWidth: '640px' }}>
- <div className="modal-header">
- <h3>{editingSubject ? 'Edit Curriculum Subject' : 'Add Curriculum Subject'}</h3>
- <button className="modal-close" onClick={() => setIsSubjectModalOpen(false)}>&times;</button>
- </div>
- <form onSubmit={handleSaveSubject}>
- <div className="wizard-form-box">
- <div className="wizard-header-strip">
- <div className="wizard-header-icon" style={{ background: 'rgba(30, 58, 138, 0.08)', color: 'var(--color-primary)' }}>
- <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
- </div>
- <div className="wizard-header-titles">
- <h4>{editingSubject ? 'Update Subject Syllabus' : 'Register Subject Curriculum'}</h4>
- <p>Setup subject code, official course title, standard grade, and lead instructor.</p>
- </div>
- </div>
- <div className="wizard-grid-2">
- <div className="wizard-field">
- <label>Subject Code <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="e.g. MAT101"
- disabled={!!editingSubject}
- value={subjectForm.code}
- onChange={(e) => setSubjectForm({ ...subjectForm, code: e.target.value })}
- style={editingSubject ? { background: '#f1f5f9', color: '#64748b' } : {}}
- />
- </div>
- <div className="wizard-field">
- <label>Subject Title <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="e.g. Advanced Mathematics"
- value={subjectForm.name}
- onChange={(e) => setSubjectForm({ ...subjectForm, name: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Target Grade / Standard <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="e.g. Grade 10"
- value={subjectForm.grade}
- onChange={(e) => setSubjectForm({ ...subjectForm, grade: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Lead Instructor / Faculty Staff <span className="req">*</span></label>
- <select
- required
- value={subjectForm.teacher}
- onChange={(e) => setSubjectForm({ ...subjectForm, teacher: e.target.value })}
- >
- {data.teachers && data.teachers.length > 0 ? (
- data.teachers.map((t) => (
- <option key={t.id} value={t.name}>{t.name} ({t.subject || 'Faculty'})</option>
- ))
- ) : (
- <option value="Mrs. Priya Krishnan">Mrs. Priya Krishnan (Mathematics)</option>
- )}
- </select>
- </div>
- <div className="wizard-field">
- <label>Periods Per Week <span className="req">*</span></label>
- <input
- type="number"
- min="1"
- max="15"
- required
- value={subjectForm.periodsPerWeek}
- onChange={(e) => setSubjectForm({ ...subjectForm, periodsPerWeek: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Assigned Room / Lab <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="e.g. A-102 or Physics Lab"
- value={subjectForm.room}
- onChange={(e) => setSubjectForm({ ...subjectForm, room: e.target.value })}
- />
- </div>
- </div>
- </div>
- <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
- <button type="button" className="btn btn-outline btn-sm" onClick={() => setIsSubjectModalOpen(false)}>Cancel</button>
- <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>Save Subject Setup </button>
- </div>
- </form>
- </div>
- </div>
- )}
-
- {/* 7. Add Parent Modal */}
- {isLinkParentOpen && (
- <div className="modal-overlay" style={{ display: 'flex' }}>
- <div className="modal-content wizard-modal-lg" style={{ maxWidth: '640px' }}>
- <div className="modal-header">
- <h3>Add Parent Profile</h3>
- <button className="modal-close" onClick={() => setIsLinkParentOpen(false)}>&times;</button>
- </div>
- <form onSubmit={handleSaveLinkParent}>
- <div className="wizard-form-box">
- <div className="wizard-header-strip">
- <div className="wizard-header-icon" style={{ background: 'rgba(30, 58, 138, 0.08)', color: 'var(--color-primary)' }}>
- <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="7" r="4" /><path d="M5.5 21v-2a6.5 6.5 0 0 1 13 0v2" /></svg>
- </div>
- <div className="wizard-header-titles">
- <h4>Parent Details & Ward Association</h4>
- <p>Register parent contact details and associate with student ward.</p>
- </div>
- </div>
- <div className="wizard-grid-2">
- <div className="wizard-field">
- <label>Parent Full Name <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="e.g. Ramesh Kumar"
- value={linkParentForm.name}
- onChange={(e) => setLinkParentForm({ ...linkParentForm, name: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Relationship <span className="req">*</span></label>
- <select
- value={linkParentForm.relationship}
- onChange={(e) => setLinkParentForm({ ...linkParentForm, relationship: e.target.value })}
- >
- <option value="Father">Father</option>
- <option value="Mother">Mother</option>
- <option value="Guardian">Guardian</option>
- </select>
- </div>
- <div className="wizard-field">
- <label>Phone Number <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="+91 98401 99009"
- value={linkParentForm.phone}
- onChange={(e) => setLinkParentForm({ ...linkParentForm, phone: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Contact Email <span className="req">*</span></label>
- <input
- type="email"
- required
- placeholder="parent@gmail.com"
- value={linkParentForm.email}
- onChange={(e) => setLinkParentForm({ ...linkParentForm, email: e.target.value })}
- />
- </div>
- <div className="wizard-field span-2">
- <label>Linked Student Ward <span className="req">*</span></label>
- <select
- value={linkParentForm.studentRoll}
- onChange={(e) => setLinkParentForm({ ...linkParentForm, studentRoll: e.target.value })}
- >
- {data.students.map((s) => (
- <option key={s.roll} value={s.roll}>{s.name} ({s.roll} - {s.class})</option>
- ))}
- </select>
- </div>
- </div>
- </div>
- <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
- <button type="button" className="btn btn-outline btn-sm" onClick={() => setIsLinkParentOpen(false)}>Cancel</button>
- <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>Link Parent Profile </button>
- </div>
- </form>
- </div>
- </div>
- )}
-
- {/* 8. Marks Evaluation Modal */}
- {marksStudent && (
- <div className="modal-overlay" style={{ display: 'flex' }}>
- <div className="modal-content wizard-modal-lg" style={{ maxWidth: '640px' }}>
- <div className="modal-header">
- <h3>Academic Marks &mdash; {marksStudent.name} ({marksStudent.roll})</h3>
- <button className="modal-close" onClick={() => setMarksStudent(null)}>&times;</button>
- </div>
- <form onSubmit={handleSaveMarks}>
- <div className="wizard-form-box">
- <div className="wizard-header-strip">
- <div className="wizard-header-icon" style={{ background: 'rgba(30, 58, 138, 0.08)', color: 'var(--color-primary)' }}>
- <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" /></svg>
- </div>
- <div className="wizard-header-titles">
- <h4>Academic Evaluation & Marks Entry</h4>
- <p>Record exam marks or assign Absent (AB) designation for official evaluation.</p>
- </div>
- </div>
-
- <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px 16px', marginBottom: '18px', display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'center', justifyContent: 'space-between' }}>
- <div><span style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700, display: 'block' }}>Student Name</span><strong style={{ color: 'var(--color-primary)', fontSize: '1rem' }}>{marksStudent.name}</strong></div>
- <div><span style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700, display: 'block' }}>Roll Number</span><code style={{ fontSize: '0.95rem', color: '#334155', fontWeight: 700 }}>{marksStudent.roll}</code></div>
- <div><span style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700, display: 'block' }}>Standard Class</span><span className="badge badge-info">{marksStudent.class}</span></div>
- <div><span style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700, display: 'block' }}>Current Standing</span><span className="badge badge-success">{marksStudent.performance || 'Good'}</span></div>
- </div>
-
- <p style={{ fontSize: '0.82rem', color: 'var(--color-text-light)', marginBottom: '14px' }}>
- Enter score (0-100) for each subject or click <strong>Mark AB</strong> if student was absent.
- </p>
-
- <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px', marginBottom: '10px' }}>
- {['Mathematics', 'Physics', 'Chemistry', 'Tamil', 'English'].map((sub) => (
- <div key={sub} className="wizard-field" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px', borderRadius: '8px' }}>
- <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
- <label style={{ margin: 0, fontWeight: 700, color: 'var(--color-primary)', fontSize: '0.88rem' }}> {sub}</label>
- <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, background: '#e2e8f0', padding: '2px 8px', borderRadius: '10px' }}>Max: 100</span>
- </div>
- <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
- <input
- type="text"
- placeholder="0-100 or AB"
- value={marksInputs[sub] !== undefined ? marksInputs[sub] : ''}
- onChange={(e) => setMarksInputs({ ...marksInputs, [sub]: e.target.value })}
- style={{ flex: 1 }}
- />
- <button
- type="button"
- className="btn btn-outline btn-sm"
- onClick={() => setMarksInputs({ ...marksInputs, [sub]: 'AB' })}
- style={{ whiteSpace: 'nowrap', padding: '7px 12px', fontSize: '0.78rem', borderColor: '#ef4444', color: '#ef4444', fontWeight: 600 }}
- >
- Mark AB
- </button>
- </div>
- </div>
- ))}
- </div>
- </div>
-
- <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
- <button type="button" className="btn btn-outline btn-sm" onClick={() => setMarksStudent(null)}>Cancel</button>
- <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>Save All Subject Marks </button>
- </div>
- </form>
- </div>
- </div>
- )}
-
- {/* 9. Post Announcement Modal */}
- {isAnnouncementOpen && (
- <div className="modal-overlay" style={{ display: 'flex' }}>
- <div className="modal-content wizard-modal-lg" style={{ maxWidth: '640px' }}>
- <div className="modal-header">
- <h3>Post Campus Announcement</h3>
- <button className="modal-close" onClick={() => setIsAnnouncementOpen(false)}>&times;</button>
- </div>
- <form onSubmit={handleSaveAnnouncement}>
- <div className="wizard-form-box">
- <div className="wizard-header-strip">
- <div className="wizard-header-icon" style={{ background: 'rgba(30, 58, 138, 0.08)', color: 'var(--color-primary)' }}>
- <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
- </div>
- <div className="wizard-header-titles">
- <h4>Broadcast Circular / Notice</h4>
- <p>Publish an official notice to students, teachers, or parents across this campus.</p>
- </div>
- </div>
- <div className="wizard-grid-2">
- <div className="wizard-field span-2">
- <label>Notice Headline / Title <span className="req">*</span></label>
- <input
- type="text"
- required
- placeholder="e.g. Annual Sports Meet 2026 - Schedule Released"
- value={announcementForm.title}
- onChange={(e) => setAnnouncementForm({ ...announcementForm, title: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Target Audience <span className="req">*</span></label>
- <select
- value={announcementForm.target}
- onChange={(e) => setAnnouncementForm({ ...announcementForm, target: e.target.value })}
- >
- <option value="All">All Campus Stakeholders</option>
- <option value="Students">Students Only</option>
- <option value="Teachers">Faculty & Staff</option>
- <option value="Parents">Parents Only</option>
- <option value="Sports Team">Sports Team</option>
- </select>
- </div>
- <div className="wizard-field">
- <label>Notice Category <span className="req">*</span></label>
- <select
- value={announcementForm.category}
- onChange={(e) => setAnnouncementForm({ ...announcementForm, category: e.target.value })}
- >
- <option value="General">General Campus Notice</option>
- <option value="Academic">Academic / Examinations</option>
- <option value="Sports">Sports & Cultural Events</option>
- <option value="Holidays">Official Holidays</option>
- </select>
- </div>
-
- {/* Priority & Publishing Department */}
- <div className="wizard-field">
- <label>Publishing Department / Authority</label>
- <input
- type="text"
- placeholder="e.g. Office of Principal, Sports Dept"
- value={announcementForm.author || ''}
- onChange={(e) => setAnnouncementForm({ ...announcementForm, author: e.target.value })}
- />
- </div>
- <div className="wizard-field">
- <label>Notice Priority</label>
- <select
- value={announcementForm.priority || 'Normal'}
- onChange={(e) => setAnnouncementForm({ ...announcementForm, priority: e.target.value })}
- >
- <option value="Normal">Normal Notice</option>
- <option value="High">High Priority Alert</option>
- </select>
- </div>
-
- {/* Cover Photo Upload & Presets */}
- <div className="wizard-field span-2">
- <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
- <span>Cover Photo (Image URL or File Upload)</span>
- <span style={{ fontSize: '0.75rem', color: '#64748b' }}>JPG, PNG, WebP supported</span>
- </label>
-
- {/* Image Preview if selected */}
- {announcementForm.image && (
- <div style={{ position: 'relative', height: '140px', borderRadius: '10px', overflow: 'hidden', marginBottom: '10px', border: '1px solid #cbd5e1' }}>
- <img
- src={announcementForm.image}
- alt="Cover Preview"
- style={{ width: '100%', height: '100%', objectFit: 'cover' }}
- />
- <button
- type="button"
- onClick={() => setAnnouncementForm({ ...announcementForm, image: '' })}
- style={{
- position: 'absolute',
- top: '8px',
- right: '8px',
- background: 'rgba(0,0,0,0.65)',
- color: '#fff',
- border: 'none',
- borderRadius: '50%',
- width: '26px',
- height: '26px',
- cursor: 'pointer',
- fontSize: '0.85rem'
- }}
- title="Remove cover photo"
- >
- 
- </button>
- </div>
- )}
-
- <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
- <input
- type="url"
- placeholder="Paste image URL (e.g. https://images.unsplash.com/...)"
- value={announcementForm.image}
- onChange={(e) => setAnnouncementForm({ ...announcementForm, image: e.target.value })}
- style={{ flex: 1 }}
- />
- <label
- className="btn btn-outline btn-sm"
- style={{
- margin: 0,
- cursor: 'pointer',
- whiteSpace: 'nowrap',
- padding: '8px 14px',
- display: 'inline-flex',
- alignItems: 'center',
- gap: '6px'
- }}
- >
- Upload Photo
- <input
- type="file"
- accept="image/*"
- style={{ display: 'none' }}
- onChange={(e) => {
- const file = e.target.files[0];
- if (!file) return;
- const reader = new FileReader();
- reader.onload = (evt) => {
- setAnnouncementForm({ ...announcementForm, image: evt.target.result });
- };
- reader.readAsDataURL(file);
- }}
- />
- </label>
- </div>
-
- {/* Quick Preset Photo Suggestions */}
- <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
- <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600 }}>Quick Presets:</span>
- <button
- type="button"
- className="btn btn-outline btn-sm"
- style={{ fontSize: '0.72rem', padding: '2px 8px' }}
- onClick={() => setAnnouncementForm({ ...announcementForm, image: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1200&q=80' })}
- >
- Sports
- </button>
- <button
- type="button"
- className="btn btn-outline btn-sm"
- style={{ fontSize: '0.72rem', padding: '2px 8px' }}
- onClick={() => setAnnouncementForm({ ...announcementForm, image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80' })}
- >
- Science / Tech
- </button>
- <button
- type="button"
- className="btn btn-outline btn-sm"
- style={{ fontSize: '0.72rem', padding: '2px 8px' }}
- onClick={() => setAnnouncementForm({ ...announcementForm, image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1200&q=80' })}
- >
- Parents Meet
- </button>
- <button
- type="button"
- className="btn btn-outline btn-sm"
- style={{ fontSize: '0.72rem', padding: '2px 8px' }}
- onClick={() => setAnnouncementForm({ ...announcementForm, image: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1200&q=80' })}
- >
- Holiday & Celebration
- </button>
- </div>
- </div>
-
- <div className="wizard-field span-2">
- <label>Detailed Announcement Notice <span className="req">*</span></label>
- <textarea
- rows="4"
- required
- placeholder="Enter the complete circular information text..."
- value={announcementForm.content}
- onChange={(e) => setAnnouncementForm({ ...announcementForm, content: e.target.value })}
- style={{ width: '100%', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '10px', fontFamily: 'inherit', fontSize: '0.9rem' }}
- ></textarea>
- </div>
- </div>
- </div>
- <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
- <button type="button" className="btn btn-outline btn-sm" onClick={() => setIsAnnouncementOpen(false)}>Cancel</button>
- <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>Publish Announcement </button>
  </div>
  </form>
  </div>

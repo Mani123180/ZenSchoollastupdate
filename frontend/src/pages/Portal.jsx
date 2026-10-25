@@ -107,6 +107,7 @@ export default function Portal() {
       { id: 'assignments', label: 'Homework & Assignments', icon: schIcons.subjects },
       { id: 'study-materials', label: 'Study Materials', icon: schIcons.subjects },
       { id: 'announcements', label: 'Announcements', icon: schIcons.announcements },
+      { id: 'leave-request', label: 'Leave Requests & Approvals', icon: schIcons.reports },
       { id: 'secure-messaging', label: 'Secure Messaging', icon: schIcons.messaging },
       { id: 'timetable', label: 'Timetable', icon: saIcons.dashboard },
     ],

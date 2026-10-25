@@ -61,12 +61,26 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
   // Feedback modal
   const [feedback, setFeedback] = useState(null);
 
-  // New Feature States
-  const [staffLeaves, setStaffLeaves] = useState([
-    { id: 'LV-101', teacher: 'Mrs. Selvi Murugan', subject: 'Chemistry', dates: '2026-10-24 to 2026-10-25', reason: 'Family Function in Madurai', status: 'Pending' },
-    { id: 'LV-102', teacher: 'Dr. Anandhi Rajan', subject: 'Physics', dates: '2026-10-28', reason: 'Medical Appointment', status: 'Pending' },
-    { id: 'LV-100', teacher: 'Mr. Anand Narayanan', subject: 'Physics', dates: '2026-10-15', reason: 'Educational Conference', status: 'Approved' },
-  ]);
+  // Leave Applications & Approvals State (Synced with getPortalData)
+  const [staffLeaves, setStaffLeaves] = useState(() => {
+    const cur = getPortalData();
+    return cur.staffLeaves || [
+      { id: 'LV-101', teacher: 'Mrs. Selvi Murugan', subject: 'Chemistry', dates: '2026-10-24 to 2026-10-25', reason: 'Family Function in Madurai', status: 'Pending', type: 'Casual Leave' },
+      { id: 'LV-102', teacher: 'Dr. Anandhi Rajan', subject: 'Physics', dates: '2026-10-28', reason: 'Medical Appointment', status: 'Pending', type: 'Medical Leave' },
+      { id: 'LV-100', teacher: 'Mr. Anand Narayanan', subject: 'Physics', dates: '2026-10-15', reason: 'Educational Conference', status: 'Approved', type: 'Duty Leave' },
+      { id: 'LV-103', teacher: 'Mrs. Priya Krishnan', subject: 'Mathematics', dates: '2026-10-20 to 2026-10-21', reason: 'Attending University Valuation Board', status: 'Approved', type: 'Duty Leave' },
+    ];
+  });
+
+  const [isApplyLeaveOpen, setIsApplyLeaveOpen] = useState(false);
+  const [leaveForm, setLeaveForm] = useState({
+    leaveType: 'Casual Leave',
+    fromDate: new Date().toISOString().split('T')[0],
+    toDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+    reason: '',
+    substituteTeacher: 'Dr. Anandhi Rajan',
+    contactDuringLeave: '+91 98401 23451'
+  });
 
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('UPI');
@@ -75,6 +89,10 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
   const [selectedAttendanceDate, setSelectedAttendanceDate] = useState(
     new Date().toISOString().split('T')[0]
   );
+  const [staffAttendanceDate, setStaffAttendanceDate] = useState(
+    new Date().toISOString().split('T')[0]
+  );
+  const [selectedStaffHistory, setSelectedStaffHistory] = useState(null);
   const [attendanceClassModal, setAttendanceClassModal] = useState(null);
   const [staffTimetableModal, setStaffTimetableModal] = useState(null);
   const [activeTimetableStaff, setActiveTimetableStaff] = useState(null);
@@ -95,13 +113,17 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
   });
 
   useEffect(() => {
-    setData(getPortalData());
+    const cur = getPortalData();
+    setData(cur);
+    if (cur.staffLeaves) {
+      setStaffLeaves(cur.staffLeaves);
+    }
 
     const handleDataUpdate = (e) => {
-      if (e && e.detail) {
-        setData(e.detail);
-      } else {
-        setData(getPortalData());
+      const freshData = (e && e.detail) ? e.detail : getPortalData();
+      setData(freshData);
+      if (freshData && freshData.staffLeaves) {
+        setStaffLeaves(freshData.staffLeaves);
       }
     };
 
@@ -151,6 +173,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
       'child-information': 'Child Information',
       'attendance-tracking': 'Attendance Tracking',
       'staff-leave-approvals': 'Faculty & Staff Leave Approvals',
+      'leave-request': 'Faculty Leave Request & Status Portal',
       'transport-tracking': 'School Bus Live GPS Tracking',
       'exam-results': 'Exam Results & Academic Report Card',
       'fee-reminders': 'Online Fee Payments & Receipts',
@@ -974,169 +997,8 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         {role === 'principal' && (activeTab === 'dashboard-analytics' || activeTab === 'academic-performance') && (
           <div>
             {/* Top Metric KPI Cards - Clickable Drilldown */}
-            <div className="grid-4" style={{ marginBottom: '24px' }}>
-              {/* 1. Total Enrolled Students */}
-              <div
-                className="portal-card clickable-card"
-                style={{
-                  borderLeftColor: '#3b82f6',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  padding: '18px 20px',
-                  background: '#ffffff',
-                }}
-                title="Click to view full class-wise enrollment & section distribution"
-                onClick={() => setAnalyticsModal('students')}
-              >
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
-                      Total Enrolled Students
-                    </span>
-                    <span style={{ fontSize: '1.25rem' }}>🎓</span>
-                  </div>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#1e3a8a', margin: '8px 0 4px 0', lineHeight: 1.1 }}>
-                    {data.students?.length ? data.students.length * 160 + 2 : 482}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>
-                    ↑ +12% YoY &bull; 16 Sections Active
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    marginTop: '16px',
-                    paddingTop: '12px',
-                    borderTop: '1px solid #f1f5f9',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#2563eb' }}>
-                    View Class Breakdown
-                  </span>
-                  <span
-                    style={{
-                      background: '#eff6ff',
-                      color: '#2563eb',
-                      width: '26px',
-                      height: '26px',
-                      borderRadius: '50%',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '0.85rem',
-                      fontWeight: 700,
-                    }}
-                  >
-                    &rarr;
-                  </span>
-                </div>
-              </div>
-
-              {/* 2. Overall Daily Attendance with Date Picker */}
-              <div
-                className="portal-card clickable-card"
-                style={{
-                  borderLeftColor: '#10b981',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  padding: '18px 20px',
-                  background: '#ffffff',
-                }}
-                title="Click to view class-wise attendance report"
-                onClick={() => setAnalyticsModal('attendance')}
-              >
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
-                      Overall Daily Attendance
-                    </span>
-                    <span style={{ fontSize: '1.25rem' }}>📅</span>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', margin: '8px 0 4px 0' }}>
-                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#047857', lineHeight: 1.1 }}>
-                      {(() => {
-                        // Deterministic variation based on selected date
-                        const d = new Date(selectedAttendanceDate);
-                        const day = d.getDay();
-                        if (day === 0) return 'Holiday (Sun)';
-                        if (day === 6) return '96.8%';
-                        if (day === 1) return '97.2%';
-                        if (day === 5) return '94.6%';
-                        return '95.4%';
-                      })()}
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
-                    <div style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>
-                      ✓ Benchmark: 95.0%
-                    </div>
-                    {/* Inline Quick Date Selector */}
-                    <div
-                      onClick={(e) => e.stopPropagation()}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-                    >
-                      <input
-                        type="date"
-                        value={selectedAttendanceDate}
-                        onChange={(e) => setSelectedAttendanceDate(e.target.value)}
-                        max={new Date().toISOString().split('T')[0]}
-                        style={{
-                          fontSize: '0.74rem',
-                          padding: '2px 6px',
-                          border: '1px solid #cbd5e1',
-                          borderRadius: '6px',
-                          color: '#0f172a',
-                          background: '#f8fafc',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    marginTop: '16px',
-                    paddingTop: '12px',
-                    borderTop: '1px solid #f1f5f9',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#059669' }}>
-                    View Class Attendance
-                  </span>
-                  <span
-                    style={{
-                      background: '#ecfdf5',
-                      color: '#059669',
-                      width: '26px',
-                      height: '26px',
-                      borderRadius: '50%',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '0.85rem',
-                      fontWeight: 700,
-                    }}
-                  >
-                    &rarr;
-                  </span>
-                </div>
-              </div>
-
-              {/* 3. Teaching Staff On Duty */}
+            <div className="grid-3" style={{ marginBottom: '24px' }}>
+              {/* 1. Total Teaching Staff */}
               <div
                 className="portal-card clickable-card"
                 style={{
@@ -1154,15 +1016,15 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
-                      Teaching Staff On Duty
+                      Total Teaching Staff
                     </span>
                     <span style={{ fontSize: '1.25rem' }}>👩‍🏫</span>
                   </div>
                   <div style={{ fontSize: '2rem', fontWeight: 800, color: '#b45309', margin: '8px 0 4px 0', lineHeight: 1.1 }}>
-                    {data.teachers?.length || 32} / { (data.teachers?.length || 32) + 2 }
+                    {(data.teachers?.length || 32) + 2}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>
-                    2 On Leave &bull; 100% Classes Covered
+                  <div style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>
+                    {data.teachers?.length || 32} On Duty &bull; 2 On Leave
                   </div>
                 </div>
 
@@ -1198,11 +1060,11 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* 4. Pass Percentage */}
+              {/* 3. Non-Teaching Staff */}
               <div
                 className="portal-card clickable-card"
                 style={{
-                  borderLeftColor: '#8b5cf6',
+                  borderLeftColor: '#06b6d4',
                   cursor: 'pointer',
                   display: 'flex',
                   flexDirection: 'column',
@@ -1210,21 +1072,21 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   padding: '18px 20px',
                   background: '#ffffff',
                 }}
-                title="Click to view grade-wise pass percentage & board results"
-                onClick={() => setAnalyticsModal('results')}
+                title="Click to view non-teaching & administrative staff roster"
+                onClick={() => setAnalyticsModal('non-teaching')}
               >
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
-                      Pass Percentage (Board Exam)
+                      Non-Teaching Staff
                     </span>
-                    <span style={{ fontSize: '1.25rem' }}>🏆</span>
+                    <span style={{ fontSize: '1.25rem' }}>👥</span>
                   </div>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#6d28d9', margin: '8px 0 4px 0', lineHeight: 1.1 }}>
-                    98.2%
+                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#0e7490', margin: '8px 0 4px 0', lineHeight: 1.1 }}>
+                    {data.nonTeachingStaff?.length || 8}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>
-                    ↑ +2.4% vs Previous Year
+                  <div style={{ fontSize: '0.75rem', color: '#0284c7', fontWeight: 600 }}>
+                    {(data.nonTeachingStaff?.filter(s => s.status === 'On Duty')?.length || 7)} Active Today &bull; 1 Leave
                   </div>
                 </div>
 
@@ -1238,13 +1100,75 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                     justifyContent: 'space-between',
                   }}
                 >
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#7c3aed' }}>
-                    View Subject Scores
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0891b2' }}>
+                    View Non-Teaching Roster
                   </span>
                   <span
                     style={{
-                      background: '#f5f3ff',
-                      color: '#7c3aed',
+                      background: '#ecfeff',
+                      color: '#0891b2',
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '50%',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                    }}
+                  >
+                    &rarr;
+                  </span>
+                </div>
+              </div>
+
+              {/* 4. Total Works / Operations */}
+              <div
+                className="portal-card clickable-card"
+                style={{
+                  borderLeftColor: '#ec4899',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  padding: '18px 20px',
+                  background: '#ffffff',
+                }}
+                title="Click to view daily school operations & task pipeline"
+                onClick={() => setAnalyticsModal('operations-works')}
+              >
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
+                      Total Works & Tasks
+                    </span>
+                    <span style={{ fontSize: '1.25rem' }}>📋</span>
+                  </div>
+                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#be185d', margin: '8px 0 4px 0', lineHeight: 1.1 }}>
+                    {data.operationsWorks?.length || 8}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#db2777', fontWeight: 600 }}>
+                    {(data.operationsWorks?.filter(w => w.status === 'Completed')?.length || 4)} Completed &bull; {(data.operationsWorks?.filter(w => w.status === 'In Progress')?.length || 3)} In Progress
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    marginTop: '16px',
+                    paddingTop: '12px',
+                    borderTop: '1px solid #f1f5f9',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#db2777' }}>
+                    View Works Log
+                  </span>
+                  <span
+                    style={{
+                      background: '#fdf2f8',
+                      color: '#db2777',
                       width: '26px',
                       height: '26px',
                       borderRadius: '50%',
@@ -1466,12 +1390,23 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                             <button
                               className="sa-tbl-action success"
                               onClick={() => {
-                                setStaffLeaves((prev) =>
-                                  prev.map((item) => (item.id === lv.id ? { ...item, status: 'Approved' } : item))
-                                );
+                                const updated = staffLeaves.map((item) => (item.id === lv.id ? { ...item, status: 'Approved' } : item));
+                                setStaffLeaves(updated);
+                                const pData = getPortalData();
+                                pData.staffLeaves = updated;
+                                if (pData.teachers && Array.isArray(pData.teachers)) {
+                                  pData.teachers = pData.teachers.map((t) => {
+                                    if (t.name === lv.teacher || (lv.teacher && t.name.toLowerCase().includes(lv.teacher.toLowerCase().replace(/^(dr|mr|mrs|ms)\.?\s+/i, '')))) {
+                                      return { ...t, status: 'On Leave' };
+                                    }
+                                    return t;
+                                  });
+                                }
+                                savePortalData(pData);
+                                setData({ ...pData });
                                 setFeedback({
-                                  title: 'Leave Approved',
-                                  body: `Leave request ${lv.id} for ${lv.teacher} approved. Automatic substitute notification dispatched.`,
+                                  title: 'Leave Approved ✓',
+                                  body: `Leave request ${lv.id} for ${lv.teacher} has been approved. Faculty status has been updated to 'On Leave' and substitute has been confirmed.`,
                                 });
                               }}
                             >
@@ -1480,12 +1415,23 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                             <button
                               className="sa-tbl-action delete"
                               onClick={() => {
-                                setStaffLeaves((prev) =>
-                                  prev.map((item) => (item.id === lv.id ? { ...item, status: 'Rejected' } : item))
-                                );
+                                const updated = staffLeaves.map((item) => (item.id === lv.id ? { ...item, status: 'Rejected' } : item));
+                                setStaffLeaves(updated);
+                                const pData = getPortalData();
+                                pData.staffLeaves = updated;
+                                if (pData.teachers && Array.isArray(pData.teachers)) {
+                                  pData.teachers = pData.teachers.map((t) => {
+                                    if (t.name === lv.teacher || (lv.teacher && t.name.toLowerCase().includes(lv.teacher.toLowerCase().replace(/^(dr|mr|mrs|ms)\.?\s+/i, '')))) {
+                                      return { ...t, status: 'Active' };
+                                    }
+                                    return t;
+                                  });
+                                }
+                                savePortalData(pData);
+                                setData({ ...pData });
                                 setFeedback({
-                                  title: 'Leave Declined',
-                                  body: `Leave request ${lv.id} has been declined.`,
+                                  title: 'Leave Declined ✕',
+                                  body: `Leave request ${lv.id} for ${lv.teacher} has been declined. Faculty status remains 'Active'.`,
                                 });
                               }}
                             >
@@ -2162,6 +2108,391 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        {role === 'teacher' && activeTab === 'leave-request' && (() => {
+          const currentTeacherName = user?.name || 'Mrs. Priya Krishnan';
+          const myLeaves = staffLeaves.filter(lv => !lv.teacher || lv.teacher === currentTeacherName || lv.teacher.toLowerCase().includes('priya'));
+
+          const approvedCount = myLeaves.filter(l => l.status === 'Approved').length;
+          const pendingCount = myLeaves.filter(l => l.status === 'Pending').length;
+
+          const handleApplyLeaveSubmit = (e) => {
+            e.preventDefault();
+            const dateStr = leaveForm.fromDate === leaveForm.toDate ? leaveForm.fromDate : `${leaveForm.fromDate} to ${leaveForm.toDate}`;
+            const newLeave = {
+              id: `LV-${Math.floor(100 + Math.random() * 900)}`,
+              teacher: currentTeacherName,
+              subject: 'Mathematics',
+              dates: dateStr,
+              reason: leaveForm.reason || 'Personal / Academic duty',
+              status: 'Pending',
+              type: leaveForm.leaveType,
+              substituteTeacher: leaveForm.substituteTeacher,
+              contact: leaveForm.contactDuringLeave,
+              appliedOn: new Date().toISOString().split('T')[0]
+            };
+
+            const updatedLeaves = [newLeave, ...staffLeaves];
+            setStaffLeaves(updatedLeaves);
+
+            const pData = getPortalData();
+            pData.staffLeaves = updatedLeaves;
+            savePortalData(pData);
+
+            setIsApplyLeaveOpen(false);
+            setLeaveForm({
+              leaveType: 'Casual Leave',
+              fromDate: new Date().toISOString().split('T')[0],
+              toDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+              reason: '',
+              substituteTeacher: 'Dr. Anandhi Rajan',
+              contactDuringLeave: '+91 98401 23451'
+            });
+
+            setFeedback({
+              title: 'Leave Application Submitted',
+              body: `Your leave request for ${dateStr} has been submitted to the Principal Office for approval.`
+            });
+          };
+
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* Header Bar */}
+              <div className="sa-schools-header-bar" style={{ flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h3 style={{ margin: '0 0 4px 0', fontSize: '1.25rem', color: '#1e3a8a', fontWeight: 800 }}>
+                    My Leave Applications & Approval Status
+                  </h3>
+                  <p style={{ margin: 0, fontSize: '0.86rem', color: '#64748b' }}>
+                    Faculty: <strong>{currentTeacherName}</strong> &bull; Department: <strong>Mathematics</strong> &bull; Track Principal's decisions in real-time
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => setIsApplyLeaveOpen(true)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 20px', fontWeight: 700 }}
+                >
+                  <span>+</span> Apply New Leave
+                </button>
+              </div>
+
+              {/* Leave Quota Balance Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '14px' }}>
+                <div style={{ background: '#eff6ff', padding: '16px 20px', borderRadius: '12px', border: '1.5px solid #bfdbfe' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#1e40af', fontWeight: 700, textTransform: 'uppercase' }}>Casual Leave (CL)</span>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#1e3a8a', marginTop: '4px' }}>8 / 12</div>
+                  <span style={{ fontSize: '0.74rem', color: '#3b82f6' }}>4 Days Availed this Academic Year</span>
+                </div>
+
+                <div style={{ background: '#ecfdf5', padding: '16px 20px', borderRadius: '12px', border: '1.5px solid #a7f3d0' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#065f46', fontWeight: 700, textTransform: 'uppercase' }}>Medical Leave (ML)</span>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#047857', marginTop: '4px' }}>10 / 10</div>
+                  <span style={{ fontSize: '0.74rem', color: '#10b981' }}>Full Quota Available</span>
+                </div>
+
+                <div style={{ background: '#fdf2f8', padding: '16px 20px', borderRadius: '12px', border: '1.5px solid #fbcfe8' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#9d174d', fontWeight: 700, textTransform: 'uppercase' }}>On-Duty / Academic</span>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#be185d', marginTop: '4px' }}>15 Days</div>
+                  <span style={{ fontSize: '0.74rem', color: '#ec4899' }}>Board Exam & Valuation Duties</span>
+                </div>
+
+                <div style={{ background: '#fffbeb', padding: '16px 20px', borderRadius: '12px', border: '1.5px solid #fde68a' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#92400e', fontWeight: 700, textTransform: 'uppercase' }}>Approval Status</span>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#b45309', marginTop: '4px' }}>
+                    {pendingCount} Pending
+                  </div>
+                  <span style={{ fontSize: '0.74rem', color: '#d97706' }}>{approvedCount} Approved in Queue</span>
+                </div>
+              </div>
+
+              {/* Leave Applications Table */}
+              <div className="portal-card" style={{ margin: 0, padding: '20px', borderRadius: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                  <h4 style={{ margin: 0, fontSize: '1rem', color: '#0f172a', fontWeight: 700 }}>
+                    Leave History & Principal Approvals Queue ({myLeaves.length})
+                  </h4>
+                  <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                    💡 Notifications sent to Principal Office immediately upon submission
+                  </span>
+                </div>
+
+                <div className="table-responsive">
+                  <table className="sa-schools-table">
+                    <thead>
+                      <tr>
+                        <th>App Ref</th>
+                        <th>Leave Type</th>
+                        <th>Leave Dates</th>
+                        <th>Reason for Absence</th>
+                        <th>Roster Substitute</th>
+                        <th style={{ textAlign: 'center' }}>Principal Decision</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {myLeaves.length === 0 ? (
+                        <tr>
+                          <td colSpan="6" style={{ textAlign: 'center', padding: '32px', color: '#64748b' }}>
+                            No leave applications submitted yet. Click <strong>+ Apply New Leave</strong> to submit an application.
+                          </td>
+                        </tr>
+                      ) : (
+                        myLeaves.map((lv) => (
+                          <tr key={lv.id}>
+                            <td data-label="App Ref"><code>{lv.id}</code></td>
+                            <td data-label="Leave Type">
+                              <span className="badge badge-neutral" style={{ fontWeight: 700 }}>
+                                {lv.type || 'Casual Leave'}
+                              </span>
+                            </td>
+                            <td data-label="Leave Dates">
+                              <strong>{lv.dates}</strong>
+                            </td>
+                            <td data-label="Reason for Absence">{lv.reason}</td>
+                            <td data-label="Roster Substitute">
+                              <span style={{ fontSize: '0.84rem', color: '#0f172a' }}>
+                                👤 {lv.substituteTeacher || 'Dr. Anandhi Rajan (Physics)'}
+                              </span>
+                            </td>
+                            <td data-label="Principal Decision" style={{ textAlign: 'center' }}>
+                              <span
+                                className={`badge ${
+                                  lv.status === 'Approved'
+                                    ? 'badge-success'
+                                    : lv.status === 'Rejected'
+                                    ? 'badge-danger'
+                                    : 'badge-warning'
+                                }`}
+                                style={{ fontSize: '0.82rem', padding: '4px 12px' }}
+                              >
+                                {lv.status === 'Approved'
+                                  ? '✓ Approved by Principal'
+                                  : lv.status === 'Rejected'
+                                  ? '✕ Declined'
+                                  : '⏳ Pending Principal Approval'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Apply Leave Modal */}
+              {isApplyLeaveOpen && (
+                <div
+                  className="modal-overlay"
+                  style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(15, 23, 42, 0.7)',
+                    backdropFilter: 'blur(4px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 99999,
+                    padding: '16px'
+                  }}
+                  onClick={() => setIsApplyLeaveOpen(false)}
+                >
+                  <div
+                    className="modal-content"
+                    style={{
+                      maxWidth: '620px',
+                      width: '100%',
+                      maxHeight: '90vh',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      borderRadius: '16px',
+                      overflow: 'hidden',
+                      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                      background: '#ffffff'
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div
+                      style={{
+                        background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                        padding: '18px 24px',
+                        color: '#ffffff',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexShrink: 0
+                      }}
+                    >
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>
+                          📝 Submit Faculty Leave Application
+                        </h3>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.84rem', opacity: 0.9 }}>
+                          Faculty: {currentTeacherName} (Mathematics) &bull; For Principal Approval
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsApplyLeaveOpen(false)}
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.2)',
+                          border: 'none',
+                          color: '#ffffff',
+                          fontSize: '1.2rem',
+                          cursor: 'pointer',
+                          borderRadius: '50%',
+                          width: '32px',
+                          height: '32px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 700
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <form
+                      onSubmit={handleApplyLeaveSubmit}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        flex: 1,
+                        overflowY: 'auto',
+                        minHeight: 0
+                      }}
+                    >
+                      <div style={{ padding: '24px', flex: 1 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                          <div className="wizard-field">
+                            <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
+                              Leave Category <span style={{ color: '#ef4444' }}>*</span>
+                            </label>
+                            <select
+                              value={leaveForm.leaveType}
+                              onChange={(e) => setLeaveForm({ ...leaveForm, leaveType: e.target.value })}
+                              style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1.5px solid #cbd5e1', fontWeight: 600 }}
+                            >
+                              <option value="Casual Leave">Casual Leave (CL)</option>
+                              <option value="Medical Leave">Medical Leave (ML)</option>
+                              <option value="Duty Leave">Duty / Official Leave (OD)</option>
+                              <option value="Earned Leave">Earned Leave (EL)</option>
+                              <option value="Special Permission">Special Permission (Half-Day)</option>
+                            </select>
+                          </div>
+
+                          <div className="wizard-field">
+                            <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
+                              Substitute Teacher for Classes
+                            </label>
+                            <select
+                              value={leaveForm.substituteTeacher}
+                              onChange={(e) => setLeaveForm({ ...leaveForm, substituteTeacher: e.target.value })}
+                              style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1.5px solid #cbd5e1', fontWeight: 600 }}
+                            >
+                              <option value="Dr. Anandhi Rajan (Physics)">Dr. Anandhi Rajan (Physics)</option>
+                              <option value="Mr. Anand Narayanan (Physics)">Mr. Anand Narayanan (Physics)</option>
+                              <option value="Mrs. Selvi Murugan (Chemistry)">Mrs. Selvi Murugan (Chemistry)</option>
+                              <option value="Mr. Ramanathan K. (Computer)">Mr. Ramanathan K. (Computer)</option>
+                              <option value="Mrs. Jayanthi S. (English)">Mrs. Jayanthi S. (English)</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                          <div className="wizard-field">
+                            <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
+                              From Date <span style={{ color: '#ef4444' }}>*</span>
+                            </label>
+                            <input
+                              type="date"
+                              required
+                              value={leaveForm.fromDate}
+                              onChange={(e) => setLeaveForm({ ...leaveForm, fromDate: e.target.value })}
+                              style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1.5px solid #cbd5e1', fontWeight: 600 }}
+                            />
+                          </div>
+
+                          <div className="wizard-field">
+                            <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
+                              To Date <span style={{ color: '#ef4444' }}>*</span>
+                            </label>
+                            <input
+                              type="date"
+                              required
+                              min={leaveForm.fromDate}
+                              value={leaveForm.toDate}
+                              onChange={(e) => setLeaveForm({ ...leaveForm, toDate: e.target.value })}
+                              style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1.5px solid #cbd5e1', fontWeight: 600 }}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="wizard-field" style={{ marginBottom: '16px' }}>
+                          <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
+                            Reason & Explanation for Leave <span style={{ color: '#ef4444' }}>*</span>
+                          </label>
+                          <textarea
+                            required
+                            rows="3"
+                            placeholder="e.g. Attending family function in Madurai / Medical appointment / University paper valuation duty"
+                            value={leaveForm.reason}
+                            onChange={(e) => setLeaveForm({ ...leaveForm, reason: e.target.value })}
+                            style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1.5px solid #cbd5e1', fontSize: '0.9rem' }}
+                          />
+                        </div>
+
+                        <div className="wizard-field" style={{ marginBottom: '8px' }}>
+                          <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '4px' }}>
+                            Emergency Contact Phone Number
+                          </label>
+                          <input
+                            type="text"
+                            value={leaveForm.contactDuringLeave}
+                            onChange={(e) => setLeaveForm({ ...leaveForm, contactDuringLeave: e.target.value })}
+                            style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1.5px solid #cbd5e1', fontWeight: 600 }}
+                          />
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'flex-end',
+                          gap: '12px',
+                          padding: '16px 24px',
+                          background: '#f8fafc',
+                          borderTop: '1px solid #e2e8f0',
+                          flexShrink: 0
+                        }}
+                      >
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          onClick={() => setIsApplyLeaveOpen(false)}
+                          style={{ padding: '9px 18px', fontWeight: 600 }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="btn btn-primary btn-sm"
+                          style={{ padding: '9px 24px', fontWeight: 700, boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)' }}
+                        >
+                          Submit to Principal Office ➔
+                        </button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               )}
             </div>
@@ -4138,6 +4469,10 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                     ? 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)'
                     : analyticsModal === 'staff'
                     ? 'linear-gradient(135deg, #b45309 0%, #f59e0b 100%)'
+                    : analyticsModal === 'non-teaching'
+                    ? 'linear-gradient(135deg, #0891b2 0%, #06b6d4 100%)'
+                    : analyticsModal === 'operations-works'
+                    ? 'linear-gradient(135deg, #be185d 0%, #ec4899 100%)'
                     : 'linear-gradient(135deg, #6d28d9 0%, #8b5cf6 100%)',
                 color: '#ffffff',
                 padding: '20px 24px',
@@ -4151,12 +4486,16 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   {analyticsModal === 'attendance' && '📅 Daily Attendance — Class-Wise Detailed Report'}
                   {analyticsModal === 'students' && '🎓 Enrolled Students — Section Distribution & Class Strength'}
                   {analyticsModal === 'staff' && '👩‍🏫 Teaching Faculty — Attendance & Leave Roster'}
+                  {analyticsModal === 'non-teaching' && '👥 Non-Teaching & Administrative Staff — Duty Register'}
+                  {analyticsModal === 'operations-works' && '📋 Campus Operations & Administrative Works Pipeline'}
                   {analyticsModal === 'results' && '🏆 Board Exam & Academic Performance by Subject'}
                 </h3>
                 <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', opacity: 0.9 }}>
                   {analyticsModal === 'attendance' && `Live morning session roll call audit • Date: ${new Date().toLocaleDateString()}`}
                   {analyticsModal === 'students' && 'Academic Year 2026-27 Active Enrollment Register'}
                   {analyticsModal === 'staff' && 'Daily faculty attendance log and substitute coverage map'}
+                  {analyticsModal === 'non-teaching' && 'Non-academic staff duty deployment, office admin & lab support'}
+                  {analyticsModal === 'operations-works' && 'Real-time tracking of institutional daily tasks, audits & compliance'}
                   {analyticsModal === 'results' && 'Comprehensive subject-wise pass percentage and distinction count'}
                 </p>
               </div>
@@ -4477,289 +4816,405 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               )}
 
               {/* 3. TEACHING STAFF ON DUTY DRILLDOWN */}
-              {analyticsModal === 'staff' && (
-                <div>
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                      gap: '12px',
-                      marginBottom: '20px',
-                    }}
-                  >
-                    <div style={{ background: '#fef3c7', padding: '14px', borderRadius: '10px', border: '1px solid #fde68a' }}>
-                      <span style={{ fontSize: '0.75rem', color: '#92400e', fontWeight: 700, textTransform: 'uppercase' }}>Present on Duty</span>
-                      <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#b45309' }}>32 / 34 Faculty</div>
-                      <span style={{ fontSize: '0.72rem', color: '#d97706' }}>94.1% Staff Presence</span>
+              {analyticsModal === 'staff' && (() => {
+                const sDate = new Date(staffAttendanceDate);
+                const dayNum = sDate.getDay();
+                const isSunday = dayNum === 0;
+                const formattedDate = sDate.toLocaleDateString('en-IN', {
+                  weekday: 'short',
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                });
+
+                const facultyPool = [
+                  { name: 'Mrs. Priya Krishnan', dept: 'Mathematics', cls: 'Grade 10-A', punch: '08:15 AM', periods: '5 Periods', phone: '+91 98401 23451' },
+                  { name: 'Dr. Anandhi Rajan', dept: 'Physics', cls: 'Grade 11-A', punch: '08:20 AM', periods: '4 Periods + Lab', phone: '+91 98401 23452' },
+                  { name: 'Mr. Anand Narayanan', dept: 'Physics', cls: 'Grade 12-A', punch: '08:12 AM', periods: '5 Periods', phone: '+91 98401 23453' },
+                  { name: 'Mrs. Selvi Murugan', dept: 'Chemistry', cls: 'Grade 9-A', punch: '—', periods: 'Substituted by Dr. Rajan', phone: '+91 98401 23455' },
+                  { name: 'Mr. Ramanathan K.', dept: 'Computer Science', cls: 'Grade 10-B', punch: '08:25 AM', periods: '4 Lab Sessions', phone: '+91 98401 23457' },
+                  { name: 'Mrs. Jayanthi S.', dept: 'English', cls: 'Grade 11-B', punch: '08:18 AM', periods: '5 Periods', phone: '+91 98401 23458' },
+                  { name: 'Ms. K. Suganthi', dept: 'Social Science', cls: 'Grade 8-B', punch: '08:22 AM', periods: '4 Periods', phone: '+91 98401 23459' },
+                  { name: 'Mr. V. Balaji', dept: 'Biology', cls: 'Grade 9-B', punch: '—', periods: 'Substituted by Ms. Meena', phone: '+91 98401 23460' },
+                ];
+
+                const dateSeed = (sDate.getDate() * 7 + sDate.getMonth() * 11) % 8;
+                const computedFaculty = facultyPool.map((f, idx) => {
+                  if (isSunday) {
+                    return { ...f, status: 'Holiday (Sunday)', punch: '—', isPresent: false };
+                  }
+                  const isLeave = (idx === (dateSeed % facultyPool.length)) || (idx === ((dateSeed + 3) % facultyPool.length));
+                  const isPresent = !isLeave;
+                  return {
+                    ...f,
+                    status: isPresent ? 'On Duty' : 'On Approved Leave',
+                    punch: isPresent ? f.punch : '—',
+                    isPresent
+                  };
+                });
+
+                const presentCount = isSunday ? 0 : computedFaculty.filter(f => f.isPresent).length;
+                const leaveCount = isSunday ? 0 : computedFaculty.length - presentCount;
+
+                return (
+                  <div>
+                    {/* Live Date Filter Bar */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '12px 18px',
+                        background: '#fffbeb',
+                        border: '1.5px solid #fde68a',
+                        borderRadius: '10px',
+                        marginBottom: '18px',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#92400e' }}>
+                          📅 Check Teaching Attendance by Date:
+                        </span>
+                        <input
+                          type="date"
+                          value={staffAttendanceDate}
+                          onChange={(e) => setStaffAttendanceDate(e.target.value)}
+                          max={new Date().toISOString().split('T')[0]}
+                          style={{
+                            padding: '6px 12px',
+                            border: '1.5px solid #d97706',
+                            borderRadius: '8px',
+                            fontWeight: 700,
+                            color: '#92400e',
+                            background: '#ffffff',
+                            fontSize: '0.9rem',
+                            cursor: 'pointer',
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          onClick={() => setStaffAttendanceDate(new Date().toISOString().split('T')[0])}
+                          style={{ fontSize: '0.78rem', padding: '4px 10px', borderColor: '#d97706', color: '#92400e' }}
+                        >
+                          Today
+                        </button>
+                      </div>
+                      <span className="badge badge-amber" style={{ fontSize: '0.8rem', fontWeight: 700 }}>
+                        {formattedDate} {isSunday ? '• Institutional Holiday' : ''}
+                      </span>
                     </div>
 
-                    <div style={{ background: '#fee2e2', padding: '14px', borderRadius: '10px', border: '1px solid #fca5a5' }}>
-                      <span style={{ fontSize: '0.75rem', color: '#991b1b', fontWeight: 700, textTransform: 'uppercase' }}>On Approved Leave</span>
-                      <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#dc2626' }}>2 Faculty</div>
-                      <span style={{ fontSize: '0.72rem', color: '#b91c1c' }}>Substitute Arrangements Made ✓</span>
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                        gap: '12px',
+                        marginBottom: '20px',
+                      }}
+                    >
+                      <div style={{ background: '#fef3c7', padding: '14px', borderRadius: '10px', border: '1px solid #fde68a' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#92400e', fontWeight: 700, textTransform: 'uppercase' }}>Present on Duty</span>
+                        <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#b45309' }}>
+                          {presentCount} / {computedFaculty.length} Faculty
+                        </div>
+                        <span style={{ fontSize: '0.72rem', color: '#d97706' }}>
+                          {computedFaculty.length ? ((presentCount / computedFaculty.length) * 100).toFixed(1) : 0}% Attendance Rate
+                        </span>
+                      </div>
+
+                      <div style={{ background: '#fee2e2', padding: '14px', borderRadius: '10px', border: '1px solid #fca5a5' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#991b1b', fontWeight: 700, textTransform: 'uppercase' }}>On Approved Leave / Absent</span>
+                        <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#dc2626' }}>{leaveCount} Faculty</div>
+                        <span style={{ fontSize: '0.72rem', color: '#b91c1c' }}>Roster Substitute Active ✓</span>
+                      </div>
+
+                      <div style={{ background: '#ecfdf5', padding: '14px', borderRadius: '10px', border: '1px solid #a7f3d0' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 700, textTransform: 'uppercase' }}>Classes Coverage</span>
+                        <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#065f46' }}>{isSunday ? 'Holiday' : '100%'}</div>
+                        <span style={{ fontSize: '0.72rem', color: '#059669' }}>All periods manned</span>
+                      </div>
                     </div>
 
-                    <div style={{ background: '#ecfdf5', padding: '14px', borderRadius: '10px', border: '1px solid #a7f3d0' }}>
-                      <span style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 700, textTransform: 'uppercase' }}>Period Coverage Rate</span>
-                      <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#065f46' }}>100%</div>
-                      <span style={{ fontSize: '0.72rem', color: '#059669' }}>0 Free / Unattended Periods</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 0 10px 0' }}>
+                      <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#1e293b' }}>
+                        Teaching Faculty Daily Log &bull; <span style={{ color: '#b45309', fontWeight: 800 }}>Click any teacher's name</span> to view past attendance:
+                      </h4>
+                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>💡 Click row for timetable / Click name for attendance</span>
                     </div>
-                  </div>
 
-                  <h4 style={{ margin: '0 0 10px 0', fontSize: '0.95rem', color: '#1e293b' }}>
-                    Faculty Daily Log & Department Status:
-                  </h4>
-                  <div className="table-responsive">
-                    <table className="sa-schools-table">
-                      <thead>
-                        <tr>
-                          <th>Faculty Name</th>
-                          <th>Department</th>
-                          <th>Assigned Class</th>
-                          <th>Morning Punch</th>
-                          <th>Duty Status</th>
-                          <th>Periods Assigned</th>
-                          <th style={{ textAlign: 'center' }}>Timetable</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[
-                          { name: 'Mrs. Priya Krishnan', dept: 'Mathematics', cls: 'Grade 10-A', punch: '08:15 AM', status: 'On Duty', periods: '5 Periods' },
-                          { name: 'Dr. Anandhi Rajan', dept: 'Physics', cls: 'Grade 11-A', punch: '08:20 AM', status: 'On Duty', periods: '4 Periods + Lab' },
-                          { name: 'Mr. Anand Narayanan', dept: 'Physics', cls: 'Grade 12-A', punch: '08:12 AM', status: 'On Duty', periods: '5 Periods' },
-                          { name: 'Mrs. Selvi Murugan', dept: 'Chemistry', cls: 'Grade 9-A', punch: '—', status: 'On Leave (Casual)', periods: 'Substituted by Dr. Rajan' },
-                          { name: 'Mr. Ramanathan K.', dept: 'Computer Science', cls: 'Grade 10-B', punch: '08:25 AM', status: 'On Duty', periods: '4 Lab Sessions' },
-                          { name: 'Mrs. Jayanthi S.', dept: 'English', cls: 'Grade 11-B', punch: '08:18 AM', status: 'On Duty', periods: '5 Periods' },
-                          { name: 'Ms. K. Suganthi', dept: 'Social Science', cls: 'Grade 8-B', punch: '08:22 AM', status: 'On Duty', periods: '4 Periods' },
-                          { name: 'Mr. V. Balaji', dept: 'Biology', cls: 'Grade 9-B', punch: '—', status: 'On Leave (Medical)', periods: 'Substituted by Ms. Meena' },
-                        ].map((t, idx) => {
-                          const isSelected = activeTimetableStaff?.name === t.name;
-                          return (
-                            <tr
-                              key={idx}
-                              onClick={() => {
-                                setActiveTimetableStaff(isSelected ? null : t);
-                                setStaffTimetableModal(t);
-                              }}
-                              style={{
-                                cursor: 'pointer',
-                                transition: 'background-color 0.15s ease',
-                                background: isSelected ? '#eff6ff' : 'transparent',
-                              }}
-                              title={`Click to view ${t.name}'s weekly timetable right here`}
-                            >
-                              <td data-label="Faculty Name">
-                                <span style={{ color: '#1d4ed8', fontWeight: 700, textDecoration: 'underline' }}>
-                                  👩‍🏫 {t.name}
-                                </span>
-                              </td>
-                              <td data-label="Department">{t.dept}</td>
-                              <td data-label="Assigned Class">{t.cls}</td>
-                              <td data-label="Morning Punch"><code>{t.punch}</code></td>
-                              <td data-label="Duty Status">
-                                <span className={`badge ${t.status.includes('Duty') ? 'badge-success' : 'badge-danger'}`}>
-                                  {t.status}
-                                </span>
-                              </td>
-                              <td data-label="Periods Assigned">{t.periods}</td>
-                              <td data-label="Timetable" style={{ textAlign: 'center' }}>
-                                <button
-                                  type="button"
-                                  className={`btn ${isSelected ? 'btn-success' : 'btn-primary'} btn-sm`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setActiveTimetableStaff(isSelected ? null : t);
-                                    setStaffTimetableModal(t);
-                                  }}
-                                  style={{
-                                    padding: '4px 10px',
-                                    fontSize: '0.78rem',
-                                    borderRadius: '6px',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '4px'
-                                  }}
-                                >
-                                  📅 {isSelected ? 'Viewing Timetable ✓' : 'View Timetable →'}
-                                </button>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                    <div className="table-responsive">
+                      <table className="sa-schools-table">
+                        <thead>
+                          <tr>
+                            <th>Faculty Name (Click for History)</th>
+                            <th>Department</th>
+                            <th>Assigned Class</th>
+                            <th>Morning Punch</th>
+                            <th>Duty Status</th>
+                            <th>Periods</th>
+                            <th style={{ textAlign: 'center' }}>Timetable</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {computedFaculty.map((t, idx) => {
+                            const isSelected = activeTimetableStaff?.name === t.name;
+                            return (
+                              <tr
+                                key={idx}
+                                onClick={() => {
+                                  setActiveTimetableStaff(isSelected ? null : t);
+                                  setStaffTimetableModal(t);
+                                }}
+                                style={{
+                                  cursor: 'pointer',
+                                  transition: 'background-color 0.15s ease',
+                                  background: isSelected ? '#eff6ff' : 'transparent',
+                                }}
+                                title={`Click to view ${t.name}'s details`}
+                              >
+                                <td data-label="Faculty Name">
+                                  <div
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedStaffHistory({
+                                        name: t.name,
+                                        type: 'Teaching Staff',
+                                        role: `${t.dept} Teacher`,
+                                        department: t.dept,
+                                        phone: t.phone,
+                                        baseDate: staffAttendanceDate,
+                                        currentStatus: t.status,
+                                        currentPunch: t.punch,
+                                      });
+                                    }}
+                                    style={{
+                                      color: '#1d4ed8',
+                                      fontWeight: 800,
+                                      textDecoration: 'underline',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '6px',
+                                      cursor: 'pointer',
+                                      padding: '2px 6px',
+                                      borderRadius: '4px',
+                                      background: '#eff6ff'
+                                    }}
+                                    title="Click to view full attendance history for this teacher"
+                                  >
+                                    👩‍🏫 {t.name}
+                                    <span style={{ fontSize: '0.7rem', color: '#2563eb', fontWeight: 600 }}>🔍</span>
+                                  </div>
+                                </td>
+                                <td data-label="Department">{t.dept}</td>
+                                <td data-label="Assigned Class">{t.cls}</td>
+                                <td data-label="Morning Punch"><code>{t.punch}</code></td>
+                                <td data-label="Duty Status">
+                                  <span className={`badge ${t.status === 'On Duty' ? 'badge-success' : t.status.includes('Holiday') ? 'badge-info' : 'badge-danger'}`}>
+                                    {t.status}
+                                  </span>
+                                </td>
+                                <td data-label="Periods Assigned">{t.periods}</td>
+                                <td data-label="Timetable" style={{ textAlign: 'center' }}>
+                                  <button
+                                    type="button"
+                                    className={`btn ${isSelected ? 'btn-success' : 'btn-primary'} btn-sm`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setActiveTimetableStaff(isSelected ? null : t);
+                                      setStaffTimetableModal(t);
+                                    }}
+                                    style={{
+                                      padding: '4px 10px',
+                                      fontSize: '0.78rem',
+                                      borderRadius: '6px',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '4px'
+                                    }}
+                                  >
+                                    📅 {isSelected ? 'Viewing Timetable ✓' : 'View Timetable →'}
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
 
-                  {/* Inline Timetable Display Right Below Table */}
-                  {activeTimetableStaff && (() => {
-                    const staff = activeTimetableStaff;
-                    const allDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-                    const allPeriods = [
-                      { period: 1, time: '09:00 - 10:00' },
-                      { period: 2, time: '10:15 - 11:15' },
-                      { period: 3, time: '11:30 - 12:30' },
-                      { period: 4, time: '01:30 - 02:30' },
-                      { period: 5, time: '02:45 - 03:45' },
-                    ];
+                    {/* Inline Timetable Display Right Below Table */}
+                    {activeTimetableStaff && (() => {
+                      const staff = activeTimetableStaff;
+                      const allDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+                      const allPeriods = [
+                        { period: 1, time: '09:00 - 10:00' },
+                        { period: 2, time: '10:15 - 11:15' },
+                        { period: 3, time: '11:30 - 12:30' },
+                        { period: 4, time: '01:30 - 02:30' },
+                        { period: 5, time: '02:45 - 03:45' },
+                      ];
 
-                    const assignedSlots = (data.classTimetables || []).filter(
-                      (s) => s.teacherName === staff.name
-                    );
-
-                    const getInlineSlot = (day, pNum) => {
-                      const match = assignedSlots.find(
-                        (s) => s.day === day && parseInt(s.period) === pNum
+                      const assignedSlots = (data.classTimetables || []).filter(
+                        (s) => s.teacherName === staff.name
                       );
-                      if (match) return match;
-                      const hash = (staff.name.charCodeAt(0) + day.charCodeAt(0) + pNum) % 6;
-                      if (hash === 0 || hash === 3) return null;
-                      const gradeFallback = staff.cls && staff.cls.includes('Grade') ? staff.cls : 'Grade 10-B';
-                      return {
-                        className: gradeFallback,
-                        subject: staff.dept || 'Core Subject',
-                        room: 'Room ' + (100 + (pNum * 2))
-                      };
-                    };
 
-                    return (
-                      <div
-                        style={{
-                          marginTop: '20px',
-                          border: '2px solid #3b82f6',
-                          borderRadius: '12px',
-                          background: '#ffffff',
-                          overflow: 'hidden',
-                          boxShadow: '0 8px 24px rgba(37,99,235,0.12)',
-                          animation: 'fadeIn 0.2s ease-in-out'
-                        }}
-                      >
+                      const getInlineSlot = (day, pNum) => {
+                        const match = assignedSlots.find(
+                          (s) => s.day === day && parseInt(s.period) === pNum
+                        );
+                        if (match) return match;
+                        const hash = (staff.name.charCodeAt(0) + day.charCodeAt(0) + pNum) % 6;
+                        if (hash === 0 || hash === 3) return null;
+                        const gradeFallback = staff.cls && staff.cls.includes('Grade') ? staff.cls : 'Grade 10-B';
+                        return {
+                          className: gradeFallback,
+                          subject: staff.dept || 'Core Subject',
+                          room: 'Room ' + (100 + (pNum * 2))
+                        };
+                      };
+
+                      return (
                         <div
                           style={{
-                            background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
-                            color: '#ffffff',
-                            padding: '12px 18px',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
+                            marginTop: '20px',
+                            border: '2px solid #3b82f6',
+                            borderRadius: '12px',
+                            background: '#ffffff',
+                            overflow: 'hidden',
+                            boxShadow: '0 8px 24px rgba(37,99,235,0.12)',
+                            animation: 'fadeIn 0.2s ease-in-out'
                           }}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontSize: '1.3rem' }}>📅</span>
-                            <div>
-                              <strong style={{ fontSize: '1rem' }}>
-                                Weekly Teaching Timetable &mdash; {staff.name}
-                              </strong>
-                              <span style={{ fontSize: '0.8rem', opacity: 0.9, marginLeft: '8px' }}>
-                                ({staff.dept} &bull; {staff.cls})
-                              </span>
+                          <div
+                            style={{
+                              background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
+                              color: '#ffffff',
+                              padding: '12px 18px',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontSize: '1.3rem' }}>📅</span>
+                              <div>
+                                <strong style={{ fontSize: '1rem' }}>
+                                  Weekly Teaching Timetable &mdash; {staff.name}
+                                </strong>
+                                <span style={{ fontSize: '0.8rem', opacity: 0.9, marginLeft: '8px' }}>
+                                  ({staff.dept} &bull; {staff.cls})
+                                </span>
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button
+                                type="button"
+                                className="btn btn-sm"
+                                onClick={() => window.print()}
+                                style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', fontSize: '0.78rem' }}
+                              >
+                                🖨️ Print
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setActiveTimetableStaff(null)}
+                                style={{
+                                  background: 'rgba(255,255,255,0.25)',
+                                  border: 'none',
+                                  color: '#ffffff',
+                                  borderRadius: '50%',
+                                  width: '26px',
+                                  height: '26px',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontWeight: 700
+                                }}
+                                title="Close Timetable"
+                              >
+                                ✕
+                              </button>
                             </div>
                           </div>
-                          <div style={{ display: 'flex', gap: '8px' }}>
-                            <button
-                              type="button"
-                              className="btn btn-sm"
-                              onClick={() => window.print()}
-                              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', fontSize: '0.78rem' }}
-                            >
-                              🖨️ Print
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setActiveTimetableStaff(null)}
-                              style={{
-                                background: 'rgba(255,255,255,0.25)',
-                                border: 'none',
-                                color: '#ffffff',
-                                borderRadius: '50%',
-                                width: '26px',
-                                height: '26px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontWeight: 700
-                              }}
-                              title="Close Timetable"
-                            >
-                              ✕
-                            </button>
+
+                          <div className="table-responsive" style={{ padding: '16px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                            <table className="timetable-grid timetable-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', minWidth: '600px' }}>
+                              <thead>
+                                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                                  <th style={{ padding: '10px 8px', fontSize: '0.82rem', textAlign: 'left', color: '#1e3a8a', width: '130px' }}>
+                                    Period / Time
+                                  </th>
+                                  {allDays.map((d) => (
+                                    <th key={d} style={{ padding: '10px 8px', fontSize: '0.82rem', color: '#1e3a8a' }}>
+                                      {d}
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {allPeriods.map((p) => (
+                                  <tr key={p.period} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                    <td style={{ padding: '8px 10px', textAlign: 'left', background: '#f8fafc', borderRight: '1px solid #e2e8f0' }}>
+                                      <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.82rem' }}>
+                                        Period {p.period}
+                                      </div>
+                                      <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
+                                        {p.time}
+                                      </div>
+                                    </td>
+                                    {allDays.map((d) => {
+                                      const slot = getInlineSlot(d, p.period);
+                                      return (
+                                        <td key={d} style={{ padding: '6px', verticalAlign: 'top' }}>
+                                          {slot ? (
+                                            <div
+                                              style={{
+                                                background: '#eff6ff',
+                                                borderLeft: '3px solid #2563eb',
+                                                padding: '6px 8px',
+                                                borderRadius: '5px',
+                                                textAlign: 'left',
+                                              }}
+                                            >
+                                              <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.78rem' }}>
+                                                {slot.subject}
+                                              </div>
+                                              <div style={{ fontSize: '0.7rem', color: '#2563eb', fontWeight: 600 }}>
+                                                📍 {slot.className}
+                                              </div>
+                                            </div>
+                                          ) : (
+                                            <div
+                                              style={{
+                                                background: '#f8fafc',
+                                                border: '1px dashed #cbd5e1',
+                                                padding: '6px 8px',
+                                                borderRadius: '5px',
+                                                color: '#94a3b8',
+                                                fontSize: '0.72rem',
+                                              }}
+                                            >
+                                              Free Period
+                                            </div>
+                                          )}
+                                        </td>
+                                      );
+                                    })}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </div>
                         </div>
-
-                        <div className="table-responsive" style={{ padding: '16px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                          <table className="timetable-grid timetable-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', minWidth: '600px' }}>
-                            <thead>
-                              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                                <th style={{ padding: '10px 8px', fontSize: '0.82rem', textAlign: 'left', color: '#1e3a8a', width: '130px' }}>
-                                  Period / Time
-                                </th>
-                                {allDays.map((d) => (
-                                  <th key={d} style={{ padding: '10px 8px', fontSize: '0.82rem', color: '#1e3a8a' }}>
-                                    {d}
-                                  </th>
-                                ))}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {allPeriods.map((p) => (
-                                <tr key={p.period} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                                  <td style={{ padding: '8px 10px', textAlign: 'left', background: '#f8fafc', borderRight: '1px solid #e2e8f0' }}>
-                                    <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.82rem' }}>
-                                      Period {p.period}
-                                    </div>
-                                    <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
-                                      {p.time}
-                                    </div>
-                                  </td>
-                                  {allDays.map((d) => {
-                                    const slot = getInlineSlot(d, p.period);
-                                    return (
-                                      <td key={d} style={{ padding: '6px', verticalAlign: 'top' }}>
-                                        {slot ? (
-                                          <div
-                                            style={{
-                                              background: '#eff6ff',
-                                              borderLeft: '3px solid #2563eb',
-                                              padding: '6px 8px',
-                                              borderRadius: '5px',
-                                              textAlign: 'left',
-                                            }}
-                                          >
-                                            <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.78rem' }}>
-                                              {slot.subject}
-                                            </div>
-                                            <div style={{ fontSize: '0.7rem', color: '#2563eb', fontWeight: 600 }}>
-                                              📍 {slot.className}
-                                            </div>
-                                          </div>
-                                        ) : (
-                                          <div
-                                            style={{
-                                              background: '#f8fafc',
-                                              border: '1px dashed #cbd5e1',
-                                              padding: '6px 8px',
-                                              borderRadius: '5px',
-                                              color: '#94a3b8',
-                                              fontSize: '0.72rem',
-                                              fontStyle: 'italic'
-                                            }}
-                                          >
-                                            ☕ Free Slot
-                                          </div>
-                                        )}
-                                      </td>
-                                    );
-                                  })}
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </div>
-              )}
+                      );
+                    })()}
+                  </div>
+                );
+              })()}
 
               {/* 4. PASS PERCENTAGE & ACADEMIC DRILLDOWN */}
               {analyticsModal === 'results' && (
@@ -4833,6 +5288,388 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   </div>
                 </div>
               )}
+
+              {/* 5. NON-TEACHING STAFF DRILLDOWN */}
+              {analyticsModal === 'non-teaching' && (() => {
+                const sDate = new Date(staffAttendanceDate);
+                const dayNum = sDate.getDay();
+                const isSunday = dayNum === 0;
+                const formattedDate = sDate.toLocaleDateString('en-IN', {
+                  weekday: 'short',
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                });
+
+                const rawList = data.nonTeachingStaff || [];
+                const dateSeed = (sDate.getDate() * 5 + sDate.getMonth() * 7) % rawList.length;
+
+                const computedNonTeaching = rawList.map((st, idx) => {
+                  if (isSunday) {
+                    return { ...st, status: 'Holiday (Sunday)', isPresent: false };
+                  }
+                  const isLeave = (idx === dateSeed);
+                  return {
+                    ...st,
+                    status: isLeave ? 'On Approved Leave' : 'On Duty',
+                    isPresent: !isLeave
+                  };
+                });
+
+                const presentCount = isSunday ? 0 : computedNonTeaching.filter(s => s.isPresent).length;
+                const leaveCount = isSunday ? 0 : computedNonTeaching.length - presentCount;
+
+                return (
+                  <div>
+                    {/* Date Selector Bar for Non-Teaching */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '12px 18px',
+                        background: '#ecfeff',
+                        border: '1.5px solid #a5f3fc',
+                        borderRadius: '10px',
+                        marginBottom: '18px',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0e7490' }}>
+                          📅 Check Non-Teaching Attendance by Date:
+                        </span>
+                        <input
+                          type="date"
+                          value={staffAttendanceDate}
+                          onChange={(e) => setStaffAttendanceDate(e.target.value)}
+                          max={new Date().toISOString().split('T')[0]}
+                          style={{
+                            padding: '6px 12px',
+                            border: '1.5px solid #0891b2',
+                            borderRadius: '8px',
+                            fontWeight: 700,
+                            color: '#0e7490',
+                            background: '#ffffff',
+                            fontSize: '0.9rem',
+                            cursor: 'pointer',
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          onClick={() => setStaffAttendanceDate(new Date().toISOString().split('T')[0])}
+                          style={{ fontSize: '0.78rem', padding: '4px 10px', borderColor: '#0891b2', color: '#0e7490' }}
+                        >
+                          Today
+                        </button>
+                      </div>
+                      <span className="badge badge-teal" style={{ fontSize: '0.8rem', fontWeight: 700 }}>
+                        {formattedDate} {isSunday ? '• Institutional Holiday' : ''}
+                      </span>
+                    </div>
+
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                        gap: '12px',
+                        marginBottom: '20px',
+                      }}
+                    >
+                      <div style={{ background: '#ecfeff', padding: '14px', borderRadius: '10px', border: '1px solid #a5f3fc' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#0e7490', fontWeight: 700, textTransform: 'uppercase' }}>Present on Duty</span>
+                        <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0891b2' }}>
+                          {presentCount} / {computedNonTeaching.length} Staff
+                        </div>
+                        <span style={{ fontSize: '0.72rem', color: '#06b6d4' }}>Campus Admin & Labs Operational</span>
+                      </div>
+
+                      <div style={{ background: '#fee2e2', padding: '14px', borderRadius: '10px', border: '1px solid #fca5a5' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#991b1b', fontWeight: 700, textTransform: 'uppercase' }}>On Approved Leave / Absent</span>
+                        <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#dc2626' }}>
+                          {leaveCount} Staff
+                        </div>
+                        <span style={{ fontSize: '0.72rem', color: '#b91c1c' }}>Reliever Assigned ✓</span>
+                      </div>
+
+                      <div style={{ background: '#f0fdf4', padding: '14px', borderRadius: '10px', border: '1px solid #bbf7d0' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#166534', fontWeight: 700, textTransform: 'uppercase' }}>Key Functions Covered</span>
+                        <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#15803d' }}>{isSunday ? 'Holiday' : '100%'}</div>
+                        <span style={{ fontSize: '0.72rem', color: '#16a34a' }}>Accounts, Office, Lab & Security</span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 0 10px 0' }}>
+                      <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#1e293b' }}>
+                        Non-Academic Staff Register &bull; <span style={{ color: '#0891b2', fontWeight: 800 }}>Click any name</span> to view attendance record:
+                      </h4>
+                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>💡 Click staff name for date-wise attendance log</span>
+                    </div>
+
+                    <div className="table-responsive">
+                      <table className="sa-schools-table">
+                        <thead>
+                          <tr>
+                            <th>Staff Name (Click for History)</th>
+                            <th>Role / Title</th>
+                            <th>Department</th>
+                            <th>Work Shift</th>
+                            <th>Primary Operational Responsibility</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {computedNonTeaching.map((st, idx) => (
+                            <tr key={idx}>
+                              <td data-label="Staff Name">
+                                <div
+                                  onClick={() => {
+                                    setSelectedStaffHistory({
+                                      name: st.name,
+                                      type: 'Non-Teaching Staff',
+                                      role: st.role,
+                                      department: st.department,
+                                      phone: st.phone,
+                                      baseDate: staffAttendanceDate,
+                                      currentStatus: st.status,
+                                      currentPunch: st.shift ? st.shift.split(' - ')[0] : '08:30 AM',
+                                    });
+                                  }}
+                                  style={{
+                                    color: '#0891b2',
+                                    fontWeight: 800,
+                                    textDecoration: 'underline',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    cursor: 'pointer',
+                                    padding: '2px 6px',
+                                    borderRadius: '4px',
+                                    background: '#ecfeff'
+                                  }}
+                                  title="Click to view full attendance history for this staff member"
+                                >
+                                  👥 {st.name}
+                                  <span style={{ fontSize: '0.7rem', color: '#0891b2', fontWeight: 600 }}>🔍</span>
+                                </div>
+                              </td>
+                              <td data-label="Role / Title"><strong>{st.role}</strong></td>
+                              <td data-label="Department">{st.department}</td>
+                              <td data-label="Work Shift"><code>{st.shift}</code></td>
+                              <td data-label="Primary Responsibility">{st.workAssigned}</td>
+                              <td data-label="Status">
+                                <span className={`badge ${st.status === 'On Duty' ? 'badge-success' : st.status.includes('Holiday') ? 'badge-info' : 'badge-danger'}`}>
+                                  {st.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* 6. OPERATIONS WORKS & TASKS DRILLDOWN */}
+              {analyticsModal === 'operations-works' && (() => {
+                const sDate = new Date(staffAttendanceDate);
+                const isSunday = sDate.getDay() === 0;
+                const formattedDate = sDate.toLocaleDateString('en-IN', {
+                  weekday: 'short',
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                });
+
+                const rawWorks = data.operationsWorks || [];
+                const dateSeed = (sDate.getDate() + sDate.getMonth() * 3) % 4;
+
+                const computedWorks = rawWorks.map((w, idx) => {
+                  if (isSunday) {
+                    return { ...w, status: 'Holiday Schedule', progress: 100, deadline: 'Sunday Routine' };
+                  }
+                  const offset = (idx + dateSeed) % 3;
+                  const status = offset === 0 ? 'Completed' : 'In Progress';
+                  const progress = status === 'Completed' ? 100 : Math.min(90, Math.max(30, 40 + (idx * 12) % 55));
+                  return { ...w, status, progress, deadline: `${formattedDate}, ${w.deadline.split(', ')[1] || '04:00 PM'}` };
+                });
+
+                const completedCount = computedWorks.filter(w => w.status === 'Completed').length;
+                const activeCount = computedWorks.length - completedCount;
+
+                return (
+                  <div>
+                    {/* Live Date Filter Bar for Works */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '12px 18px',
+                        background: '#fdf2f8',
+                        border: '1.5px solid #fbcfe8',
+                        borderRadius: '10px',
+                        marginBottom: '18px',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#9d174d' }}>
+                          📅 Check Operations & Works by Date:
+                        </span>
+                        <input
+                          type="date"
+                          value={staffAttendanceDate}
+                          onChange={(e) => setStaffAttendanceDate(e.target.value)}
+                          max={new Date().toISOString().split('T')[0]}
+                          style={{
+                            padding: '6px 12px',
+                            border: '1.5px solid #db2777',
+                            borderRadius: '8px',
+                            fontWeight: 700,
+                            color: '#9d174d',
+                            background: '#ffffff',
+                            fontSize: '0.9rem',
+                            cursor: 'pointer',
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          onClick={() => setStaffAttendanceDate(new Date().toISOString().split('T')[0])}
+                          style={{ fontSize: '0.78rem', padding: '4px 10px', borderColor: '#db2777', color: '#9d174d' }}
+                        >
+                          Today
+                        </button>
+                      </div>
+                      <span className="badge" style={{ background: '#fce7f3', color: '#be185d', fontSize: '0.8rem', fontWeight: 700 }}>
+                        {formattedDate} {isSunday ? '• Essential Maintenance Only' : ''}
+                      </span>
+                    </div>
+
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                        gap: '12px',
+                        marginBottom: '20px',
+                      }}
+                    >
+                      <div style={{ background: '#fdf2f8', padding: '14px', borderRadius: '10px', border: '1px solid #fbcfe8' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#9d174d', fontWeight: 700, textTransform: 'uppercase' }}>Total Works Assigned</span>
+                        <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#be185d' }}>
+                          {computedWorks.length} Operational Works
+                        </div>
+                        <span style={{ fontSize: '0.72rem', color: '#db2777' }}>Campus Operations Roster</span>
+                      </div>
+
+                      <div style={{ background: '#ecfdf5', padding: '14px', borderRadius: '10px', border: '1px solid #a7f3d0' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 700, textTransform: 'uppercase' }}>Completed Works</span>
+                        <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#065f46' }}>
+                          {completedCount} Completed
+                        </div>
+                        <span style={{ fontSize: '0.72rem', color: '#059669' }}>Inspected & Verified ✓</span>
+                      </div>
+
+                      <div style={{ background: '#fffbeb', padding: '14px', borderRadius: '10px', border: '1px solid #fde68a' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#92400e', fontWeight: 700, textTransform: 'uppercase' }}>In Progress / Pending</span>
+                        <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#b45309' }}>
+                          {activeCount} Active
+                        </div>
+                        <span style={{ fontSize: '0.72rem', color: '#d97706' }}>On Track for Selected Date</span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 0 10px 0' }}>
+                      <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#1e293b' }}>
+                        Institutional Operations, Safety & Administrative Tasks &bull; <span style={{ color: '#be185d', fontWeight: 800 }}>Click any task</span> to view staff duty:
+                      </h4>
+                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>💡 Click task title or staff name for live duty details</span>
+                    </div>
+
+                    <div className="table-responsive">
+                      <table className="sa-schools-table">
+                        <thead>
+                          <tr>
+                            <th>Task / Work Title (Click for Details)</th>
+                            <th>Department</th>
+                            <th>Assigned Staff / Team</th>
+                            <th>Priority</th>
+                            <th>Scheduled Target</th>
+                            <th>Progress</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {computedWorks.map((w, idx) => (
+                            <tr
+                              key={idx}
+                              onClick={() => {
+                                setSelectedStaffHistory({
+                                  name: w.assignedTo,
+                                  type: 'Operations Work Duty',
+                                  role: w.title,
+                                  department: w.department,
+                                  phone: '+91 98401 55600',
+                                  baseDate: staffAttendanceDate,
+                                  currentStatus: w.status,
+                                  currentPunch: '08:00 AM',
+                                  extraWork: w
+                                });
+                              }}
+                              style={{ cursor: 'pointer', transition: 'background-color 0.15s ease' }}
+                              title={`Click to inspect task: ${w.title}`}
+                            >
+                              <td data-label="Work Title">
+                                <span style={{ fontWeight: 800, color: '#be185d', textDecoration: 'underline', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                  📋 {w.title}
+                                  <span style={{ fontSize: '0.7rem' }}>🔍</span>
+                                </span>
+                              </td>
+                              <td data-label="Department">{w.department}</td>
+                              <td data-label="Assigned To">
+                                <span style={{ color: '#1e3a8a', fontWeight: 700 }}>
+                                  👤 {w.assignedTo}
+                                </span>
+                              </td>
+                              <td data-label="Priority">
+                                <span className={`badge ${w.priority === 'Urgent' ? 'badge-danger' : w.priority === 'High' ? 'badge-warning' : 'badge-info'}`}>
+                                  {w.priority}
+                                </span>
+                              </td>
+                              <td data-label="Target"><code>{w.deadline}</code></td>
+                              <td data-label="Progress">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <div style={{ flex: 1, height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                                    <div
+                                      style={{
+                                        width: `${w.progress}%`,
+                                        height: '100%',
+                                        background: w.progress === 100 ? '#16a34a' : '#ec4899',
+                                        borderRadius: '4px'
+                                      }}
+                                    ></div>
+                                  </div>
+                                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569' }}>{w.progress}%</span>
+                                </div>
+                              </td>
+                              <td data-label="Status">
+                                <span className={`badge ${w.status === 'Completed' ? 'badge-success' : w.status === 'In Progress' ? 'badge-primary' : 'badge-amber'}`}>
+                                  {w.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Modal Footer */}
@@ -4860,6 +5697,314 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           </div>
         </div>
       )}
+
+      {/* =================================================================== */}
+      {/* INDIVIDUAL STAFF / WORK ATTENDANCE & STATUS DRILLDOWN MODAL */}
+      {/* =================================================================== */}
+      {selectedStaffHistory && (() => {
+        const staff = selectedStaffHistory;
+        const curDateObj = new Date(staff.baseDate || staffAttendanceDate);
+        const curDayName = curDateObj.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Synthesize past 7-day attendance log for this person
+        const past7Days = Array.from({ length: 7 }).map((_, i) => {
+          const d = new Date(curDateObj);
+          d.setDate(d.getDate() - i);
+          const isSun = d.getDay() === 0;
+          const dayName = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+          const dateStr = d.toISOString().split('T')[0];
+
+          // Deterministic attendance for this staff
+          const hash = (staff.name.charCodeAt(0) + d.getDate() * 3 + d.getMonth() * 5) % 9;
+          const isLeave = !isSun && (hash === 2);
+          const status = isSun ? 'Holiday (Sun)' : isLeave ? 'On Leave (Casual)' : 'Present on Duty';
+          const inTime = isSun ? '—' : isLeave ? '—' : '08:' + (10 + (hash * 2)).toString().padStart(2, '0') + ' AM';
+          const outTime = isSun ? '—' : isLeave ? '—' : '04:30 PM';
+
+          return {
+            dateStr,
+            dayName,
+            status,
+            inTime,
+            outTime,
+            isLeave,
+            isSun,
+          };
+        });
+
+        const totalPresent7 = past7Days.filter(d => !d.isSun && !d.isLeave).length;
+        const totalLeave7 = past7Days.filter(d => d.isLeave).length;
+
+        return (
+          <div
+            className="modal-overlay"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(15, 23, 42, 0.7)',
+              backdropFilter: 'blur(4px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 99999,
+              padding: '16px',
+            }}
+            onClick={() => setSelectedStaffHistory(null)}
+          >
+            <div
+              className="modal-content"
+              style={{
+                maxWidth: '750px',
+                width: '100%',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                background: '#ffffff'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div
+                style={{
+                  background:
+                    staff.type === 'Teaching Staff'
+                      ? 'linear-gradient(135deg, #b45309 0%, #f59e0b 100%)'
+                      : staff.type === 'Non-Teaching Staff'
+                      ? 'linear-gradient(135deg, #0e7490 0%, #06b6d4 100%)'
+                      : 'linear-gradient(135deg, #be185d 0%, #ec4899 100%)',
+                  color: '#ffffff',
+                  padding: '20px 24px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '1.4rem' }}>
+                      {staff.type === 'Teaching Staff' ? '👩‍🏫' : staff.type === 'Non-Teaching Staff' ? '👥' : '📋'}
+                    </span>
+                    <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>
+                      {staff.name} &mdash; Attendance & Duty Log
+                    </h3>
+                  </div>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', opacity: 0.9 }}>
+                    {staff.role} &bull; {staff.department} &bull; {staff.phone}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedStaffHistory(null)}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.25)',
+                    border: 'none',
+                    color: '#ffffff',
+                    fontSize: '1.2rem',
+                    cursor: 'pointer',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Body */}
+              <div style={{ padding: '24px', maxHeight: '70vh', overflowY: 'auto' }}>
+                {/* Search Any Date In History Box */}
+                <div
+                  style={{
+                    background: '#f8fafc',
+                    border: '1.5px solid #e2e8f0',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    marginBottom: '20px',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: '12px',
+                  }}
+                >
+                  <div>
+                    <label style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748b', display: 'block', marginBottom: '4px' }}>
+                      Check Specific Date Status:
+                    </label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input
+                        type="date"
+                        value={staffAttendanceDate}
+                        onChange={(e) => {
+                          setStaffAttendanceDate(e.target.value);
+                          setSelectedStaffHistory({ ...staff, baseDate: e.target.value });
+                        }}
+                        max={new Date().toISOString().split('T')[0]}
+                        style={{
+                          padding: '6px 12px',
+                          border: '1.5px solid #3b82f6',
+                          borderRadius: '8px',
+                          fontWeight: 700,
+                          color: '#1e3a8a',
+                          background: '#ffffff',
+                          fontSize: '0.92rem',
+                          cursor: 'pointer'
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        onClick={() => {
+                          const today = new Date().toISOString().split('T')[0];
+                          setStaffAttendanceDate(today);
+                          setSelectedStaffHistory({ ...staff, baseDate: today });
+                        }}
+                      >
+                        Today
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: '0.78rem', color: '#64748b', display: 'block' }}>Status on Selected Date:</span>
+                    <strong style={{ fontSize: '1rem', color: '#0f172a' }}>{curDayName}</strong>
+                    <div style={{ marginTop: '4px' }}>
+                      {(() => {
+                        const targetLog = past7Days.find(d => d.dateStr === (staff.baseDate || staffAttendanceDate)) || past7Days[0];
+                        const isPresentDuty = targetLog && targetLog.status.includes('Present');
+                        const isHoliday = targetLog && targetLog.status.includes('Holiday');
+                        const displayStatus = targetLog ? targetLog.status : (staff.currentStatus || 'Present on Duty');
+                        const displayPunch = targetLog ? targetLog.inTime : (staff.currentPunch || '08:15 AM');
+
+                        return (
+                          <span
+                            className={`badge ${isPresentDuty ? 'badge-success' : isHoliday ? 'badge-info' : 'badge-danger'}`}
+                            style={{ fontSize: '0.86rem', padding: '5px 12px', fontWeight: 700 }}
+                          >
+                            ● {displayStatus} {displayPunch && displayPunch !== '—' ? `(Punch: ${displayPunch})` : ''}
+                          </span>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 7-Day Attendance Rate Summary Cards */}
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: '12px',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <div style={{ background: '#ecfdf5', padding: '12px 16px', borderRadius: '10px', border: '1px solid #a7f3d0' }}>
+                    <span style={{ fontSize: '0.74rem', color: '#047857', fontWeight: 700, textTransform: 'uppercase' }}>Present (Past 7 Days)</span>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#065f46' }}>{totalPresent7} Days</div>
+                    <span style={{ fontSize: '0.7rem', color: '#059669' }}>95%+ Attendance Track</span>
+                  </div>
+
+                  <div style={{ background: '#fee2e2', padding: '12px 16px', borderRadius: '10px', border: '1px solid #fca5a5' }}>
+                    <span style={{ fontSize: '0.74rem', color: '#991b1b', fontWeight: 700, textTransform: 'uppercase' }}>Leaves (Past 7 Days)</span>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#dc2626' }}>{totalLeave7} Days</div>
+                    <span style={{ fontSize: '0.7rem', color: '#b91c1c' }}>Authorized Leave Log</span>
+                  </div>
+
+                  <div style={{ background: '#eff6ff', padding: '12px 16px', borderRadius: '10px', border: '1px solid #bfdbfe' }}>
+                    <span style={{ fontSize: '0.74rem', color: '#1e40af', fontWeight: 700, textTransform: 'uppercase' }}>Duty Compliance</span>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1e3a8a' }}>100%</div>
+                    <span style={{ fontSize: '0.7rem', color: '#2563eb' }}>Roster Verified</span>
+                  </div>
+                </div>
+
+                {/* Historical 7-Day Day-by-Day Audit Table */}
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.95rem', color: '#1e293b' }}>
+                  Daily Clock-In & Presence Audit (Relative to Selected Date):
+                </h4>
+
+                <div className="table-responsive">
+                  <table className="sa-schools-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Day</th>
+                        <th>Morning Clock-In</th>
+                        <th>Evening Clock-Out</th>
+                        <th>Attendance Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {past7Days.map((d, idx) => (
+                        <tr
+                          key={idx}
+                          style={{
+                            background: d.dateStr === staffAttendanceDate ? '#eff6ff' : 'transparent',
+                            fontWeight: d.dateStr === staffAttendanceDate ? 700 : 'normal',
+                          }}
+                        >
+                          <td data-label="Date">
+                            <code>{d.dateStr}</code>
+                            {d.dateStr === staffAttendanceDate && (
+                              <span className="badge badge-primary" style={{ marginLeft: '6px', fontSize: '0.68rem' }}>Selected</span>
+                            )}
+                          </td>
+                          <td data-label="Day">{d.dayName}</td>
+                          <td data-label="Clock-In"><code>{d.inTime}</code></td>
+                          <td data-label="Clock-Out"><code>{d.outTime}</code></td>
+                          <td data-label="Status">
+                            <span className={`badge ${d.status.includes('Present') ? 'badge-success' : d.status.includes('Holiday') ? 'badge-info' : 'badge-danger'}`}>
+                              {d.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {staff.extraWork && (
+                  <div style={{ marginTop: '16px', padding: '14px', background: '#fdf2f8', borderRadius: '10px', border: '1px solid #fbcfe8' }}>
+                    <strong style={{ fontSize: '0.85rem', color: '#be185d' }}>📋 Attached Operation Work Profile:</strong>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', color: '#475569' }}>
+                      <strong>Work:</strong> {staff.extraWork.title} &bull; <strong>Department:</strong> {staff.extraWork.department} &bull; <strong>Priority:</strong> {staff.extraWork.priority} &bull; <strong>Deadline:</strong> {staff.extraWork.deadline} &bull; <strong>Progress:</strong> {staff.extraWork.progress}%
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div
+                style={{
+                  padding: '14px 24px',
+                  background: '#f8fafc',
+                  borderTop: '1px solid #e2e8f0',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                  Principal Verification Audit &bull; Bio-metric Live Parity
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => setSelectedStaffHistory(null)}
+                >
+                  Done / Close
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* =================================================================== */}
       {/* ATTENDANCE CLASS MODAL - STUDENT-WISE DETAILED ROLL CALL */}

@@ -372,6 +372,28 @@ const defaultData = {
     { id: 'USR007', name: 'Ramesh Kumar', role: 'PARENT', phone: '+91 98401 99009', email: 'ramesh.k@gmail.com', username: 'parent', status: 'Active', createdDate: '2026-02-15', schoolId: 'SCHOOL002', studentName: 'Aishwarya Kumar', studentRoll: 'S101', relationship: 'Father' },
   ],
 
+  nonTeachingStaff: [
+    { id: 'NT01', name: 'Mr. R. Muthuraman', role: 'Head Clerk & Office Admin', department: 'Administrative Office', phone: '+91 98401 55601', status: 'On Duty', shift: '08:00 AM - 04:30 PM', workAssigned: 'Student Records, TC & Attendance Registers' },
+    { id: 'NT02', name: 'Mrs. S. Gandhimathi', role: 'Chief Accountant', department: 'Accounts & Billing', phone: '+91 98401 55602', status: 'On Duty', shift: '08:30 AM - 05:00 PM', workAssigned: 'Term Fee Reconciliation & Petty Cash' },
+    { id: 'NT03', name: 'Mr. K. Palanivel', role: 'Senior Lab Attender', department: 'Physics & Chemistry Labs', phone: '+91 98401 55603', status: 'On Duty', shift: '08:30 AM - 04:30 PM', workAssigned: 'Lab Equipment, Glassware & Chemical Safety' },
+    { id: 'NT04', name: 'Mrs. V. Meenakshi', role: 'Librarian & Cataloguer', department: 'Central Library', phone: '+91 98401 55604', status: 'On Duty', shift: '08:30 AM - 04:30 PM', workAssigned: 'Book Lending, Library Database & Quiet Hours' },
+    { id: 'NT05', name: 'Mr. G. Karuppiah', role: 'Campus Security & Gate Supervisor', department: 'Security & Safety', phone: '+91 98401 55605', status: 'On Duty', shift: '07:30 AM - 04:00 PM', workAssigned: 'Gate Pass Check, Visitor Registry & CCTV' },
+    { id: 'NT06', name: 'Mrs. M. Vasantha', role: 'Office Attender / Peon', department: 'General Administration', phone: '+91 98401 55606', status: 'On Duty', shift: '08:00 AM - 04:30 PM', workAssigned: 'Circular Delivery, Staff Room & Bell Routine' },
+    { id: 'NT07', name: 'Mr. T. Saravanan', role: 'Campus Maintenance & Electrician', department: 'Infrastructure & Power', phone: '+91 98401 55607', status: 'On Duty', shift: '08:00 AM - 05:00 PM', workAssigned: 'UPS/Generator Check & RO Water Audit' },
+    { id: 'NT08', name: 'Mrs. K. Rajeshwari', role: 'Health & First Aid Attendant', department: 'Health Clinic', phone: '+91 98401 55608', status: 'On Leave', shift: '08:30 AM - 04:00 PM', workAssigned: 'Infirmary Log & Emergency Aid (Covered by Clinic Asst)' },
+  ],
+
+  operationsWorks: [
+    { id: 'WRK-01', title: 'Daily Campus Cleanliness & Sanitation Audit', department: 'Sanitation & Hygiene', assignedTo: 'Housekeeping Team', priority: 'High', status: 'Completed', deadline: 'Today, 08:30 AM', progress: 100 },
+    { id: 'WRK-02', title: 'Midterm Science Lab Chemicals & Equipment Safety Verification', department: 'Science Labs', assignedTo: 'Mr. K. Palanivel', priority: 'High', status: 'In Progress', deadline: 'Today, 01:00 PM', progress: 85 },
+    { id: 'WRK-03', title: 'Library Book Returns & Missing Register Reconciliation', department: 'Central Library', assignedTo: 'Mrs. V. Meenakshi', priority: 'Medium', status: 'Completed', deadline: 'Today, 11:30 AM', progress: 100 },
+    { id: 'WRK-04', title: 'RO Drinking Water Plant Filter & TDS Level Inspection', department: 'Campus Maintenance', assignedTo: 'Mr. T. Saravanan', priority: 'High', status: 'Completed', deadline: 'Today, 09:00 AM', progress: 100 },
+    { id: 'WRK-05', title: 'CCTV Surveillance & Campus Boundary Gate Checks', department: 'Security & Safety', assignedTo: 'Mr. G. Karuppiah', priority: 'Urgent', status: 'Completed', deadline: 'Today, 08:00 AM', progress: 100 },
+    { id: 'WRK-06', title: 'Student Fee Dues Reminder SMS Dispatch to Parents', department: 'Accounts Section', assignedTo: 'Mrs. S. Gandhimathi', priority: 'Medium', status: 'In Progress', deadline: 'Today, 03:30 PM', progress: 70 },
+    { id: 'WRK-07', title: 'Quarterly Government EMIS Portal Data Sync', department: 'Administrative Office', assignedTo: 'Mr. R. Muthuraman', priority: 'High', status: 'In Progress', deadline: 'Today, 05:00 PM', progress: 60 },
+    { id: 'WRK-08', title: 'Fire Safety Extinguishers & First-Aid Box Refill Verification', department: 'Health & Safety', assignedTo: 'Clinic & Maintenance', priority: 'Medium', status: 'Scheduled', deadline: 'Tomorrow, 10:00 AM', progress: 20 },
+  ],
+
   services: [
     { id: 'SRV-01', name: 'Coding for Kids', icon: '', category: 'Technology', status: 'Active', cost: '0/yr', description: 'Interactive Python, Scratch block coding, and basic algorithmic thinking for students.', visibleRoles: ['schooladmin', 'teacher', 'student'] },
     { id: 'SRV-02', name: 'Chess Academy', icon: '', category: 'Mind Sports', status: 'Active', cost: '0/yr', description: 'Grandmaster tactics, opening strategies, and tournament training.', visibleRoles: ['schooladmin', 'principal', 'teacher', 'student', 'parent'] },
@@ -381,6 +403,13 @@ const defaultData = {
     { id: 'SRV-06', name: 'Abacus & Vedic Maths', icon: '', category: 'Mathematics', status: 'Active', cost: '0/yr', description: 'Fast mental calculation techniques, memory retention, and number speed.', visibleRoles: ['schooladmin', 'teacher', 'student', 'parent'] },
     { id: 'SRV-07', name: 'Dance & Music', icon: '', category: 'Performing Arts', status: 'Active', cost: '0/yr', description: 'Classical & contemporary dance, vocal music, keyboard and guitar lessons.', visibleRoles: ['schooladmin', 'student', 'parent'] },
     { id: 'SRV-08', name: 'Sports & Fitness', icon: '', category: 'Athletics', status: 'Active', cost: '0/yr', description: 'Football, basketball, athletics coaching, yoga and physical agility.', visibleRoles: ['schooladmin', 'principal', 'teacher', 'student', 'parent'] },
+  ],
+
+  staffLeaves: [
+    { id: 'LV-101', teacher: 'Mrs. Selvi Murugan', subject: 'Chemistry', dates: '2026-10-24 to 2026-10-25', reason: 'Family Function in Madurai', status: 'Pending', type: 'Casual Leave' },
+    { id: 'LV-102', teacher: 'Dr. Anandhi Rajan', subject: 'Physics', dates: '2026-10-28', reason: 'Medical Appointment', status: 'Pending', type: 'Medical Leave' },
+    { id: 'LV-100', teacher: 'Mr. Anand Narayanan', subject: 'Physics', dates: '2026-10-15', reason: 'Educational Conference', status: 'Approved', type: 'Duty Leave' },
+    { id: 'LV-103', teacher: 'Mrs. Priya Krishnan', subject: 'Mathematics', dates: '2026-10-20 to 2026-10-21', reason: 'Attending University Valuation Board', status: 'Approved', type: 'Duty Leave' },
   ],
 
   schoolServiceAssignments: [
@@ -400,6 +429,15 @@ export function getPortalData() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
+      if (!parsed.staffLeaves || parsed.staffLeaves.length === 0) {
+        parsed.staffLeaves = defaultData.staffLeaves;
+      }
+      if (!parsed.nonTeachingStaff || parsed.nonTeachingStaff.length === 0) {
+        parsed.nonTeachingStaff = defaultData.nonTeachingStaff;
+      }
+      if (!parsed.operationsWorks || parsed.operationsWorks.length === 0) {
+        parsed.operationsWorks = defaultData.operationsWorks;
+      }
       if (!parsed.principals || parsed.principals.length === 0) {
         parsed.principals = defaultData.principals;
       }
