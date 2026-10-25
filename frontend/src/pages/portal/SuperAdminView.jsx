@@ -1393,7 +1393,6 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                       <button className={`btn btn-sm ${activeCampusTab === 'track-exams' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('track-exams')}>Upcoming Exam Schedule</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'exam-results' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('exam-results')}>Exam Results & Report Card</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'fee-reminders' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('fee-reminders')}>Fee Payments</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'transport-tracking' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('transport-tracking')}>School Bus GPS Tracker</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'school-announcements' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('school-announcements')}>School Announcements</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'messaging-teachers' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('messaging-teachers')}>Messaging with Teachers</button>
                     </>

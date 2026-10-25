@@ -1351,67 +1351,40 @@ img {
         margin: 10px;
       }
       .table-responsive table {
-        min-width: 100% !important;
-        display: block;
-        border: none;
+        min-width: 650px !important;
+        width: 100% !important;
+        display: table !important;
       }
       .table-responsive thead {
-        display: none;
+        display: table-header-group !important;
       }
       .table-responsive tbody {
-        display: block;
-        width: 100%;
+        display: table-row-group !important;
       }
       .table-responsive tr {
-        display: block;
-        width: 100%;
-        background: var(--color-bg-white);
-        border: 1px solid rgba(30, 58, 138, 0.08);
-        border-radius: var(--radius-md);
-        margin-bottom: 15px;
-        padding: 12px;
-        box-shadow: var(--shadow-sm);
-        box-sizing: border-box;
+        display: table-row !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
       }
       .table-responsive td {
-        display: flex !important;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 0 !important;
-        border-bottom: 1px dashed rgba(30, 58, 138, 0.05);
-        font-size: 0.85rem;
-        text-align: right;
-        box-sizing: border-box;
-        width: 100% !important;
+        display: table-cell !important;
+        padding: 10px 12px !important;
+        font-size: 0.85rem !important;
+        text-align: left !important;
+        width: auto !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        white-space: nowrap !important;
       }
       .table-responsive td:last-child {
-        border-bottom: none;
-        padding-bottom: 0 !important;
-        margin-top: 10px;
-        flex-direction: column;
-        align-items: flex-start;
-        width: 100% !important;
-      }
-      .table-responsive td:last-child::before {
-        margin-bottom: 6px;
-      }
-      .table-responsive td:last-child > div {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 6px !important;
-        width: 100% !important;
-      }
-      .table-responsive td:last-child button {
-        flex: 1 1 calc(50% - 6px);
-        min-width: 90px;
-        text-align: center;
+        margin-top: 0 !important;
+        flex-direction: row !important;
+        align-items: center !important;
       }
       .table-responsive td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: var(--color-primary);
-        text-align: left;
-        margin-right: 10px;
+        display: none !important;
       }
       .table-responsive table.timetable-table,
       .table-responsive table.timetable-grid,
@@ -2695,6 +2668,42 @@ img {
     width: 100%;
     justify-content: center;
   }
+
+  /* Teacher Dashboard & Cards Mobile Responsiveness */
+  .teacher-class-banner {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 16px !important;
+    gap: 12px !important;
+  }
+
+  .teacher-class-stat-badge {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 12px 16px !important;
+  }
+
+  .teacher-card-container {
+    padding: 16px !important;
+  }
+
+  .teacher-student-modal-header {
+    padding: 14px 16px !important;
+  }
+
+  .teacher-student-modal-body {
+    padding: 16px !important;
+  }
+
+  /* Keep clean table grid layout with horizontal scrolling across all mobile screens */
+  .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    width: 100% !important;
+  }
+
+
 }
 
 @media (max-width: 480px) {
@@ -2709,6 +2718,38 @@ img {
   .portal-header {
     flex-direction: column;
     gap: 10px;
+  }
+
+  .portal-card {
+    padding: 14px !important;
+    border-left-width: 3px !important;
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+  }
+
+  .modal-overlay {
+    padding: 10px !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .modal-content {
+    width: 95% !important;
+    margin: 10px auto !important;
+    max-height: 88vh !important;
+    border-radius: 12px !important;
+  }
+
+  .teacher-student-modal-header {
+    padding: 12px 14px !important;
+  }
+
+  .teacher-student-modal-header h3 {
+    font-size: 1.05rem !important;
+  }
+
+  .teacher-student-modal-body {
+    padding: 14px 12px !important;
   }
 }
 
@@ -3507,6 +3548,48 @@ img {
     box-sizing: border-box !important;
     overflow: hidden !important;
     word-break: break-word !important;
+  }
+
+  /* Scorecard & Modal Tables: Retain structured horizontal table layout */
+  .table-responsive table.student-scorecard-table,
+  .modal-content .table-responsive table {
+    display: table !important;
+    width: 100% !important;
+    min-width: 460px !important;
+    border-collapse: collapse !important;
+  }
+  .table-responsive table.student-scorecard-table thead,
+  .modal-content .table-responsive thead {
+    display: table-header-group !important;
+  }
+  .table-responsive table.student-scorecard-table tbody,
+  .modal-content .table-responsive tbody {
+    display: table-row-group !important;
+  }
+  .table-responsive table.student-scorecard-table tr,
+  .modal-content .table-responsive tr {
+    display: table-row !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .table-responsive table.student-scorecard-table th,
+  .table-responsive table.student-scorecard-table td,
+  .modal-content .table-responsive th,
+  .modal-content .table-responsive td {
+    display: table-cell !important;
+    width: auto !important;
+    padding: 10px 12px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+  .table-responsive table.student-scorecard-table td::before,
+  .modal-content .table-responsive td::before {
+    display: none !important;
+    content: none !important;
   }
 
   /* Header Toolbar Mobile Stacking Fixes */

@@ -586,11 +586,6 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               Submit Attendance
             </button>
           )}
-          {activeTab === 'assignments' && (
-            <button className="btn btn-primary btn-sm" onClick={() => setIsHomeworkOpen(true)}>
-              + Give Homework
-            </button>
-          )}
           {(activeTab === 'school-announcements' || activeTab === 'announcements') && (
             <button className="btn btn-primary btn-sm" onClick={() => setIsAnnouncementOpen(true)}>
               + Post Announcement
@@ -1517,10 +1512,16 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         {/* TEACHER DASHBOARD TABS */}
         {/* =================================================================== */}
         {role === 'teacher' && activeTab === 'my-classes' && (() => {
+          const teacherClasses = data.classes || [
+            { name: 'Grade 10-A', teacher: 'Mrs. Priya Krishnan', room: 'A-102', strength: 38 },
+            { name: 'Grade 11-B', teacher: 'Dr. Anandhi Rajan', room: 'B-204', strength: 40 }
+          ];
+
           const currentClassInfo = {
-            id: 'Grade 10-A',
-            name: 'Grade 10 - Section A',
-            subject: 'Mathematics'
+            id: teacherSelectedClass || 'Grade 10-A',
+            name: (teacherClasses.find((c) => c.name === teacherSelectedClass) || teacherClasses[0] || {}).name || 'Grade 10-A',
+            subject: 'Mathematics',
+            room: (teacherClasses.find((c) => c.name === teacherSelectedClass) || teacherClasses[0] || {}).room || 'A-102'
           };
 
           const classStudents = data.students.filter((s) => s.class === currentClassInfo.id);
@@ -1529,9 +1530,29 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
+              {/* Class Selector Tabs for Teachers */}
+              {teacherClasses.length > 0 && (
+                <div className="sa-filter-segment" style={{ overflowX: 'auto', maxWidth: '100%', flexWrap: 'wrap', gap: '8px' }}>
+                  {teacherClasses.map((cls) => {
+                    const isSel = (teacherSelectedClass || 'Grade 10-A') === cls.name;
+                    return (
+                      <button
+                        key={cls.name}
+                        type="button"
+                        className={`sa-filter-tab ${isSel ? 'active' : ''}`}
+                        onClick={() => setTeacherSelectedClass(cls.name)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        🏫 {cls.name} (Room {cls.room})
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
               {/* Top Banner with Total Students */}
               <div
-                className="portal-card"
+                className="portal-card teacher-class-banner"
                 style={{
                   margin: 0,
                   borderLeft: '4px solid var(--color-primary)',
@@ -1551,11 +1572,12 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                     {currentClassInfo.name}
                   </h2>
                   <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '0.9rem' }}>
-                    Subject: <strong>{currentClassInfo.subject}</strong> &bull; Click any student to view Result, Exam Marks, Parent Name & Phone Number.
+                    Subject: <strong>{currentClassInfo.subject}</strong> &bull; Room: <strong>{currentClassInfo.room}</strong> &bull; Click any student to view Result, Exam Marks, Parent Name & Phone Number.
                   </p>
                 </div>
 
                 <div
+                  className="teacher-class-stat-badge"
                   style={{
                     background: 'linear-gradient(135deg, #1e3a8a, #2563eb)',
                     color: '#ffffff',
@@ -1579,7 +1601,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               </div>
 
               {/* Students List Table */}
-              <div className="portal-card" style={{ margin: 0, borderRadius: '12px', padding: '20px 24px' }}>
+              <div className="portal-card teacher-card-container" style={{ margin: 0, borderRadius: '12px', padding: '20px 24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
                   <h3 style={{ margin: 0, fontSize: '1.05rem', color: '#0f172a', fontWeight: 700 }}>
                     Students in {currentClassInfo.name} ({totalCount})
@@ -1668,7 +1690,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                                   e.stopPropagation();
                                   setSelectedStudentDetail(s);
                                 }}
-                                style={{ padding: '5px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                               >
                                 <span>📊</span>
                                 View Result & Details
@@ -2642,14 +2664,22 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           const canManageExams = role === 'principal' || role === 'teacher';
 
           // Filter by grade for student/parent or selected grade for principal/teacher
-          const filteredExams = allExams.filter((x) => {
-            if (role === 'student' || role === 'parent') {
-              // Student is Grade 10-A
-              return x.grade === 'Grade 10-A' || x.grade === 'All Grades';
-            }
-            if (examGradeFilter === 'All') return true;
-            return x.grade === examGradeFilter;
-          });
+          const filteredExams = allExams
+            .filter((x) => {
+              if (role === 'student' || role === 'parent') {
+                // Student is Grade 10-A
+                return x.grade === 'Grade 10-A' || x.grade === 'All Grades';
+              }
+              if (examGradeFilter === 'All') return true;
+              return x.grade === examGradeFilter;
+            })
+            .sort((a, b) => {
+              const aIsPrincipal = (a.uploadedBy || '').toLowerCase().includes('principal');
+              const bIsPrincipal = (b.uploadedBy || '').toLowerCase().includes('principal');
+              if (aIsPrincipal && !bIsPrincipal) return -1;
+              if (!aIsPrincipal && bIsPrincipal) return 1;
+              return 0;
+            });
 
           return (
             <div>
@@ -2986,8 +3016,8 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           </div>
         )}
 
-        {/* LIVE BUS / TRANSPORT GPS TRACKER (Student & Parent) */}
-        {(role === 'student' || role === 'parent') && activeTab === 'transport-tracking' && (
+        {/* LIVE BUS / TRANSPORT GPS TRACKER (Student) */}
+        {role === 'student' && activeTab === 'transport-tracking' && (
           <div>
             <div className="sa-schools-header-bar" style={{ marginBottom: '16px' }}>
               <div className="sa-filter-segment">
@@ -3117,7 +3147,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
       {selectedStudentDetail && (
         <div className="modal-overlay" style={{ display: 'flex' }}>
           <div className="modal-content wizard-modal-lg" style={{ maxWidth: '680px', borderRadius: '14px', overflow: 'hidden' }}>
-            <div className="modal-header" style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', color: '#ffffff' }}>
+            <div className="modal-header teacher-student-modal-header" style={{ background: 'linear-gradient(135deg, #1e3a8a, #2563eb)', color: '#ffffff' }}>
               <div>
                 <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.2rem', fontWeight: 800 }}>
                   Student Profile & Exam Results
@@ -3135,7 +3165,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               </button>
             </div>
 
-            <div style={{ padding: '24px' }}>
+            <div className="teacher-student-modal-body" style={{ padding: '24px' }}>
               {/* Parent & Contact Details Card */}
               <div
                 style={{
@@ -3209,8 +3239,8 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   </button>
                 </div>
 
-                <div className="table-responsive">
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                <div className="table-responsive" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <table className="student-scorecard-table" style={{ width: '100%', minWidth: '480px', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                     <thead>
                       <tr style={{ background: '#f1f5f9', textAlign: 'left', borderBottom: '2px solid #cbd5e1' }}>
                         <th style={{ padding: '10px 12px', color: '#475569', fontWeight: 700 }}>Subject</th>
@@ -3232,17 +3262,17 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                         const isPass = !isAbsent && Number(m.scored) >= 35;
                         return (
                           <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                            <td style={{ padding: '10px 12px', fontWeight: 600, color: '#0f172a' }}>{m.subject}</td>
-                            <td style={{ padding: '10px 12px', textAlign: 'center', color: '#64748b' }}>{m.max || 100}</td>
-                            <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: isAbsent ? '#ef4444' : '#0f172a' }}>
+                            <td data-label="Subject" style={{ padding: '10px 12px', fontWeight: 600, color: '#0f172a' }}>{m.subject}</td>
+                            <td data-label="Max Marks" style={{ padding: '10px 12px', textAlign: 'center', color: '#64748b' }}>{m.max || 100}</td>
+                            <td data-label="Scored" style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: isAbsent ? '#ef4444' : '#0f172a' }}>
                               {m.scored}
                             </td>
-                            <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                            <td data-label="Grade" style={{ padding: '10px 12px', textAlign: 'center' }}>
                               <span className={`badge ${isAbsent ? 'badge-danger' : m.grade === 'A+' || m.grade === 'A' ? 'badge-success' : 'badge-primary'}`}>
                                 {m.grade}
                               </span>
                             </td>
-                            <td style={{ padding: '10px 12px', textAlign: 'right' }}>
+                            <td data-label="Result Status" style={{ padding: '10px 12px', textAlign: 'right' }}>
                               <span style={{ fontWeight: 700, fontSize: '0.84rem', color: isAbsent ? '#ef4444' : isPass ? '#059669' : '#dc2626' }}>
                                 {isAbsent ? 'ABSENT' : isPass ? 'PASS ✓' : 'FAIL ✕'}
                               </span>

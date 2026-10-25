@@ -130,7 +130,6 @@ export default function Portal() {
       { id: 'track-exams', label: 'Upcoming Exam Schedule', icon: schIcons.reports },
       { id: 'exam-results', label: 'Exam Results & Report Card', icon: schIcons.reports },
       { id: 'fee-reminders', label: 'Fee Payments', icon: saIcons.billing },
-      { id: 'transport-tracking', label: 'School Bus GPS Tracker', icon: saIcons.services },
       { id: 'school-announcements', label: 'School Announcements', icon: schIcons.announcements },
       { id: 'messaging-teachers', label: 'Messaging with Teachers', icon: schIcons.messaging },
     ],
