@@ -1638,21 +1638,21 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                             style={{ cursor: 'pointer', transition: 'background 0.15s ease' }}
                             title="Click to view Exam Results and Parent Contact Information"
                           >
-                            <td>
+                            <td data-label="Roll No">
                               <code style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-primary)' }}>
                                 {s.roll}
                               </code>
                             </td>
-                            <td>
+                            <td data-label="Student Name">
                               <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.94rem' }}>{s.name}</div>
                               <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Attendance: {s.attendance || '95%'}</span>
                             </td>
-                            <td>
+                            <td data-label="Parent / Guardian">
                               <div style={{ fontWeight: 600, color: '#334155', fontSize: '0.88rem' }}>
                                 👨‍👩‍👦 {s.parentName || 'Mr. Guardian'}
                               </div>
                             </td>
-                            <td>
+                            <td data-label="Parent Phone">
                               <a
                                 href={`tel:${s.parentPhone || '+91 98401 22334'}`}
                                 onClick={(e) => e.stopPropagation()}
@@ -1669,7 +1669,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                                 📞 {s.parentPhone || '+91 98401 22334'}
                               </a>
                             </td>
-                            <td>
+                            <td data-label="Standing">
                               <span
                                 className={`badge ${
                                   s.performance === 'Outstanding' || s.performance === 'Very Good'
@@ -1682,7 +1682,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                                 {s.performance || 'Good'}
                               </span>
                             </td>
-                            <td className="sa-actions-cell" style={{ justifyContent: 'flex-end' }}>
+                            <td data-label="Actions" className="sa-actions-cell" style={{ justifyContent: 'flex-end' }}>
                               <button
                                 type="button"
                                 className="btn btn-primary btn-sm"
@@ -1782,10 +1782,10 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                     )
                     .map((s) => (
                       <tr key={s.roll}>
-                        <td><strong>{s.roll}</strong></td>
-                        <td>{s.name}</td>
-                        <td>{s.class}</td>
-                        <td>
+                        <td data-label="Roll No"><strong>{s.roll}</strong></td>
+                        <td data-label="Student Name">{s.name}</td>
+                        <td data-label="Assigned Grade">{s.class}</td>
+                        <td data-label="Midterm Rating">
                           <span
                             className={`badge ${
                               s.performance === 'Outstanding' || s.performance === 'Very Good'
@@ -1798,7 +1798,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                             {s.performance || 'Outstanding'}
                           </span>
                         </td>
-                        <td className="sa-actions-cell" style={{ justifyContent: 'flex-end' }}>
+                        <td data-label="Marks Entry" className="sa-actions-cell" style={{ justifyContent: 'flex-end' }}>
                           <button className="sa-tbl-action edit" onClick={() => handleOpenMarks(s)}>
                             Enter Marks
                           </button>
@@ -1906,40 +1906,50 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               </div>
             </div>
             <div className="table-responsive">
-              <table className="sa-schools-table">
+              <table className="sa-schools-table attendance-rollcall-table">
                 <thead>
                   <tr>
                     <th>Student Name</th>
                     <th>Roll Number</th>
-                    <th style={{ textAlign: 'center' }}>Present</th>
-                    <th style={{ textAlign: 'center' }}>Absent</th>
+                    <th style={{ textAlign: 'center' }}>Attendance Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.students
                     .filter((s) => s.class === 'Grade 10-A')
-                    .map((s) => (
-                      <tr key={s.roll}>
-                        <td><strong>{s.name}</strong></td>
-                        <td><code>{s.roll}</code></td>
-                        <td style={{ textAlign: 'center' }}>
-                          <input
-                            type="radio"
-                            name={`att-${s.roll}`}
-                            checked={rollCall[s.roll] === 'present'}
-                            onChange={() => setRollCall((prev) => ({ ...prev, [s.roll]: 'present' }))}
-                          />
-                        </td>
-                        <td style={{ textAlign: 'center' }}>
-                          <input
-                            type="radio"
-                            name={`att-${s.roll}`}
-                            checked={rollCall[s.roll] === 'absent'}
-                            onChange={() => setRollCall((prev) => ({ ...prev, [s.roll]: 'absent' }))}
-                          />
-                        </td>
-                      </tr>
-                    ))}
+                    .map((s) => {
+                      const isPresent = rollCall[s.roll] !== 'absent';
+                      return (
+                        <tr key={s.roll}>
+                          <td data-label="Student Name"><strong>{s.name}</strong></td>
+                          <td data-label="Roll Number"><code>{s.roll}</code></td>
+                          <td data-label="Attendance Status" style={{ textAlign: 'right' }}>
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '14px', justifyContent: 'flex-end', width: '100%' }}>
+                              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontWeight: 600, color: isPresent ? '#15803d' : '#64748b', fontSize: '0.88rem' }}>
+                                <input
+                                  type="radio"
+                                  name={`att-${s.roll}`}
+                                  checked={isPresent}
+                                  onChange={() => setRollCall((prev) => ({ ...prev, [s.roll]: 'present' }))}
+                                  style={{ accentColor: '#16a34a', width: '16px', height: '16px', cursor: 'pointer' }}
+                                />
+                                Present
+                              </label>
+                              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontWeight: 600, color: !isPresent ? '#b91c1c' : '#64748b', fontSize: '0.88rem' }}>
+                                <input
+                                  type="radio"
+                                  name={`att-${s.roll}`}
+                                  checked={!isPresent}
+                                  onChange={() => setRollCall((prev) => ({ ...prev, [s.roll]: 'absent' }))}
+                                  style={{ accentColor: '#dc2626', width: '16px', height: '16px', cursor: 'pointer' }}
+                                />
+                                Absent
+                              </label>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                 </tbody>
               </table>
             </div>
@@ -1998,8 +2008,8 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                     )
                     .map((hw) => (
                       <tr key={hw.id}>
-                        <td><strong>{hw.id}</strong></td>
-                        <td>
+                        <td data-label="ID"><strong>{hw.id}</strong></td>
+                        <td data-label="Topic / Title">
                           <div style={{ fontWeight: 600, color: 'var(--color-text)' }}>{hw.title}</div>
                           {hw.instructions && (
                             <small style={{ color: '#64748b', display: 'block', maxWidth: '340px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -2012,18 +2022,18 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                             </span>
                           )}
                         </td>
-                        <td><span className="badge badge-info">{hw.grade}</span></td>
-                        <td>
+                        <td data-label="Target Class"><span className="badge badge-info">{hw.grade}</span></td>
+                        <td data-label="Given Date">
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.85rem', color: '#475569', fontWeight: 500 }}>
                             📅 {hw.givenDate || hw.assignedDate || '2026-10-24'}
                           </span>
                         </td>
-                        <td>
+                        <td data-label="Due Date">
                           <span className="badge badge-warning" style={{ fontSize: '0.82rem', padding: '4px 8px' }}>
                             ⏳ {hw.due}
                           </span>
                         </td>
-                        <td className="sa-actions-cell" style={{ justifyContent: 'flex-end' }}>
+                        <td data-label="Actions" className="sa-actions-cell" style={{ justifyContent: 'flex-end' }}>
                           <button className="sa-tbl-action danger" onClick={() => handleDeleteHomework(hw.id)}>
                             Delete
                           </button>
@@ -2475,7 +2485,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                           const isPresent = status === 'present';
                           return (
                             <tr key={idx} style={{ background: idx === 0 ? 'rgba(59, 130, 246, 0.03)' : 'transparent' }}>
-                              <td>
+                              <td data-label="Date">
                                 <strong>{log.date}</strong>
                                 {idx === 0 && (
                                   <span style={{ marginLeft: '8px', background: '#dbeafe', color: '#1d4ed8', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
@@ -2483,9 +2493,9 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                                   </span>
                                 )}
                               </td>
-                              <td>{log.className}</td>
-                              <td>{log.markedBy || 'Mrs. Priya Krishnan'}</td>
-                              <td>
+                              <td data-label="Class">{log.className}</td>
+                              <td data-label="Teacher / Staff">{log.markedBy || 'Mrs. Priya Krishnan'}</td>
+                              <td data-label="Status">
                                 <span
                                   className={`badge ${isPresent ? 'badge-success' : 'badge-danger'}`}
                                   style={{
@@ -2500,7 +2510,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                                   {isPresent ? '✓ Present' : '✕ Absent'}
                                 </span>
                               </td>
-                              <td style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                              <td data-label="Recorded Time" style={{ fontSize: '0.8rem', color: '#64748b' }}>
                                 {log.timestamp ? new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '09:15 AM'}
                               </td>
                             </tr>
@@ -2949,10 +2959,10 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 <tbody>
                   {(data.students[0]?.marks || []).map((m, idx) => (
                     <tr key={idx}>
-                      <td><strong>{m.subject}</strong></td>
-                      <td>{m.max}</td>
-                      <td><strong>{m.scored}</strong></td>
-                      <td><span className="badge badge-success">{m.grade}</span></td>
+                      <td data-label="Subject"><strong>{m.subject}</strong></td>
+                      <td data-label="Max Marks">{m.max}</td>
+                      <td data-label="Scored Marks"><strong>{m.scored}</strong></td>
+                      <td data-label="Grade"><span className="badge badge-success">{m.grade}</span></td>
                     </tr>
                   ))}
                 </tbody>
@@ -2995,20 +3005,20 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </thead>
                 <tbody>
                   <tr>
-                    <td><code>REC-2026-084</code></td>
-                    <td>Term-I Tuition & Lab Fee</td>
-                    <td>₹15,000</td>
-                    <td>2026-05-12</td>
-                    <td>UPI / PhonePe</td>
-                    <td><span className="badge badge-success">PAID</span></td>
+                    <td data-label="Receipt No"><code>REC-2026-084</code></td>
+                    <td data-label="Fee Description">Term-I Tuition & Lab Fee</td>
+                    <td data-label="Amount Paid">₹15,000</td>
+                    <td data-label="Date">2026-05-12</td>
+                    <td data-label="Payment Mode">UPI / PhonePe</td>
+                    <td data-label="Status"><span className="badge badge-success">PAID</span></td>
                   </tr>
                   <tr>
-                    <td><code>REC-2026-012</code></td>
-                    <td>Annual Sports & Library Fee</td>
-                    <td>₹3,500</td>
-                    <td>2026-04-10</td>
-                    <td>Net Banking</td>
-                    <td><span className="badge badge-success">PAID</span></td>
+                    <td data-label="Receipt No"><code>REC-2026-012</code></td>
+                    <td data-label="Fee Description">Annual Sports & Library Fee</td>
+                    <td data-label="Amount Paid">₹3,500</td>
+                    <td data-label="Date">2026-04-10</td>
+                    <td data-label="Payment Mode">Net Banking</td>
+                    <td data-label="Status"><span className="badge badge-success">PAID</span></td>
                   </tr>
                 </tbody>
               </table>
@@ -4054,15 +4064,16 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 <div>Overall Attendance: <strong style={{ color: '#047857' }}>{reportCardStudent.attendance || '96%'}</strong></div>
               </div>
 
-              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '18px', fontSize: '0.88rem' }}>
-                <thead>
-                  <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
-                    <th style={{ textAlign: 'left', padding: '8px 10px' }}>Subject</th>
-                    <th style={{ textAlign: 'center', padding: '8px 10px' }}>Maximum</th>
-                    <th style={{ textAlign: 'center', padding: '8px 10px' }}>Marks Scored</th>
-                    <th style={{ textAlign: 'center', padding: '8px 10px' }}>Grade</th>
-                  </tr>
-                </thead>
+              <div className="table-responsive" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '18px' }}>
+                <table className="student-scorecard-table" style={{ width: '100%', minWidth: '460px', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+                  <thead>
+                    <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
+                      <th style={{ textAlign: 'left', padding: '8px 10px' }}>Subject</th>
+                      <th style={{ textAlign: 'center', padding: '8px 10px' }}>Maximum</th>
+                      <th style={{ textAlign: 'center', padding: '8px 10px' }}>Marks Scored</th>
+                      <th style={{ textAlign: 'center', padding: '8px 10px' }}>Grade</th>
+                    </tr>
+                  </thead>
                 <tbody>
                   {(reportCardStudent.marks || []).map((m) => (
                     <tr key={m.subject} style={{ borderBottom: '1px solid #e2e8f0' }}>
@@ -4078,8 +4089,9 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   ))}
                 </tbody>
               </table>
+            </div>
 
-              <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '20px', fontSize: '0.85rem' }}>
+            <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '20px', fontSize: '0.85rem' }}>
                 <strong>Class Teacher Remarks:</strong>
                 <p style={{ margin: '4px 0 0 0', color: '#475569', fontStyle: 'italic' }}>
                   "Exemplary dedication in STEM and languages. Demonstrates keen analytical understanding and active participation."
@@ -4674,8 +4686,8 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                           </div>
                         </div>
 
-                        <div style={{ padding: '16px', overflowX: 'auto' }}>
-                          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', minWidth: '600px' }}>
+                        <div className="table-responsive" style={{ padding: '16px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                          <table className="timetable-grid timetable-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', minWidth: '600px' }}>
                             <thead>
                               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                                 <th style={{ padding: '10px 8px', fontSize: '0.82rem', textAlign: 'left', color: '#1e3a8a', width: '130px' }}>

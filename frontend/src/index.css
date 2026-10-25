@@ -3493,15 +3493,28 @@ img {
 
   /* When cell content is a flex container (e.g. Avatar + Name/Username in Admin Profile) */
   .table-responsive td > div[style*="display: 'flex'"],
-  .table-responsive td > div[style*="display: flex"] {
+  .table-responsive td > div[style*="display: flex"],
+  .table-responsive td.sa-admin-profile-cell .sa-admin-profile-inner,
+  .table-responsive td[data-label="Admin Profile"] .sa-admin-profile-inner {
     display: flex !important;
     flex-direction: row !important;
     justify-content: flex-end !important;
     align-items: center !important;
     text-align: right !important;
-    gap: 8px !important;
-    max-width: calc(100% - 120px) !important;
+    gap: 10px !important;
+    max-width: calc(100% - 110px) !important;
     margin-left: auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  .table-responsive td.sa-admin-profile-cell .school-meta-line,
+  .table-responsive td[data-label="Admin Profile"] .school-meta-line {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    text-align: right !important;
+    margin-left: 0 !important;
+    max-width: none !important;
   }
 
   /* Ensure Timetable Tables Remain Tables with smooth horizontal touch scrolling */

@@ -1718,8 +1718,8 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                   ) : (
                     filteredAdmins.map((a) => (
                       <tr key={a.id} className="sa-admin-row" data-status={a.status}>
-                        <td data-label="Admin Profile" style={{ verticalAlign: 'middle', padding: '12px 16px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <td data-label="Admin Profile" className="sa-admin-profile-cell" style={{ verticalAlign: 'middle', padding: '12px 16px' }}>
+                          <div className="sa-admin-profile-inner" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <div style={{
                               width: '36px',
                               height: '36px',
