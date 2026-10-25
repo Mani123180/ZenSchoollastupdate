@@ -1345,49 +1345,49 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   </thead>
                   <tbody>
                     <tr>
-                      <td><strong>Grade 10-A</strong></td>
-                      <td>Mrs. Priya Krishnan</td>
-                      <td>38</td>
-                      <td><span style={{ color: '#16a34a', fontWeight: 700 }}>36</span></td>
-                      <td><span className="badge badge-success">94.7%</span></td>
-                      <td><strong>88.4%</strong></td>
-                      <td><span className="badge badge-success">Distinction Batch</span></td>
+                      <td data-label="Class & Section"><strong>Grade 10-A</strong></td>
+                      <td data-label="Class Teacher">Mrs. Priya Krishnan</td>
+                      <td data-label="Total Enrolled">38</td>
+                      <td data-label="Today's Present"><span style={{ color: '#16a34a', fontWeight: 700 }}>36</span></td>
+                      <td data-label="Attendance Rate"><span className="badge badge-success">94.7%</span></td>
+                      <td data-label="Average Exam Score"><strong>88.4%</strong></td>
+                      <td data-label="Academic Status"><span className="badge badge-success">Distinction Batch</span></td>
                     </tr>
                     <tr>
-                      <td><strong>Grade 11-B</strong></td>
-                      <td>Dr. Anandhi Rajan</td>
-                      <td>40</td>
-                      <td><span style={{ color: '#16a34a', fontWeight: 700 }}>39</span></td>
-                      <td><span className="badge badge-success">97.5%</span></td>
-                      <td><strong>84.2%</strong></td>
-                      <td><span className="badge badge-success">Excellent</span></td>
+                      <td data-label="Class & Section"><strong>Grade 11-B</strong></td>
+                      <td data-label="Class Teacher">Dr. Anandhi Rajan</td>
+                      <td data-label="Total Enrolled">40</td>
+                      <td data-label="Today's Present"><span style={{ color: '#16a34a', fontWeight: 700 }}>39</span></td>
+                      <td data-label="Attendance Rate"><span className="badge badge-success">97.5%</span></td>
+                      <td data-label="Average Exam Score"><strong>84.2%</strong></td>
+                      <td data-label="Academic Status"><span className="badge badge-success">Excellent</span></td>
                     </tr>
                     <tr>
-                      <td><strong>Grade 9-A</strong></td>
-                      <td>Mrs. Selvi Murugan</td>
-                      <td>36</td>
-                      <td><span style={{ color: '#16a34a', fontWeight: 700 }}>34</span></td>
-                      <td><span className="badge badge-success">94.4%</span></td>
-                      <td><strong>81.5%</strong></td>
-                      <td><span className="badge badge-info">Good</span></td>
+                      <td data-label="Class & Section"><strong>Grade 9-A</strong></td>
+                      <td data-label="Class Teacher">Mrs. Selvi Murugan</td>
+                      <td data-label="Total Enrolled">36</td>
+                      <td data-label="Today's Present"><span style={{ color: '#16a34a', fontWeight: 700 }}>34</span></td>
+                      <td data-label="Attendance Rate"><span className="badge badge-success">94.4%</span></td>
+                      <td data-label="Average Exam Score"><strong>81.5%</strong></td>
+                      <td data-label="Academic Status"><span className="badge badge-info">Good</span></td>
                     </tr>
                     <tr>
-                      <td><strong>Grade 12-A</strong></td>
-                      <td>Mr. Anand Narayanan</td>
-                      <td>42</td>
-                      <td><span style={{ color: '#16a34a', fontWeight: 700 }}>41</span></td>
-                      <td><span className="badge badge-success">97.6%</span></td>
-                      <td><strong>91.0%</strong></td>
-                      <td><span className="badge badge-success">Board Exam Focus</span></td>
+                      <td data-label="Class & Section"><strong>Grade 12-A</strong></td>
+                      <td data-label="Class Teacher">Mr. Anand Narayanan</td>
+                      <td data-label="Total Enrolled">42</td>
+                      <td data-label="Today's Present"><span style={{ color: '#16a34a', fontWeight: 700 }}>41</span></td>
+                      <td data-label="Attendance Rate"><span className="badge badge-success">97.6%</span></td>
+                      <td data-label="Average Exam Score"><strong>91.0%</strong></td>
+                      <td data-label="Academic Status"><span className="badge badge-success">Board Exam Focus</span></td>
                     </tr>
                     <tr>
-                      <td><strong>Grade 8-B</strong></td>
-                      <td>Ms. K. Suganthi</td>
-                      <td>35</td>
-                      <td><span style={{ color: '#16a34a', fontWeight: 700 }}>33</span></td>
-                      <td><span className="badge badge-warning">94.2%</span></td>
-                      <td><strong>79.8%</strong></td>
-                      <td><span className="badge badge-info">Normal</span></td>
+                      <td data-label="Class & Section"><strong>Grade 8-B</strong></td>
+                      <td data-label="Class Teacher">Ms. K. Suganthi</td>
+                      <td data-label="Total Enrolled">35</td>
+                      <td data-label="Today's Present"><span style={{ color: '#16a34a', fontWeight: 700 }}>33</span></td>
+                      <td data-label="Attendance Rate"><span className="badge badge-warning">94.2%</span></td>
+                      <td data-label="Average Exam Score"><strong>79.8%</strong></td>
+                      <td data-label="Academic Status"><span className="badge badge-info">Normal</span></td>
                     </tr>
                   </tbody>
                 </table>
@@ -5237,8 +5237,8 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
 
                 {/* Timetable Weekly Matrix */}
-                <div className="table-responsive">
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
+                <div className="table-responsive" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+                  <table className="timetable-grid timetable-table" style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', textAlign: 'center' }}>
                     <thead>
                       <tr style={{ background: '#f8fafc', borderBottom: '2px solid #cbd5e1' }}>
                         <th style={{ padding: '12px 10px', minWidth: '130px', textAlign: 'left', color: '#1e3a8a' }}>

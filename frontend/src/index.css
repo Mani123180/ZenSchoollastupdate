@@ -1351,40 +1351,67 @@ img {
         margin: 10px;
       }
       .table-responsive table {
-        min-width: 650px !important;
-        width: 100% !important;
-        display: table !important;
+        min-width: 100% !important;
+        display: block;
+        border: none;
       }
       .table-responsive thead {
-        display: table-header-group !important;
+        display: none;
       }
       .table-responsive tbody {
-        display: table-row-group !important;
+        display: block;
+        width: 100%;
       }
       .table-responsive tr {
-        display: table-row !important;
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        margin-bottom: 0 !important;
-        padding: 0 !important;
+        display: block;
+        width: 100%;
+        background: var(--color-bg-white);
+        border: 1px solid rgba(30, 58, 138, 0.08);
+        border-radius: var(--radius-md);
+        margin-bottom: 15px;
+        padding: 12px;
+        box-shadow: var(--shadow-sm);
+        box-sizing: border-box;
       }
       .table-responsive td {
-        display: table-cell !important;
-        padding: 10px 12px !important;
-        font-size: 0.85rem !important;
-        text-align: left !important;
-        width: auto !important;
-        border-bottom: 1px solid #e2e8f0 !important;
-        white-space: nowrap !important;
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0 !important;
+        border-bottom: 1px dashed rgba(30, 58, 138, 0.05);
+        font-size: 0.85rem;
+        text-align: right;
+        box-sizing: border-box;
+        width: 100% !important;
       }
       .table-responsive td:last-child {
-        margin-top: 0 !important;
-        flex-direction: row !important;
-        align-items: center !important;
+        border-bottom: none;
+        padding-bottom: 0 !important;
+        margin-top: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100% !important;
+      }
+      .table-responsive td:last-child::before {
+        margin-bottom: 6px;
+      }
+      .table-responsive td:last-child > div {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        width: 100% !important;
+      }
+      .table-responsive td:last-child button {
+        flex: 1 1 calc(50% - 6px);
+        min-width: 90px;
+        text-align: center;
       }
       .table-responsive td::before {
-        display: none !important;
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--color-primary);
+        text-align: left;
+        margin-right: 10px;
       }
       .table-responsive table.timetable-table,
       .table-responsive table.timetable-grid,
@@ -3550,24 +3577,20 @@ img {
     word-break: break-word !important;
   }
 
-  /* Scorecard & Modal Tables: Retain structured horizontal table layout */
-  .table-responsive table.student-scorecard-table,
-  .modal-content .table-responsive table {
+  /* Scorecard Tables (Teacher marks modal only): Retain structured horizontal table layout */
+  .table-responsive table.student-scorecard-table {
     display: table !important;
     width: 100% !important;
     min-width: 460px !important;
     border-collapse: collapse !important;
   }
-  .table-responsive table.student-scorecard-table thead,
-  .modal-content .table-responsive thead {
+  .table-responsive table.student-scorecard-table thead {
     display: table-header-group !important;
   }
-  .table-responsive table.student-scorecard-table tbody,
-  .modal-content .table-responsive tbody {
+  .table-responsive table.student-scorecard-table tbody {
     display: table-row-group !important;
   }
-  .table-responsive table.student-scorecard-table tr,
-  .modal-content .table-responsive tr {
+  .table-responsive table.student-scorecard-table tr {
     display: table-row !important;
     background: transparent !important;
     border: none !important;
@@ -3576,9 +3599,7 @@ img {
     margin: 0 !important;
   }
   .table-responsive table.student-scorecard-table th,
-  .table-responsive table.student-scorecard-table td,
-  .modal-content .table-responsive th,
-  .modal-content .table-responsive td {
+  .table-responsive table.student-scorecard-table td {
     display: table-cell !important;
     width: auto !important;
     padding: 10px 12px !important;
@@ -3586,8 +3607,7 @@ img {
     white-space: nowrap !important;
     box-sizing: border-box !important;
   }
-  .table-responsive table.student-scorecard-table td::before,
-  .modal-content .table-responsive td::before {
+  .table-responsive table.student-scorecard-table td::before {
     display: none !important;
     content: none !important;
   }
