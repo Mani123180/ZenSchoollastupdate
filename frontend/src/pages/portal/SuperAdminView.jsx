@@ -6,6 +6,7 @@ import NewSchoolWizardModal from './NewSchoolWizardModal';
 import SubscriptionModal from './SubscriptionModal';
 import SchoolAdminView from './SchoolAdminView';
 import AcademicRolesView from './AcademicRolesView';
+import ChatBox from './ChatBox';
 import {
   CampusOverviewModal,
   EditSchoolModal,
@@ -3105,6 +3106,21 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* 6.5 SUPER ADMIN: SECURE MESSAGING (sa-messaging) */}
+      {/* ===================================================================== */}
+      {activeTab === 'sa-messaging' && (
+        <div>
+          <div className="content-header">
+            <h2 id="section-title">Institutional Secure Messaging</h2>
+            <div id="section-actions"></div>
+          </div>
+          <div id="portal-content" style={{ marginTop: '16px' }}>
+            <ChatBox />
           </div>
         </div>
       )}

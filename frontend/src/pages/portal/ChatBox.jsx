@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 export default function ChatBox() {
   const { user } = useAuth();
   const [contacts, setContacts] = useState([]);
+  const [searchContact, setSearchContact] = useState('');
   const [activeContact, setActiveContact] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
@@ -12,29 +13,32 @@ export default function ChatBox() {
   const [showMobileChat, setShowMobileChat] = useState(false);
   const messagesEndRef = useRef(null);
 
-  useEffect(() => {
-    // Load contacts
-    api.getContacts()
-      .then((res) => {
-        if (res.success && res.data.length > 0) {
-          setContacts(res.data);
-          setActiveContact(res.data[0]);
-        }
-      })
-      .catch((err) => console.warn('Contacts load error:', err));
-  }, []);
-
-  useEffect(() => {
-    if (activeContact) {
-      loadMessages(activeContact.id);
+  // Load contacts list
+  const loadContacts = async () => {
+    try {
+      const res = await api.getContacts();
+      if (res.success && res.data.length > 0) {
+        setContacts(res.data);
+        setActiveContact((prev) => {
+          if (prev) {
+            const found = res.data.find((c) => c.id === prev.id);
+            return found || prev;
+          }
+          return res.data[0];
+        });
+      }
+    } catch (err) {
+      console.warn('Contacts load error:', err);
     }
-  }, [activeContact]);
+  };
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
+    loadContacts();
+  }, [user]);
 
+  // Load and refresh messages for active contact
   const loadMessages = async (contactId) => {
+    if (!contactId) return;
     try {
       const res = await api.getMessages(contactId);
       if (res.success) {
@@ -45,6 +49,32 @@ export default function ChatBox() {
     }
   };
 
+  useEffect(() => {
+    if (activeContact?.id) {
+      loadMessages(activeContact.id);
+    }
+  }, [activeContact?.id]);
+
+  // Periodic live polling to synchronize real-time messages & contacts across portals
+  useEffect(() => {
+    const contactInterval = setInterval(() => {
+      loadContacts();
+    }, 4000);
+    return () => clearInterval(contactInterval);
+  }, []);
+
+  useEffect(() => {
+    if (!activeContact?.id) return;
+    const interval = setInterval(() => {
+      loadMessages(activeContact.id);
+    }, 1500);
+    return () => clearInterval(interval);
+  }, [activeContact?.id]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isTyping]);
+
   const handleSend = async (e) => {
     e.preventDefault();
     if (!inputText.trim() || !activeContact) return;
@@ -52,12 +82,16 @@ export default function ChatBox() {
     const textToSend = inputText.trim();
     setInputText('');
 
+    const currentUserId = user?.userId || user?.id || 'USR002';
+    const currentUserName = user?.name || 'User';
+    const currentUserRole = user?.role || 'schooladmin';
+
     const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const localMsg = {
       messageId: 'TEMP-' + Date.now(),
-      senderId: user ? user.userId : 'USR002',
-      senderName: user ? user.name : 'Current User',
-      senderRole: user ? user.role : 'schooladmin',
+      senderId: currentUserId,
+      senderName: currentUserName,
+      senderRole: currentUserRole,
       receiverId: activeContact.id,
       receiverName: activeContact.name,
       text: textToSend,
@@ -67,99 +101,132 @@ export default function ChatBox() {
     setMessages((prev) => [...prev, localMsg]);
 
     try {
-      await api.sendMessage({
+      const res = await api.sendMessage({
         receiverId: activeContact.id,
         receiverName: activeContact.name,
         receiverRole: activeContact.role,
         text: textToSend,
       });
 
-      // Simulate a realistic real-time response from staff/parent
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        const replyText = getSimulatedReply(activeContact.name, textToSend);
-        const replyMsg = {
-          messageId: 'REP-' + Date.now(),
-          senderId: activeContact.id,
-          senderName: activeContact.name,
-          senderRole: activeContact.role,
-          receiverId: user ? user.userId : 'USR002',
-          receiverName: user ? user.name : 'Current User',
-          text: replyText,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        };
-        setMessages((prev) => [...prev, replyMsg]);
-      }, 1600);
+      if (res.success && res.data) {
+        setMessages((prev) =>
+          prev.map((m) => (m.messageId === localMsg.messageId ? res.data : m))
+        );
+      }
     } catch (err) {
       console.error('Send message error:', err);
     }
   };
 
-  const getSimulatedReply = (contactName, userMsg) => {
-    const lower = userMsg.toLowerCase();
-    if (lower.includes('exam') || lower.includes('mark') || lower.includes('result')) {
-      return `Noted. The examination verification has been completed and submitted for review.`;
-    }
-    if (lower.includes('meeting') || lower.includes('time') || lower.includes('schedule')) {
-      return `Yes, I will be available at the scheduled time. Thank you for coordinating!`;
-    }
-    if (lower.includes('attendance') || lower.includes('absent')) {
-      return `The attendance registers have been updated on the portal.`;
-    }
-    return `Thank you for the update, ${user ? user.name.split(' ')[0] : 'Admin'}. I have noted this and will take necessary action immediately.`;
-  };
+  const filteredContacts = contacts.filter((c) => {
+    if (!searchContact.trim()) return true;
+    const term = searchContact.toLowerCase();
+    return (
+      c.name.toLowerCase().includes(term) ||
+      (c.role && c.role.toLowerCase().includes(term)) ||
+      (c.schoolName && c.schoolName.toLowerCase().includes(term))
+    );
+  });
 
   return (
     <div className={`messaging-layout ${showMobileChat ? 'show-mobile-chat' : 'show-mobile-sidebar'}`}>
       {/* Contacts sidebar */}
       <div className="messaging-sidebar">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
           <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-primary)', margin: 0 }}>
             Active Conversations
           </h4>
           <span className="badge badge-info" style={{ fontSize: '0.72rem' }}>
-            {contacts.length} Contacts
+            {filteredContacts.length} Contacts
           </span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {contacts.map((c) => (
-            <button
-              key={c.id}
-              className={`contact-item-btn ${activeContact?.id === c.id ? 'active' : ''}`}
-              onClick={() => {
-                setActiveContact(c);
-                setShowMobileChat(true);
-              }}
-            >
-              <div style={{ position: 'relative' }}>
-                <div
-                  style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#e2e8f0' }}
-                />
-                <span
-                  style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    right: 0,
-                    width: '10px',
-                    height: '10px',
-                    borderRadius: '50%',
-                    backgroundColor: c.status === 'online' ? '#22c55e' : c.status === 'away' ? '#eab308' : '#94a3b8',
-                    border: '2px solid #fff',
+
+        {/* Search Contacts filter input */}
+        <div style={{ marginBottom: '12px' }}>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search contacts by name, role..."
+            value={searchContact}
+            onChange={(e) => setSearchContact(e.target.value)}
+            style={{ fontSize: '0.82rem', padding: '6px 12px', margin: 0, height: '34px' }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', maxHeight: '420px' }}>
+          {filteredContacts.length === 0 ? (
+            <div style={{ fontSize: '0.82rem', color: '#94a3b8', textAlign: 'center', padding: '16px 0' }}>
+              No contacts found
+            </div>
+          ) : (
+            filteredContacts.map((c) => {
+              const hasUnread = c.unreadCount > 0 && activeContact?.id !== c.id;
+              return (
+                <button
+                  key={c.id}
+                  className={`contact-item-btn ${activeContact?.id === c.id ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveContact(c);
+                    setShowMobileChat(true);
                   }}
-                />
-              </div>
-              <div style={{ textAlign: 'left', overflow: 'hidden', flex: 1 }}>
-                <strong style={{ display: 'block', fontSize: '0.84rem', color: '#1e293b', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                  {c.name}
-                </strong>
-                <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{c.role}</span>
-              </div>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" className="mobile-chevron">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </button>
-          ))}
+                  style={{
+                    backgroundColor: hasUnread ? '#f0fdf4' : undefined,
+                    borderLeft: hasUnread ? '3px solid #16a34a' : undefined,
+                  }}
+                >
+                  <div style={{ position: 'relative' }}>
+                    <img
+                      src={c.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
+                      alt={c.name}
+                      style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover' }}
+                    />
+                    <span
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        right: 0,
+                        width: '10px',
+                        height: '10px',
+                        borderRadius: '50%',
+                        backgroundColor: c.status === 'online' ? '#22c55e' : c.status === 'away' ? '#eab308' : '#94a3b8',
+                        border: '2px solid #fff',
+                      }}
+                    />
+                  </div>
+                  <div style={{ textAlign: 'left', overflow: 'hidden', flex: 1 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <strong style={{ fontSize: '0.84rem', color: hasUnread ? '#15803d' : '#1e293b', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                        {c.name}
+                      </strong>
+                      {hasUnread && (
+                        <span
+                          style={{
+                            backgroundColor: '#22c55e',
+                            color: '#ffffff',
+                            borderRadius: '12px',
+                            fontSize: '0.68rem',
+                            fontWeight: 700,
+                            padding: '1px 6px',
+                            minWidth: '18px',
+                            textAlign: 'center',
+                            boxShadow: '0 1px 4px rgba(34, 197, 94, 0.4)'
+                          }}
+                        >
+                          {c.unreadCount} NEW
+                        </span>
+                      )}
+                    </div>
+                    <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                      {c.role ? c.role.toUpperCase() : 'USER'} {c.schoolName ? `• ${c.schoolName.slice(0, 16)}...` : ''}
+                    </span>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" className="mobile-chevron">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              );
+            })
+          )}
         </div>
       </div>
 
@@ -189,13 +256,27 @@ export default function ChatBox() {
               >
                 &larr; Contacts
               </button>
-              <div
-                style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#e2e8f0', flexShrink: 0 }}
+              <img
+                src={activeContact.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
+                alt={activeContact.name}
+                style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
               />
               <div>
                 <strong style={{ fontSize: '0.92rem', color: 'var(--color-primary)', display: 'block' }}>{activeContact.name}</strong>
-                <div style={{ fontSize: '0.74rem', color: '#64748b' }}>
-                  {activeContact.role} • <span style={{ color: '#16a34a', fontWeight: 600 }}>Online</span>
+                <div style={{ fontSize: '0.74rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <span>{activeContact.role ? activeContact.role.toUpperCase() : 'USER'}</span>
+                  <span>•</span>
+                  {activeContact.status === 'online' ? (
+                    <span style={{ color: '#16a34a', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#22c55e', display: 'inline-block' }}></span>
+                      Online
+                    </span>
+                  ) : (
+                    <span style={{ color: '#94a3b8', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#94a3b8', display: 'inline-block' }}></span>
+                      Offline
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -223,7 +304,22 @@ export default function ChatBox() {
           }}
         >
           {messages.map((m, idx) => {
-            const isMe = m.senderId === (user ? user.userId : 'USR002');
+            const rawMyId = user?.userId || user?.id || 'USR002';
+            const normalize = (id) => {
+              if (!id) return id;
+              const map = {
+                'USR-SA': 'USR001',
+                'USR-ADM': 'USR002',
+                'USR-PRIN': 'USR003',
+                'USR-TCH': 'USR004',
+                'USR-STD': 'USR006',
+                'USR-PAR': 'USR008',
+              };
+              return map[id] || id;
+            };
+            const currentMyId = normalize(rawMyId);
+            const msgSender = normalize(m.senderId);
+            const isMe = msgSender === currentMyId || m.senderId === rawMyId;
             return (
               <div key={idx} className={`chat-bubble ${isMe ? 'outgoing' : 'incoming'}`}>
                 <div style={{ fontWeight: 600, fontSize: '0.74rem', marginBottom: '3px', opacity: 0.85 }}>
@@ -232,7 +328,17 @@ export default function ChatBox() {
                 <div>{m.text}</div>
                 <div className="chat-meta">
                   <span>{m.timestamp}</span>
-                  {isMe && <span>✓✓</span>}
+                  {isMe && (
+                    <span style={{ fontSize: '0.8rem', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center' }}>
+                      {m.read ? (
+                        <span style={{ color: '#38bdf8' }} title="Read">✓✓</span>
+                      ) : m.delivered ? (
+                        <span style={{ color: 'rgba(255, 255, 255, 0.75)' }} title="Delivered">✓✓</span>
+                      ) : (
+                        <span style={{ color: 'rgba(255, 255, 255, 0.65)' }} title="Sent">✓</span>
+                      )}
+                    </span>
+                  )}
                 </div>
               </div>
             );

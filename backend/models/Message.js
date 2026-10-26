@@ -12,6 +12,7 @@ const messageSchema = new mongoose.Schema(
     schoolId: { type: String, default: 'SCH001' },
     text: { type: String, required: true },
     timestamp: { type: String, default: () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
+    delivered: { type: Boolean, default: false },
     read: { type: Boolean, default: false },
   },
   { timestamps: true }

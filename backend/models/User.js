@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema(
     schoolName: { type: String, default: 'Zenith International Girls Higher Secondary School' },
     status: { type: String, enum: ['Active', 'Inactive', 'Suspended'], default: 'Active' },
     avatar: { type: String, default: '' },
+    lastActiveAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

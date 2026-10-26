@@ -203,6 +203,18 @@ export const api = {
   },
 
   // Messaging
+  sendHeartbeat: async () => {
+    try {
+      const res = await fetch(`${API_BASE}/messages/heartbeat`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      });
+      return handleResponse(res);
+    } catch (e) {
+      return { success: false };
+    }
+  },
+
   getContacts: async () => {
     const res = await fetch(`${API_BASE}/messages/contacts`, { headers: getAuthHeaders() });
     return handleResponse(res);

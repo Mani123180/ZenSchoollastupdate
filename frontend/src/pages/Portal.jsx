@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../services/api';
 import SuperAdminView from './portal/SuperAdminView';
 import SchoolAdminView from './portal/SchoolAdminView';
 import AcademicRolesView from './portal/AcademicRolesView';
@@ -73,7 +74,7 @@ export default function Portal() {
       { id: 'sa-services', label: 'Services', icon: saIcons.services },
       { id: 'sa-subscriptions', label: 'Subscription', icon: saIcons.subscriptions },
       { id: 'sa-billing', label: 'Bills / Billing', icon: saIcons.billing },
-
+      { id: 'sa-messaging', label: 'Secure Messaging', icon: schIcons.messaging },
       { id: 'sa-settings', label: 'Settings', icon: saIcons.settings },
     ],
     schooladmin: [
@@ -144,6 +145,16 @@ export default function Portal() {
     const newMenu = menuConfig[currentRole] || menuConfig.superadmin;
     setActiveTab(newMenu[0]?.id || 'sa-dashboard');
   }, [currentRole]);
+
+  // Real-time Presence Heartbeat: send heartbeat when user is active in portal
+  useEffect(() => {
+    if (!user) return;
+    api.sendHeartbeat();
+    const hbInterval = setInterval(() => {
+      api.sendHeartbeat();
+    }, 6000);
+    return () => clearInterval(hbInterval);
+  }, [user]);
 
   const getRoleDisplayName = () => {
     if (currentRole === 'superadmin') return 'Super Administrator';
