@@ -2266,9 +2266,13 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </span>
  </td>
  <td data-label="Qualification">
- <span className="badge badge-neutral" style={{ fontSize: '0.78rem' }}>
- {staff.qualification || 'M.Sc., B.Ed'}
- </span>
+ {staff.roleType === 'Non-Teaching' || staff.roleType === 'Operations Works' ? (
+   <span style={{ color: '#94a3b8', fontSize: '0.82rem' }}>—</span>
+ ) : (
+   <span className="badge badge-neutral" style={{ fontSize: '0.78rem' }}>
+     {staff.qualification || 'M.Sc., B.Ed'}
+   </span>
+ )}
  </td>
  <td data-label="Duty Status" style={{ textAlign: 'center' }}>
  <button
