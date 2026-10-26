@@ -5563,11 +5563,38 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
  {/* Comprehensive School Report Detail Viewer Modal */}
  {activeReportViewer && (
- <div className="modal-backdrop" onClick={() => setActiveReportViewer(null)}>
+ <div
+ className="modal-backdrop"
+ onClick={() => setActiveReportViewer(null)}
+ style={{
+ position: 'fixed',
+ top: 0,
+ left: 0,
+ right: 0,
+ bottom: 0,
+ background: 'rgba(15, 23, 42, 0.75)',
+ backdropFilter: 'blur(5px)',
+ display: 'flex',
+ alignItems: 'center',
+ justifyContent: 'center',
+ zIndex: 10000,
+ padding: '20px'
+ }}
+ >
  <div
  className="modal-container"
  onClick={(e) => e.stopPropagation()}
- style={{ maxWidth: '920px', width: '95%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', borderRadius: '16px' }}
+ style={{
+ maxWidth: '980px',
+ width: '100%',
+ maxHeight: '90vh',
+ display: 'flex',
+ flexDirection: 'column',
+ borderRadius: '16px',
+ background: '#ffffff',
+ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+ overflow: 'hidden'
+ }}
  >
  {/* Modal Header */}
  <div className="modal-header" style={{ padding: '18px 24px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>

@@ -15,6 +15,21 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
   const [searchQuery, setSearchQuery] = useState('');
   const [teacherSelectedClass, setTeacherSelectedClass] = useState('Grade 10-A');
 
+  // Fee Collection Tracker State
+  const [feeClassFilter, setFeeClassFilter] = useState('All');
+  const [feeSearch, setFeeSearch] = useState('');
+  const [feeReminderModal, setFeeReminderModal] = useState(null);
+  const [feeRecords, setFeeRecords] = useState([
+    { id: 'FEE-101', roll: 'S101', name: 'Aishwarya Kumar', class: 'Grade 10-A', parent: 'Ramesh Kumar', phone: '+91 98456 12301', totalFee: '₹28,000', paid: '₹28,000', due: '₹0', status: 'PAID' },
+    { id: 'FEE-102', roll: 'S102', name: 'Kavitha Selvam', class: 'Grade 10-A', parent: 'Selvam Murugan', phone: '+91 98456 12302', totalFee: '₹28,000', paid: '₹18,000', due: '₹10,000', status: 'PARTIAL' },
+    { id: 'FEE-103', roll: 'S103', name: 'Sandhya Ramesh', class: 'Grade 10-A', parent: 'Ramesh Krishnan', phone: '+91 98456 12303', totalFee: '₹28,000', paid: '₹0', due: '₹28,000', status: 'OVERDUE' },
+    { id: 'FEE-104', roll: 'S104', name: 'Deepa Venkatesh', class: 'Grade 10-A', parent: 'Venkatesh S.', phone: '+91 98456 12304', totalFee: '₹28,000', paid: '₹28,000', due: '₹0', status: 'PAID' },
+    { id: 'FEE-105', roll: 'S105', name: 'Meena Natarajan', class: 'Grade 10-A', parent: 'Natarajan M.', phone: '+91 98456 12305', totalFee: '₹28,000', paid: '₹14,000', due: '₹14,000', status: 'PARTIAL' },
+    { id: 'FEE-106', roll: 'S106', name: 'Pooja Sundaram', class: 'Grade 10-B', parent: 'Sundaram P.', phone: '+91 98456 12306', totalFee: '₹28,000', paid: '₹28,000', due: '₹0', status: 'PAID' },
+    { id: 'FEE-107', roll: 'S107', name: 'Swathi Rajesh', class: 'Grade 10-B', parent: 'Rajesh K.', phone: '+91 98456 12307', totalFee: '₹28,000', paid: '₹20,000', due: '₹8,000', status: 'PARTIAL' },
+    { id: 'FEE-108', roll: 'S108', name: 'Bhavani Chandran', class: 'Grade 9-A', parent: 'Chandran M.', phone: '+91 98456 12308', totalFee: '₹26,000', paid: '₹26,000', due: '₹0', status: 'PAID' },
+  ]);
+
   // Modals state
   const [marksStudent, setMarksStudent] = useState(null);
   const [marksInputs, setMarksInputs] = useState({});
@@ -176,7 +191,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
       'leave-request': 'Faculty Leave Request & Status Portal',
       'transport-tracking': 'School Bus Live GPS Tracking',
       'exam-results': 'Exam Results & Academic Report Card',
-      'fee-reminders': 'Online Fee Payments & Receipts',
+      'fee-reminders': 'Fee Collection & Dues',
       'messaging-teachers': 'Messaging with Teachers'
     };
     return titles[activeTab] || 'Dashboard';
@@ -1183,6 +1198,68 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   </span>
                 </div>
               </div>
+
+              {/* 5. Fee Collection & Dues Card */}
+              <div
+                className="portal-card clickable-card"
+                style={{
+                  borderLeftColor: '#059669',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  padding: '18px 20px',
+                  background: '#ffffff',
+                }}
+                title="Click to view fee collection register & pending dues"
+                onClick={() => setActiveTab && setActiveTab('fee-collection-tracker')}
+              >
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, letterSpacing: '0.04em' }}>
+                      Fee Collection & Dues
+                    </span>
+                    <span style={{ fontSize: '1.25rem' }}>💰</span>
+                  </div>
+                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#059669', margin: '8px 0 4px 0', lineHeight: 1.1 }}>
+                    ₹42,000
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 600 }}>
+                    ₹52,000 Outstanding Dues &bull; 4 Pending
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    marginTop: '16px',
+                    paddingTop: '12px',
+                    borderTop: '1px solid #f1f5f9',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#059669' }}>
+                    View Fee Register
+                  </span>
+                  <span
+                    style={{
+                      background: '#ecfdf5',
+                      color: '#059669',
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '50%',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                    }}
+                  >
+                    &rarr;
+                  </span>
+                </div>
+              </div>
             </div>
 
             {/* Academic Performance Breakdown (Full Width) */}
@@ -1320,7 +1397,383 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           </div>
         )}
 
+        {/* =================================================================== */}
+        {/* SHARED FEE COLLECTION & DUE TRACKER (Principal & Teacher) */}
+        {/* =================================================================== */}
+        {(role === 'principal' || role === 'teacher') && activeTab === 'fee-collection-tracker' && (
+          <div>
+            {/* Summary Metrics: Filtered by role */}
+            {(() => {
+              // For teacher: show only their class and only pending dues
+              const recordsForRole = role === 'teacher'
+                ? feeRecords.filter((r) => r.class === (teacherSelectedClass || 'Grade 10-A') && r.status !== 'PAID')
+                : feeRecords;
 
+              const totalPending = recordsForRole.reduce((acc, r) => {
+                const num = parseInt(r.due.replace(/[^0-9]/g, ''), 10) || 0;
+                return acc + num;
+              }, 0);
+              const pendingCount = role === 'teacher'
+                ? recordsForRole.length
+                : feeRecords.filter((r) => r.status !== 'PAID').length;
+
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+                  {role !== 'teacher' && (
+                    <div style={{
+                      background: 'linear-gradient(135deg, #065f46 0%, #059669 100%)',
+                      color: '#ffffff',
+                      borderRadius: '16px',
+                      padding: '22px 24px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '18px',
+                      boxShadow: '0 8px 20px rgba(5, 150, 105, 0.18)',
+                      border: '1px solid #10b981'
+                    }}>
+                      <div style={{
+                        width: '56px',
+                        height: '56px',
+                        borderRadius: '14px',
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '1.8rem',
+                        fontWeight: 900,
+                        backdropFilter: 'blur(4px)'
+                      }}>
+                        ₹
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.82rem', opacity: 0.9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+                          Total Fee Collect Today
+                        </div>
+                        <div style={{ fontSize: '2rem', fontWeight: 900, margin: '2px 0 4px', letterSpacing: '-0.5px' }}>
+                          ₹42,000
+                        </div>
+                        <div style={{ fontSize: '0.78rem', opacity: 0.85, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <span>3 Payments Received Today</span> &bull; <span>Verified</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Pending Fees Card */}
+                  <div style={{
+                    background: 'linear-gradient(135deg, #991b1b 0%, #dc2626 100%)',
+                    color: '#ffffff',
+                    borderRadius: '16px',
+                    padding: '22px 24px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '18px',
+                    boxShadow: '0 8px 20px rgba(220, 38, 38, 0.18)',
+                    border: '1px solid #ef4444'
+                  }}>
+                    <div style={{
+                      width: '56px',
+                      height: '56px',
+                      borderRadius: '14px',
+                      background: 'rgba(255, 255, 255, 0.2)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1.8rem',
+                      fontWeight: 900,
+                      backdropFilter: 'blur(4px)'
+                    }}>
+                      ₹
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.82rem', opacity: 0.9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+                        {role === 'teacher' ? `${teacherSelectedClass || 'Grade 10-A'} - Pending Fees` : 'Pending Fees'}
+                      </div>
+                      <div style={{ fontSize: '2rem', fontWeight: 900, margin: '2px 0 4px', letterSpacing: '-0.5px' }}>
+                        ₹{totalPending.toLocaleString('en-IN')}
+                      </div>
+                      <div style={{ fontSize: '0.78rem', opacity: 0.85, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <span>{pendingCount} Students with Pending Fees</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Filter and Controls Toolbar */}
+            <div className="sa-schools-header-bar" style={{ display: 'flex', gap: '14px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                {/* Search Bar */}
+                <div style={{ position: 'relative', minWidth: '240px' }}>
+                  <input
+                    type="text"
+                    value={feeSearch}
+                    onChange={(e) => setFeeSearch(e.target.value)}
+                    placeholder="Search by student, roll no, parent..."
+                    style={{
+                      width: '100%',
+                      padding: '9px 12px 9px 36px',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      background: '#ffffff',
+                      color: '#0f172a',
+                      fontSize: '0.88rem',
+                      fontWeight: 500,
+                      outline: 'none',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.04)'
+                    }}
+                  />
+                  <span style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', opacity: 0.6, fontSize: '0.95rem' }}>
+                    🔍
+                  </span>
+                  {feeSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setFeeSearch('')}
+                      style={{
+                        position: 'absolute',
+                        right: '10px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: '#64748b',
+                        fontSize: '0.9rem',
+                        fontWeight: 'bold',
+                        padding: '2px'
+                      }}
+                      title="Clear search"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* Filter Class */}
+                {role === 'teacher' ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569' }}>My Class:</span>
+                    <select
+                      className="sa-filter-select"
+                      value={teacherSelectedClass || 'Grade 10-A'}
+                      onChange={(e) => setTeacherSelectedClass(e.target.value)}
+                      style={{ minWidth: '150px' }}
+                    >
+                      <option value="Grade 10-A">Grade 10-A (Class Teacher)</option>
+                      <option value="Grade 10-B">Grade 10-B</option>
+                      <option value="Grade 9-A">Grade 9-A</option>
+                    </select>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569' }}>Class:</span>
+                    <select
+                      className="sa-filter-select"
+                      value={feeClassFilter}
+                      onChange={(e) => setFeeClassFilter(e.target.value)}
+                      style={{ minWidth: '150px' }}
+                    >
+                      <option value="All">All Classes (Grade 10-A, 10-B, 9-A)</option>
+                      <option value="Grade 10-A">Grade 10-A</option>
+                      <option value="Grade 10-B">Grade 10-B</option>
+                      <option value="Grade 9-A">Grade 9-A</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons: Export & Reminders */}
+              <div className="sa-toolbar-right" style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => {
+                    try {
+                      const listToExport = feeRecords
+                        .filter((r) => {
+                          if (role === 'teacher') {
+                            return r.class === (teacherSelectedClass || 'Grade 10-A') && r.status !== 'PAID';
+                          }
+                          return feeClassFilter === 'All' || r.class === feeClassFilter;
+                        });
+
+                      const exportData = listToExport.map((r) => ({
+                        'Roll No': r.roll,
+                        'Student Name': r.name,
+                        'Class': r.class,
+                        'Parent / Guardian': r.parent,
+                        'Phone Number': r.phone,
+                        'Pending Fee': r.due,
+                        'Fee Status': r.status,
+                      }));
+                      const worksheet = XLSX.utils.json_to_sheet(exportData);
+                      const workbook = XLSX.utils.book_new();
+                      XLSX.utils.book_append_sheet(workbook, worksheet, 'Pending Fees');
+                      XLSX.writeFile(workbook, `Pending_Fees_${new Date().toISOString().slice(0, 10)}.xlsx`);
+                    } catch (err) {
+                      console.error('Error exporting fee excel:', err);
+                    }
+                  }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}
+                  title="Download pending fee report as Excel"
+                >
+                  Export Pending Fees
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  style={{ borderColor: '#25D366', color: '#128C7E', fontWeight: 600 }}
+                  onClick={() => {
+                    const listToRemind = feeRecords.filter((r) => {
+                      if (role === 'teacher') {
+                        return r.class === (teacherSelectedClass || 'Grade 10-A') && r.status !== 'PAID';
+                      }
+                      return r.status !== 'PAID';
+                    });
+                    alert(`Bulk WhatsApp dispatched to ${listToRemind.length} parents with pending fee reminders.`);
+                  }}
+                >
+                  Bulk WhatsApp
+                </button>
+              </div>
+            </div>
+
+            {/* Fee Collection Table - Shows ONLY Pending Fees for Teacher */}
+            <div className="table-responsive">
+              <table className="sa-schools-table">
+                <thead>
+                  <tr>
+                    <th style={{ minWidth: '85px' }}>Roll No</th>
+                    <th style={{ minWidth: '160px' }}>Student Name</th>
+                    <th style={{ minWidth: '110px' }}>Class</th>
+                    <th style={{ minWidth: '150px' }}>Parent / Guardian</th>
+                    <th style={{ minWidth: '110px' }}>Pending Fee</th>
+                    <th style={{ minWidth: '110px', textAlign: 'center' }}>Fee Status</th>
+                    <th style={{ minWidth: '180px', textAlign: 'center' }}>Reminder Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {feeRecords
+                    .filter((r) => {
+                      if (role === 'teacher') {
+                        // Teacher: ONLY their class students and ONLY pending fees
+                        return r.class === (teacherSelectedClass || 'Grade 10-A') && r.status !== 'PAID';
+                      }
+                      return feeClassFilter === 'All' || r.class === feeClassFilter;
+                    })
+                    .filter((r) => {
+                      if (!feeSearch) return true;
+                      const q = feeSearch.toLowerCase();
+                      return (
+                        (r.name && r.name.toLowerCase().includes(q)) ||
+                        (r.roll && r.roll.toLowerCase().includes(q)) ||
+                        (r.parent && r.parent.toLowerCase().includes(q)) ||
+                        (r.phone && r.phone.toLowerCase().includes(q)) ||
+                        (r.class && r.class.toLowerCase().includes(q))
+                      );
+                    })
+                    .map((r) => (
+                      <tr key={r.id}>
+                        <td data-label="Roll No"><code>{r.roll}</code></td>
+                        <td data-label="Student Name"><strong>{r.name}</strong></td>
+                        <td data-label="Class"><span className="badge badge-info">{r.class}</span></td>
+                        <td data-label="Parent">
+                          <div className="school-meta-line">
+                            <strong>{r.parent}</strong>
+                            <small>{r.phone}</small>
+                          </div>
+                        </td>
+                        <td data-label="Pending Fee" style={{ color: '#dc2626', fontWeight: 800, fontSize: '0.96rem' }}>
+                          {r.due}
+                        </td>
+                        <td data-label="Fee Status" style={{ textAlign: 'center' }}>
+                          <span className={`badge ${r.status === 'PAID' ? 'badge-active' : r.status === 'PARTIAL' ? 'badge-warning' : 'badge-danger'}`}>
+                            {r.status}
+                          </span>
+                        </td>
+                        <td data-label="Reminder Actions" style={{ textAlign: 'center' }}>
+                          {r.status === 'PAID' ? (
+                            <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                              Cleared (Receipt Sent)
+                            </span>
+                          ) : (
+                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                              <button
+                                className="btn btn-sm btn-outline"
+                                style={{
+                                  padding: '4px 9px',
+                                  fontSize: '0.75rem',
+                                  borderColor: '#25D366',
+                                  color: '#128C7E',
+                                  fontWeight: 600,
+                                }}
+                                onClick={() => {
+                                  const defaultMsg = `Dear ${r.parent}, this is a gentle reminder from Zen School regarding pending fee of ${r.due} for student ${r.name} (${r.class}). Kindly pay using our instant UPI link: https://pay.zenschool.in/${r.roll.toLowerCase()}`;
+                                  setFeeReminderModal({
+                                    record: r,
+                                    channel: 'whatsapp',
+                                    message: defaultMsg,
+                                    sent: false,
+                                  });
+                                }}
+                                title="Open WhatsApp Composer"
+                              >
+                                WhatsApp
+                              </button>
+                              <button
+                                className="btn btn-sm btn-outline"
+                                style={{
+                                  padding: '4px 9px',
+                                  fontSize: '0.75rem',
+                                  borderColor: '#3b82f6',
+                                  color: '#1d4ed8',
+                                  fontWeight: 600,
+                                }}
+                                onClick={() => {
+                                  const defaultMsg = `Zen School Alert: Dear ${r.parent}, Fee of ${r.due} is pending for ${r.name} (${r.roll}). Pay before due date: https://pay.zenschool.in/${r.roll.toLowerCase()}`;
+                                  setFeeReminderModal({
+                                    record: r,
+                                    channel: 'sms',
+                                    message: defaultMsg,
+                                    sent: false,
+                                  });
+                                }}
+                                title="Open SMS Composer"
+                              >
+                                SMS
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  {feeRecords
+                    .filter((r) => feeClassFilter === 'All' || r.class === feeClassFilter)
+                    .filter((r) => {
+                      if (!feeSearch) return true;
+                      const q = feeSearch.toLowerCase();
+                      return (
+                        (r.name && r.name.toLowerCase().includes(q)) ||
+                        (r.roll && r.roll.toLowerCase().includes(q)) ||
+                        (r.parent && r.parent.toLowerCase().includes(q)) ||
+                        (r.phone && r.phone.toLowerCase().includes(q)) ||
+                        (r.class && r.class.toLowerCase().includes(q))
+                      );
+                    }).length === 0 && (
+                    <tr>
+                      <td colSpan="9" style={{ textAlign: 'center', padding: '36px', color: '#64748b' }}>
+                        <div>No matching student fee records found for "<strong>{feeSearch}</strong>"</div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {role === 'principal' && activeTab === 'staff-leave-approvals' && (
           <div>
@@ -3252,11 +3705,73 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         {/* PARENT DASHBOARD TABS */}
         {/* =================================================================== */}
         {role === 'parent' && activeTab === 'child-information' && (
-          <div className="portal-card">
-            <div className="portal-card-title">Student Profile Summary</div>
-            <p><strong>Name:</strong> Aishwarya Kumar</p>
-            <p><strong>Class:</strong> Grade 10-A (Roll No: S101)</p>
-            <p><strong>Emergency Contact:</strong> Ramesh Kumar (+91 98456 12301)</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div className="portal-card">
+              <div className="portal-card-title">Student Profile Summary</div>
+              <p><strong>Name:</strong> Aishwarya Kumar</p>
+              <p><strong>Class:</strong> Grade 10-A (Roll No: S101)</p>
+              <p><strong>Emergency Contact:</strong> Ramesh Kumar (+91 98456 12301)</p>
+            </div>
+
+            {/* Fee Collection & Dues Summary Card for Parent (Pending Fee Only) */}
+            <div
+              className="portal-card"
+              style={{
+                borderLeftColor: '#dc2626',
+                background: '#ffffff',
+                borderRadius: '14px',
+                padding: '22px 24px',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0f172a', fontWeight: 800 }}>
+                    Fee Collection & Dues
+                  </h3>
+                  <p style={{ margin: '3px 0 0', fontSize: '0.84rem', color: '#64748b' }}>
+                    Academic Year 2026-27 &bull; Student: Aishwarya Kumar (Grade 10-A &bull; Roll No: S101)
+                  </p>
+                </div>
+                <span className="badge badge-warning" style={{ fontSize: '0.8rem', padding: '5px 12px', fontWeight: 700 }}>
+                  Due Date: 10 Aug 2026
+                </span>
+              </div>
+
+              <div style={{ background: '#fef2f2', padding: '18px 20px', borderRadius: '12px', border: '1px solid #fecaca', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#991b1b', fontWeight: 800, letterSpacing: '0.5px' }}>
+                    Student Pending Fee
+                  </span>
+                  <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '2px' }}>
+                    ₹12,500
+                  </div>
+                  <span style={{ fontSize: '0.8rem', color: '#7f1d1d' }}>Term-II Academic & Facility Fee</span>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => setActiveTab && setActiveTab('fee-reminders')}
+                  style={{ padding: '8px 18px', fontWeight: 700 }}
+                >
+                  Pay Pending Fee &rarr;
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: '1px solid #f1f5f9', flexWrap: 'wrap', gap: '10px' }}>
+                <span style={{ fontSize: '0.82rem', color: '#64748b' }}>
+                  Complete official payment receipts and transaction records are maintained securely.
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  onClick={() => setActiveTab && setActiveTab('fee-reminders')}
+                  style={{ fontWeight: 700, borderColor: '#dc2626', color: '#dc2626', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  View Fee Details &rarr;
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -3304,22 +3819,30 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
 
         {role === 'parent' && activeTab === 'fee-reminders' && (
           <div>
-            <div className="portal-card" style={{ borderLeftColor: 'var(--color-secondary)', marginBottom: '20px' }}>
-              <div className="portal-card-header">
+            {/* Student Pending Fee Card */}
+            <div className="portal-card" style={{ borderLeftColor: '#dc2626', marginBottom: '20px', padding: '22px 24px' }}>
+              <div className="portal-card-header" style={{ marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
                 <div>
-                  <h4 style={{ margin: '0 0 4px 0' }}>Term-II Academic & Facility Fee 2026-27</h4>
-                  <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Student: Aishwarya Kumar &bull; Grade 10-A</div>
+                  <h4 style={{ margin: '0 0 4px 0', fontSize: '1.25rem', color: '#0f172a', fontWeight: 800 }}>Student Pending Fee Details</h4>
+                  <div style={{ fontSize: '0.86rem', color: '#64748b' }}>Student: Aishwarya Kumar &bull; Grade 10-A (Roll No: S101)</div>
                 </div>
-                <span className="badge badge-warning">Due: 2026-08-10</span>
+                <span className="badge badge-warning" style={{ fontSize: '0.82rem', padding: '6px 12px', fontWeight: 700 }}>Due Date: 10 Aug 2026</span>
               </div>
-              <p style={{ fontSize: '1.25rem', margin: '14px 0 18px' }}>Total Outstanding Due: <strong style={{ color: '#b91c1c' }}>₹12,500/-</strong></p>
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={() => setIsPaymentModalOpen(true)}
-                style={{ padding: '8px 24px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
-              >
-                ⚡ Pay via UPI / Razorpay Gateway
-              </button>
+
+              <div style={{ background: '#fef2f2', padding: '18px 20px', borderRadius: '12px', border: '1px solid #fecaca', marginBottom: '18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px' }}>
+                <div>
+                  <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#991b1b', fontWeight: 800, letterSpacing: '0.5px' }}>Total Pending Fee</span>
+                  <div style={{ fontSize: '2.1rem', fontWeight: 900, color: '#dc2626', margin: '4px 0 2px' }}>₹12,500</div>
+                  <div style={{ fontSize: '0.84rem', color: '#7f1d1d' }}>Term-II Academic & Facility Fee 2026-27</div>
+                </div>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => setIsPaymentModalOpen(true)}
+                  style={{ padding: '10px 24px', display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.92rem' }}
+                >
+                  ⚡ Pay Pending Fee via UPI / Gateway
+                </button>
+              </div>
             </div>
 
             <div className="table-responsive">

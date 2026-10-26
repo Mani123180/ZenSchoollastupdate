@@ -92,6 +92,7 @@ export default function Portal() {
     ],
     principal: [
       { id: 'dashboard-analytics', label: 'Dashboard Analytics', icon: saIcons.dashboard },
+      { id: 'fee-collection-tracker', label: 'Fee Collection & Dues', icon: saIcons.billing },
       { id: 'attendance-reports', label: 'Attendance Reports', icon: schIcons.reports },
       { id: 'track-exams', label: 'Examination Schedule & Dates', icon: schIcons.reports },
       { id: 'principal-services-tab', label: 'Enrichment Programs & Services', icon: saIcons.services },
@@ -101,6 +102,7 @@ export default function Portal() {
     ],
     teacher: [
       { id: 'my-classes', label: 'My Classes', icon: schIcons.classes },
+      { id: 'fee-collection-tracker', label: 'Fee Collection & Dues', icon: saIcons.billing },
       { id: 'teacher-services-tab', label: 'Activities & Service Labs', icon: saIcons.services },
       { id: 'student-list', label: 'Student List', icon: schIcons.students },
       { id: 'attendance-management', label: 'Attendance Management', icon: schIcons.users },
@@ -131,7 +133,7 @@ export default function Portal() {
       { id: 'homework', label: 'Homework & Assignments', icon: schIcons.subjects },
       { id: 'track-exams', label: 'Upcoming Exam Schedule', icon: schIcons.reports },
       { id: 'exam-results', label: 'Exam Results & Report Card', icon: schIcons.reports },
-      { id: 'fee-reminders', label: 'Fee Payments', icon: saIcons.billing },
+      { id: 'fee-reminders', label: 'Fee Collection & Dues', icon: saIcons.billing },
       { id: 'school-announcements', label: 'School Announcements', icon: schIcons.announcements },
       { id: 'messaging-teachers', label: 'Messaging with Teachers', icon: schIcons.messaging },
     ],
