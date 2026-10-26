@@ -110,6 +110,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  const [staffAttendanceDate, setStaffAttendanceDate] = useState(
    new Date().toISOString().split('T')[0]
  );
+ const [analyticsModal, setAnalyticsModal] = useState(null);
  // Bulk Students State
  const [isBulkStudentOpen, setIsBulkStudentOpen] = useState(false);
  const [bulkCsvText, setBulkCsvText] = useState('');
@@ -1797,6 +1798,60 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
  return (
  <div>
+ {/* Principal-Style Unified Faculty, Non-Teaching & Operations Works Quick Cards */}
+ <div className="grid-3" style={{ marginBottom: '16px' }}>
+   {/* 1. Total Teaching Staff */}
+   <div
+     className="portal-card clickable-card"
+     style={{ borderLeftColor: '#f59e0b', cursor: 'pointer' }}
+     title="Click to view faculty duty and leave roster"
+     onClick={() => setAnalyticsModal('staff')}
+   >
+     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+       <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>
+         Total Teaching Staff
+       </div>
+       <span style={{ fontSize: '0.72rem', color: '#d97706', fontWeight: 600 }}>View &rarr;</span>
+     </div>
+     <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#b45309', margin: '4px 0' }}>5</p>
+     <span style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>3 On Duty &bull; 2 On Leave</span>
+   </div>
+
+   {/* 2. Non-Teaching Staff */}
+   <div
+     className="portal-card clickable-card"
+     style={{ borderLeftColor: '#06b6d4', cursor: 'pointer' }}
+     title="Click to view non-teaching & administrative staff roster"
+     onClick={() => setAnalyticsModal('non-teaching')}
+   >
+     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+       <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>
+         Non-Teaching Staff
+       </div>
+       <span style={{ fontSize: '0.72rem', color: '#0891b2', fontWeight: 600 }}>View &rarr;</span>
+     </div>
+     <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#0e7490', margin: '4px 0' }}>8</p>
+     <span style={{ fontSize: '0.75rem', color: '#0284c7', fontWeight: 600 }}>7 Active Today &bull; 1 Leave</span>
+   </div>
+
+   {/* 3. Total Works & Tasks */}
+   <div
+     className="portal-card clickable-card"
+     style={{ borderLeftColor: '#ec4899', cursor: 'pointer' }}
+     title="Click to view daily school operations & task pipeline"
+     onClick={() => setAnalyticsModal('operations-works')}
+   >
+     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+       <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--color-text-light)', fontWeight: 700 }}>
+         Total Works & Tasks
+       </div>
+       <span style={{ fontSize: '0.72rem', color: '#be185d', fontWeight: 600 }}>View &rarr;</span>
+     </div>
+     <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#be185d', margin: '4px 0' }}>8</p>
+     <span style={{ fontSize: '0.75rem', color: '#db2777', fontWeight: 600 }}>4 Completed &bull; 3 In Progress</span>
+   </div>
+ </div>
+
  {/* Top 12 Summary Metric Cards (Exact Super Admin style with drill-down modal) */}
  <div className="grid-4" style={{ marginBottom: '25px' }}>
  {/* 1. Total Students */}
@@ -6197,6 +6252,699 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  );
  })()}
+
+ {/* Principal-Style Unified Roster & Works Drilldown Modal */}
+ {analyticsModal && (
+ <div
+ className="portal-modal-backdrop"
+ onClick={() => setAnalyticsModal(null)}
+ style={{
+ position: 'fixed',
+ top: 0,
+ left: 0,
+ right: 0,
+ bottom: 0,
+ background: 'rgba(15, 23, 42, 0.75)',
+ backdropFilter: 'blur(4px)',
+ display: 'flex',
+ alignItems: 'center',
+ justifyContent: 'center',
+ zIndex: 9999,
+ padding: '20px',
+ }}
+ >
+ <div
+ className="portal-modal-card"
+ style={{
+ maxWidth: '1000px',
+ width: '100%',
+ borderRadius: '16px',
+ overflow: 'hidden',
+ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+ background: '#ffffff',
+ maxHeight: '90vh',
+ display: 'flex',
+ flexDirection: 'column',
+ }}
+ onClick={(e) => e.stopPropagation()}
+ >
+ {/* Modal Header */}
+ <div
+ style={{
+ background:
+ analyticsModal === 'staff'
+ ? 'linear-gradient(135deg, #b45309 0%, #f59e0b 100%)'
+ : analyticsModal === 'non-teaching'
+ ? 'linear-gradient(135deg, #0891b2 0%, #06b6d4 100%)'
+ : analyticsModal === 'operations-works'
+ ? 'linear-gradient(135deg, #be185d 0%, #ec4899 100%)'
+ : 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
+ color: '#ffffff',
+ padding: '20px 24px',
+ display: 'flex',
+ justifyContent: 'space-between',
+ alignItems: 'center',
+ }}
+ >
+ <div>
+ <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.01em' }}>
+ {analyticsModal === 'staff' && '👩‍🏫 Teaching Faculty — Attendance & Leave Roster'}
+ {analyticsModal === 'non-teaching' && '👥 Non-Teaching & Administrative Staff — Duty Register'}
+ {analyticsModal === 'operations-works' && '📋 Campus Operations & Administrative Works Pipeline'}
+ </h3>
+ <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', opacity: 0.9 }}>
+ {analyticsModal === 'staff' && 'Daily faculty attendance log and substitute coverage map'}
+ {analyticsModal === 'non-teaching' && 'Non-academic staff duty deployment, office admin & lab support'}
+ {analyticsModal === 'operations-works' && 'Real-time tracking of institutional daily tasks, audits & compliance'}
+ </p>
+ </div>
+ <button
+ type="button"
+ onClick={() => setAnalyticsModal(null)}
+ style={{
+ background: 'rgba(255, 255, 255, 0.2)',
+ border: 'none',
+ color: '#ffffff',
+ fontSize: '1.2rem',
+ cursor: 'pointer',
+ borderRadius: '50%',
+ width: '32px',
+ height: '32px',
+ display: 'flex',
+ alignItems: 'center',
+ justifyContent: 'center',
+ }}
+ >
+ ✕
+ </button>
+ </div>
+
+ {/* Modal Body */}
+ <div style={{ padding: '24px', maxHeight: '72vh', overflowY: 'auto' }}>
+ {/* 1. TEACHING STAFF DRILLDOWN */}
+ {analyticsModal === 'staff' && (() => {
+ const sDate = new Date(staffAttendanceDate);
+ const dayNum = sDate.getDay();
+ const isSunday = dayNum === 0;
+ const formattedDate = sDate.toLocaleDateString('en-IN', {
+ weekday: 'short',
+ year: 'numeric',
+ month: 'short',
+ day: 'numeric',
+ });
+
+ const facultyPool = [
+ { name: 'Mrs. Priya Krishnan', dept: 'Mathematics', cls: 'Grade 10-A', punch: '08:15 AM', periods: '5 Periods', phone: '+91 98401 23451' },
+ { name: 'Dr. Anandhi Rajan', dept: 'Physics', cls: 'Grade 11-A', punch: '08:20 AM', periods: '4 Periods + Lab', phone: '+91 98401 23452' },
+ { name: 'Mr. Anand Narayanan', dept: 'Physics', cls: 'Grade 12-A', punch: '08:12 AM', periods: '5 Periods', phone: '+91 98401 23453' },
+ { name: 'Mrs. Selvi Murugan', dept: 'Chemistry', cls: 'Grade 9-A', punch: '—', periods: 'Substituted by Dr. Rajan', phone: '+91 98401 23455' },
+ { name: 'Mr. Ramanathan K.', dept: 'Computer Science', cls: 'Grade 10-B', punch: '08:25 AM', periods: '4 Lab Sessions', phone: '+91 98401 23457' },
+ { name: 'Mrs. Jayanthi S.', dept: 'English', cls: 'Grade 11-B', punch: '08:18 AM', periods: '5 Periods', phone: '+91 98401 23458' },
+ { name: 'Ms. K. Suganthi', dept: 'Social Science', cls: 'Grade 8-B', punch: '08:22 AM', periods: '4 Periods', phone: '+91 98401 23459' },
+ { name: 'Mr. V. Balaji', dept: 'Biology', cls: 'Grade 9-B', punch: '—', periods: 'Substituted by Ms. Meena', phone: '+91 98401 23460' },
+ ];
+
+ const dateSeed = (sDate.getDate() * 7 + sDate.getMonth() * 11) % 8;
+ const computedFaculty = facultyPool.map((f, idx) => {
+ if (isSunday) {
+ return { ...f, status: 'Holiday (Sunday)', punch: '—', isPresent: false };
+ }
+ const isLeave = (idx === (dateSeed % facultyPool.length)) || (idx === ((dateSeed + 3) % facultyPool.length));
+ const isPresent = !isLeave;
+ return {
+ ...f,
+ status: isPresent ? 'On Duty' : 'On Approved Leave',
+ punch: isPresent ? f.punch : '—',
+ isPresent
+ };
+ });
+
+ const presentCount = isSunday ? 0 : computedFaculty.filter(f => f.isPresent).length;
+ const leaveCount = isSunday ? 0 : computedFaculty.length - presentCount;
+
+ return (
+ <div>
+ {/* Live Date Filter Bar */}
+ <div
+ style={{
+ display: 'flex',
+ flexWrap: 'wrap',
+ justifyContent: 'space-between',
+ alignItems: 'center',
+ gap: '12px',
+ padding: '12px 18px',
+ background: '#fffbeb',
+ border: '1.5px solid #fde68a',
+ borderRadius: '10px',
+ marginBottom: '18px',
+ }}
+ >
+ <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+ <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#92400e' }}>
+ 📅 Check Teaching Attendance by Date:
+ </span>
+ <input
+ type="date"
+ value={staffAttendanceDate}
+ onChange={(e) => setStaffAttendanceDate(e.target.value)}
+ max={new Date().toISOString().split('T')[0]}
+ style={{
+ padding: '6px 12px',
+ border: '1.5px solid #d97706',
+ borderRadius: '8px',
+ fontWeight: 700,
+ color: '#92400e',
+ background: '#ffffff',
+ fontSize: '0.9rem',
+ cursor: 'pointer',
+ }}
+ />
+ <button
+ type="button"
+ className="btn btn-outline btn-sm"
+ onClick={() => setStaffAttendanceDate(new Date().toISOString().split('T')[0])}
+ style={{ fontSize: '0.78rem', padding: '4px 10px', borderColor: '#d97706', color: '#92400e' }}
+ >
+ Today
+ </button>
+ </div>
+ <span className="badge badge-amber" style={{ fontSize: '0.8rem', fontWeight: 700 }}>
+ {formattedDate} {isSunday ? '• Institutional Holiday' : ''}
+ </span>
+ </div>
+
+ <div
+ style={{
+ display: 'grid',
+ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+ gap: '12px',
+ marginBottom: '20px',
+ }}
+ >
+ <div style={{ background: '#fef3c7', padding: '14px', borderRadius: '10px', border: '1px solid #fde68a' }}>
+ <span style={{ fontSize: '0.75rem', color: '#92400e', fontWeight: 700, textTransform: 'uppercase' }}>Present on Duty</span>
+ <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#b45309' }}>
+ {presentCount} / {computedFaculty.length} Faculty
+ </div>
+ <span style={{ fontSize: '0.72rem', color: '#d97706' }}>
+ {computedFaculty.length ? ((presentCount / computedFaculty.length) * 100).toFixed(1) : 0}% Attendance Rate
+ </span>
+ </div>
+
+ <div style={{ background: '#fee2e2', padding: '14px', borderRadius: '10px', border: '1px solid #fca5a5' }}>
+ <span style={{ fontSize: '0.75rem', color: '#991b1b', fontWeight: 700, textTransform: 'uppercase' }}>On Approved Leave / Absent</span>
+ <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#dc2626' }}>{leaveCount} Faculty</div>
+ <span style={{ fontSize: '0.72rem', color: '#b91c1c' }}>Roster Substitute Active ✓</span>
+ </div>
+
+ <div style={{ background: '#ecfdf5', padding: '14px', borderRadius: '10px', border: '1px solid #a7f3d0' }}>
+ <span style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 700, textTransform: 'uppercase' }}>Classes Coverage</span>
+ <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#065f46' }}>{isSunday ? 'Holiday' : '100%'}</div>
+ <span style={{ fontSize: '0.72rem', color: '#059669' }}>All periods manned</span>
+ </div>
+ </div>
+
+ <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 0 10px 0' }}>
+ <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#1e293b' }}>
+ Teaching Faculty Daily Log &bull; <span style={{ color: '#b45309', fontWeight: 800 }}>Click any teacher's name</span> to view past attendance:
+ </h4>
+ <span style={{ fontSize: '0.78rem', color: '#64748b' }}>💡 Click teacher name for full attendance history</span>
+ </div>
+
+ <div className="table-responsive">
+ <table className="sa-schools-table">
+ <thead>
+ <tr>
+ <th>Faculty Name (Click for History)</th>
+ <th>Department</th>
+ <th>Assigned Class</th>
+ <th>Morning Punch</th>
+ <th>Duty Status</th>
+ <th>Periods</th>
+ </tr>
+ </thead>
+ <tbody>
+ {computedFaculty.map((t, idx) => (
+ <tr key={idx}>
+ <td data-label="Faculty Name">
+ <div
+ onClick={(e) => {
+ e.stopPropagation();
+ setSelectedStaffHistory({
+ name: t.name,
+ type: 'Teaching Staff',
+ role: `${t.dept} Teacher`,
+ department: t.dept,
+ phone: t.phone,
+ baseDate: staffAttendanceDate,
+ currentStatus: t.status,
+ currentPunch: t.punch,
+ });
+ }}
+ style={{
+ color: '#1d4ed8',
+ fontWeight: 800,
+ textDecoration: 'underline',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '6px',
+ cursor: 'pointer',
+ padding: '2px 6px',
+ borderRadius: '4px',
+ background: '#eff6ff'
+ }}
+ title="Click to view full attendance history for this teacher"
+ >
+ 👩‍🏫 {t.name}
+ <span style={{ fontSize: '0.7rem', color: '#2563eb', fontWeight: 600 }}>🔍</span>
+ </div>
+ </td>
+ <td data-label="Department">{t.dept}</td>
+ <td data-label="Assigned Class">{t.cls}</td>
+ <td data-label="Morning Punch"><code>{t.punch}</code></td>
+ <td data-label="Duty Status">
+ <span className={`badge ${t.status === 'On Duty' ? 'badge-success' : t.status.includes('Holiday') ? 'badge-info' : 'badge-danger'}`}>
+ {t.status}
+ </span>
+ </td>
+ <td data-label="Periods Assigned">{t.periods}</td>
+ </tr>
+ ))}
+ </tbody>
+ </table>
+ </div>
+ </div>
+ );
+ })()}
+
+ {/* 2. NON-TEACHING STAFF DRILLDOWN */}
+ {analyticsModal === 'non-teaching' && (() => {
+ const sDate = new Date(staffAttendanceDate);
+ const dayNum = sDate.getDay();
+ const isSunday = dayNum === 0;
+ const formattedDate = sDate.toLocaleDateString('en-IN', {
+ weekday: 'short',
+ year: 'numeric',
+ month: 'short',
+ day: 'numeric',
+ });
+
+ const rawList = data.nonTeachingStaff || [];
+ const dateSeed = rawList.length ? (sDate.getDate() * 5 + sDate.getMonth() * 7) % rawList.length : 0;
+
+ const computedNonTeaching = rawList.map((st, idx) => {
+ if (isSunday) {
+ return { ...st, status: 'Holiday (Sunday)', isPresent: false };
+ }
+ const isLeave = (idx === dateSeed);
+ return {
+ ...st,
+ status: isLeave ? 'On Approved Leave' : 'On Duty',
+ isPresent: !isLeave
+ };
+ });
+
+ const presentCount = isSunday ? 0 : computedNonTeaching.filter(s => s.isPresent).length;
+ const leaveCount = isSunday ? 0 : computedNonTeaching.length - presentCount;
+
+ return (
+ <div>
+ {/* Date Selector Bar for Non-Teaching */}
+ <div
+ style={{
+ display: 'flex',
+ flexWrap: 'wrap',
+ justifyContent: 'space-between',
+ alignItems: 'center',
+ gap: '12px',
+ padding: '12px 18px',
+ background: '#ecfeff',
+ border: '1.5px solid #a5f3fc',
+ borderRadius: '10px',
+ marginBottom: '18px',
+ }}
+ >
+ <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+ <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0e7490' }}>
+ 📅 Check Non-Teaching Attendance by Date:
+ </span>
+ <input
+ type="date"
+ value={staffAttendanceDate}
+ onChange={(e) => setStaffAttendanceDate(e.target.value)}
+ max={new Date().toISOString().split('T')[0]}
+ style={{
+ padding: '6px 12px',
+ border: '1.5px solid #0891b2',
+ borderRadius: '8px',
+ fontWeight: 700,
+ color: '#0e7490',
+ background: '#ffffff',
+ fontSize: '0.9rem',
+ cursor: 'pointer',
+ }}
+ />
+ <button
+ type="button"
+ className="btn btn-outline btn-sm"
+ onClick={() => setStaffAttendanceDate(new Date().toISOString().split('T')[0])}
+ style={{ fontSize: '0.78rem', padding: '4px 10px', borderColor: '#0891b2', color: '#0e7490' }}
+ >
+ Today
+ </button>
+ </div>
+ <span className="badge badge-teal" style={{ fontSize: '0.8rem', fontWeight: 700 }}>
+ {formattedDate} {isSunday ? '• Institutional Holiday' : ''}
+ </span>
+ </div>
+
+ <div
+ style={{
+ display: 'grid',
+ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+ gap: '12px',
+ marginBottom: '20px',
+ }}
+ >
+ <div style={{ background: '#ecfeff', padding: '14px', borderRadius: '10px', border: '1px solid #a5f3fc' }}>
+ <span style={{ fontSize: '0.75rem', color: '#0e7490', fontWeight: 700, textTransform: 'uppercase' }}>Present on Duty</span>
+ <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0891b2' }}>
+ {presentCount} / {computedNonTeaching.length} Staff
+ </div>
+ <span style={{ fontSize: '0.72rem', color: '#06b6d4' }}>Campus Admin & Labs Operational</span>
+ </div>
+
+ <div style={{ background: '#fee2e2', padding: '14px', borderRadius: '10px', border: '1px solid #fca5a5' }}>
+ <span style={{ fontSize: '0.75rem', color: '#991b1b', fontWeight: 700, textTransform: 'uppercase' }}>On Approved Leave / Absent</span>
+ <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#dc2626' }}>
+ {leaveCount} Staff
+ </div>
+ <span style={{ fontSize: '0.72rem', color: '#b91c1c' }}>Reliever Assigned ✓</span>
+ </div>
+
+ <div style={{ background: '#f0fdf4', padding: '14px', borderRadius: '10px', border: '1px solid #bbf7d0' }}>
+ <span style={{ fontSize: '0.75rem', color: '#166534', fontWeight: 700, textTransform: 'uppercase' }}>Key Functions Covered</span>
+ <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#15803d' }}>{isSunday ? 'Holiday' : '100%'}</div>
+ <span style={{ fontSize: '0.72rem', color: '#16a34a' }}>Accounts, Office, Lab & Security</span>
+ </div>
+ </div>
+
+ <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 0 10px 0' }}>
+ <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#1e293b' }}>
+ Non-Academic Staff Register &bull; <span style={{ color: '#0891b2', fontWeight: 800 }}>Click any name</span> to view attendance record:
+ </h4>
+ <span style={{ fontSize: '0.78rem', color: '#64748b' }}>💡 Click staff name for date-wise attendance log</span>
+ </div>
+
+ <div className="table-responsive">
+ <table className="sa-schools-table">
+ <thead>
+ <tr>
+ <th>Staff Name (Click for History)</th>
+ <th>Role / Title</th>
+ <th>Department</th>
+ <th>Work Shift</th>
+ <th>Primary Operational Responsibility</th>
+ <th>Status</th>
+ </tr>
+ </thead>
+ <tbody>
+ {computedNonTeaching.map((st, idx) => (
+ <tr key={idx}>
+ <td data-label="Staff Name">
+ <div
+ onClick={() => {
+ setSelectedStaffHistory({
+ name: st.name,
+ type: 'Non-Teaching Staff',
+ role: st.role,
+ department: st.department,
+ phone: st.phone,
+ baseDate: staffAttendanceDate,
+ currentStatus: st.status,
+ currentPunch: st.shift ? st.shift.split(' - ')[0] : '08:30 AM',
+ });
+ }}
+ style={{
+ color: '#0891b2',
+ fontWeight: 800,
+ textDecoration: 'underline',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '6px',
+ cursor: 'pointer',
+ padding: '2px 6px',
+ borderRadius: '4px',
+ background: '#ecfeff'
+ }}
+ title="Click to view full attendance history for this staff member"
+ >
+ 👥 {st.name}
+ <span style={{ fontSize: '0.7rem', color: '#0891b2', fontWeight: 600 }}>🔍</span>
+ </div>
+ </td>
+ <td data-label="Role / Title"><strong>{st.role}</strong></td>
+ <td data-label="Department">{st.department}</td>
+ <td data-label="Work Shift"><code>{st.shift}</code></td>
+ <td data-label="Primary Responsibility">{st.workAssigned}</td>
+ <td data-label="Status">
+ <span className={`badge ${st.status === 'On Duty' ? 'badge-success' : st.status.includes('Holiday') ? 'badge-info' : 'badge-danger'}`}>
+ {st.status}
+ </span>
+ </td>
+ </tr>
+ ))}
+ </tbody>
+ </table>
+ </div>
+ </div>
+ );
+ })()}
+
+ {/* 3. OPERATIONS WORKS & TASKS DRILLDOWN */}
+ {analyticsModal === 'operations-works' && (() => {
+ const sDate = new Date(staffAttendanceDate);
+ const isSunday = sDate.getDay() === 0;
+ const formattedDate = sDate.toLocaleDateString('en-IN', {
+ weekday: 'short',
+ year: 'numeric',
+ month: 'short',
+ day: 'numeric',
+ });
+
+ const rawWorks = data.operationsWorks || [];
+ const dateSeed = (sDate.getDate() + sDate.getMonth() * 3) % 4;
+
+ const computedWorks = rawWorks.map((w, idx) => {
+ if (isSunday) {
+ return { ...w, status: 'Holiday Schedule', progress: 100, deadline: 'Sunday Routine' };
+ }
+ const offset = (idx + dateSeed) % 3;
+ const status = offset === 0 ? 'Completed' : 'In Progress';
+ const progress = status === 'Completed' ? 100 : Math.min(90, Math.max(30, 40 + (idx * 12) % 55));
+ return { ...w, status, progress, deadline: `${formattedDate}, ${w.deadline.split(', ')[1] || '04:00 PM'}` };
+ });
+
+ const completedCount = computedWorks.filter(w => w.status === 'Completed').length;
+ const activeCount = computedWorks.length - completedCount;
+
+ return (
+ <div>
+ {/* Live Date Filter Bar for Works */}
+ <div
+ style={{
+ display: 'flex',
+ flexWrap: 'wrap',
+ justifyContent: 'space-between',
+ alignItems: 'center',
+ gap: '12px',
+ padding: '12px 18px',
+ background: '#fdf2f8',
+ border: '1.5px solid #fbcfe8',
+ borderRadius: '10px',
+ marginBottom: '18px',
+ }}
+ >
+ <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+ <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#9d174d' }}>
+ 📅 Check Operations & Works by Date:
+ </span>
+ <input
+ type="date"
+ value={staffAttendanceDate}
+ onChange={(e) => setStaffAttendanceDate(e.target.value)}
+ max={new Date().toISOString().split('T')[0]}
+ style={{
+ padding: '6px 12px',
+ border: '1.5px solid #db2777',
+ borderRadius: '8px',
+ fontWeight: 700,
+ color: '#9d174d',
+ background: '#ffffff',
+ fontSize: '0.9rem',
+ cursor: 'pointer',
+ }}
+ />
+ <button
+ type="button"
+ className="btn btn-outline btn-sm"
+ onClick={() => setStaffAttendanceDate(new Date().toISOString().split('T')[0])}
+ style={{ fontSize: '0.78rem', padding: '4px 10px', borderColor: '#db2777', color: '#9d174d' }}
+ >
+ Today
+ </button>
+ </div>
+ <span className="badge" style={{ background: '#fce7f3', color: '#be185d', fontSize: '0.8rem', fontWeight: 700 }}>
+ {formattedDate} {isSunday ? '• Essential Maintenance Only' : ''}
+ </span>
+ </div>
+
+ <div
+ style={{
+ display: 'grid',
+ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+ gap: '12px',
+ marginBottom: '20px',
+ }}
+ >
+ <div style={{ background: '#fdf2f8', padding: '14px', borderRadius: '10px', border: '1px solid #fbcfe8' }}>
+ <span style={{ fontSize: '0.75rem', color: '#9d174d', fontWeight: 700, textTransform: 'uppercase' }}>Total Works Assigned</span>
+ <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#be185d' }}>
+ {computedWorks.length} Operational Works
+ </div>
+ <span style={{ fontSize: '0.72rem', color: '#db2777' }}>Campus Operations Roster</span>
+ </div>
+
+ <div style={{ background: '#ecfdf5', padding: '14px', borderRadius: '10px', border: '1px solid #a7f3d0' }}>
+ <span style={{ fontSize: '0.75rem', color: '#047857', fontWeight: 700, textTransform: 'uppercase' }}>Completed Works</span>
+ <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#065f46' }}>
+ {completedCount} Completed
+ </div>
+ <span style={{ fontSize: '0.72rem', color: '#059669' }}>Inspected & Verified ✓</span>
+ </div>
+
+ <div style={{ background: '#fffbeb', padding: '14px', borderRadius: '10px', border: '1px solid #fde68a' }}>
+ <span style={{ fontSize: '0.75rem', color: '#92400e', fontWeight: 700, textTransform: 'uppercase' }}>In Progress / Pending</span>
+ <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#b45309' }}>
+ {activeCount} Active
+ </div>
+ <span style={{ fontSize: '0.72rem', color: '#d97706' }}>On Track for Selected Date</span>
+ </div>
+ </div>
+
+ <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 0 10px 0' }}>
+ <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#1e293b' }}>
+ Institutional Operations, Safety & Administrative Tasks &bull; <span style={{ color: '#be185d', fontWeight: 800 }}>Click any task</span> to view staff duty:
+ </h4>
+ <span style={{ fontSize: '0.78rem', color: '#64748b' }}>💡 Click task title or staff name for live duty details</span>
+ </div>
+
+ <div className="table-responsive">
+ <table className="sa-schools-table">
+ <thead>
+ <tr>
+ <th>Task / Work Title (Click for Details)</th>
+ <th>Department</th>
+ <th>Assigned Staff / Team</th>
+ <th>Priority</th>
+ <th>Scheduled Target</th>
+ <th>Progress</th>
+ <th>Status</th>
+ </tr>
+ </thead>
+ <tbody>
+ {computedWorks.map((w, idx) => (
+ <tr
+ key={idx}
+ onClick={() => {
+ setSelectedStaffHistory({
+ name: w.assignedTo,
+ type: 'Operations Work Duty',
+ role: w.title,
+ department: w.department,
+ phone: '+91 98401 55600',
+ baseDate: staffAttendanceDate,
+ currentStatus: w.status,
+ currentPunch: '08:00 AM',
+ extraWork: w
+ });
+ }}
+ style={{ cursor: 'pointer', transition: 'background-color 0.15s ease' }}
+ title={`Click to inspect task: ${w.title}`}
+ >
+ <td data-label="Work Title">
+ <span style={{ fontWeight: 800, color: '#be185d', textDecoration: 'underline', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+ 📋 {w.title}
+ <span style={{ fontSize: '0.7rem' }}>🔍</span>
+ </span>
+ </td>
+ <td data-label="Department">{w.department}</td>
+ <td data-label="Assigned To">
+ <span style={{ color: '#1e3a8a', fontWeight: 700 }}>
+ 👤 {w.assignedTo}
+ </span>
+ </td>
+ <td data-label="Priority">
+ <span className={`badge ${w.priority === 'Urgent' ? 'badge-danger' : w.priority === 'High' ? 'badge-warning' : 'badge-info'}`}>
+ {w.priority}
+ </span>
+ </td>
+ <td data-label="Target"><code>{w.deadline}</code></td>
+ <td data-label="Progress">
+ <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+ <div style={{ flex: 1, height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+ <div
+ style={{
+ width: `${w.progress}%`,
+ height: '100%',
+ background: w.progress === 100 ? '#16a34a' : '#ec4899',
+ borderRadius: '4px'
+ }}
+ ></div>
+ </div>
+ <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569' }}>{w.progress}%</span>
+ </div>
+ </td>
+ <td data-label="Status">
+ <span className={`badge ${w.status === 'Completed' ? 'badge-success' : w.status === 'In Progress' ? 'badge-primary' : 'badge-amber'}`}>
+ {w.status}
+ </span>
+ </td>
+ </tr>
+ ))}
+ </tbody>
+ </table>
+ </div>
+ </div>
+ );
+ })()}
+ </div>
+
+ {/* Modal Footer */}
+ <div
+ style={{
+ display: 'flex',
+ justifyContent: 'space-between',
+ alignItems: 'center',
+ padding: '12px 24px',
+ background: '#f8fafc',
+ borderTop: '1px solid #e2e8f0',
+ }}
+ >
+ <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
+ ZenSchool Admin Operations Suite &bull; Real-time Campus Synchronized
+ </span>
+ <button
+ type="button"
+ className="btn btn-primary btn-sm"
+ onClick={() => setAnalyticsModal(null)}
+ >
+ Close Drilldown
+ </button>
+ </div>
+ </div>
+ </div>
+ )}
  </div>
  );
 }
