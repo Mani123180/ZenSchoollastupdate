@@ -79,7 +79,7 @@ export default function Portal() {
     ],
     schooladmin: [
       { id: 'school-admin-users', label: 'DashBoard', icon: saIcons.dashboard },
-      { id: 'finance-management', label: 'Finance', icon: saIcons.billing },
+      { id: 'finance-management', label: 'Finance Manage', icon: saIcons.billing },
       { id: 'school-services-tab', label: 'Campus Services & Activities', icon: saIcons.services },
       { id: 'manage-staff', label: 'Manage Staff', icon: schIcons.teachers },
       { id: 'manage-students', label: 'Manage Students', icon: schIcons.students },
@@ -180,20 +180,14 @@ export default function Portal() {
   return (
     <>
       {/* Clean Portal Header matching portal.html lines 1315-1332 */}
-      <header className="header" style={{ position: 'sticky', top: 0, zIndex: 100, background: '#ffffff', borderBottom: '1px solid rgba(30, 58, 138, 0.1)' }}>
+      <header className="header" style={{ position: 'sticky', top: 0, zIndex: 100, background: '#ffffff', borderBottom: '2px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
         <div className="container nav-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '70px', padding: '0 20px' }}>
-          <Link to="/" className="logo" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <Link to="/" className="logo" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
             <img
-              src="/images/zenschool_logo.jpg"
+              src="/images/zenschool_logo.png"
               alt="ZenSkool Logo"
-              style={{ height: '48px', width: 'auto', borderRadius: '10px', objectFit: 'contain', boxShadow: '0 2px 8px rgba(124, 58, 237, 0.15)' }}
+              style={{ height: '62px', maxWidth: '220px', width: 'auto', objectFit: 'contain', display: 'block' }}
             />
-            <div className="zenskool-brand-wrap">
-              <div className="zenskool-brand-text">
-                <span className="brand-zen">ZEN</span>
-                <span className="brand-skool">SKOOLL</span>
-              </div>
-            </div>
           </Link>
           <button 
             className="mobile-menu-btn" 

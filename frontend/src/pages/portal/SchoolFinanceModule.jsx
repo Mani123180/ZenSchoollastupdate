@@ -1057,12 +1057,12 @@ export default function SchoolFinanceModule({ user }) {
         boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
       }}>
         {[
-          { id: 'dashboard', label: '1. Finance Dashboard', icon: '📊' },
-          { id: 'student-billing', label: '2. Student Billing', icon: '🎓' },
-          { id: 'staff-salary', label: '3. Staff Salary', icon: '💼' },
-          { id: 'school-expenses', label: '4. School Expenses', icon: '🏛️' },
-          { id: 'finance-reports', label: '5. Finance Reports', icon: '📑' },
-          { id: 'payment-history', label: '6. Payment History', icon: '💳' },
+          { id: 'dashboard', label: '1. Finance Dashboard' },
+          { id: 'student-billing', label: '2. Student Billing' },
+          { id: 'staff-salary', label: '3. Staff Salary' },
+          { id: 'school-expenses', label: '4. School Expenses' },
+          { id: 'finance-reports', label: '5. Finance Reports' },
+          { id: 'payment-history', label: '6. Payment History' },
         ].map((tab) => {
           const isActive = subTab === tab.id;
           return (
@@ -1088,7 +1088,6 @@ export default function SchoolFinanceModule({ user }) {
                 boxShadow: isActive ? '0 4px 12px rgba(37, 99, 235, 0.25)' : 'none'
               }}
             >
-              <span>{tab.icon}</span>
               <span>{tab.label}</span>
             </button>
           );
@@ -1186,7 +1185,7 @@ export default function SchoolFinanceModule({ user }) {
                 onClick={loadDashboardData}
                 style={{ marginTop: '16px', borderRadius: '6px' }}
               >
-                🔄 Refresh
+                Refresh
               </button>
             </div>
           </div>
@@ -1224,7 +1223,7 @@ export default function SchoolFinanceModule({ user }) {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Total Student Fees</div>
-                <span style={{ fontSize: '0.74rem', color: '#3b82f6', fontWeight: 700 }}>🔍 View &rarr;</span>
+                <span style={{ fontSize: '0.74rem', color: '#3b82f6', fontWeight: 700 }}>View &rarr;</span>
               </div>
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1e3a8a', marginTop: '6px' }}>
                 ₹{(dashboardData.summary?.totalStudentFees || 0).toLocaleString()}
@@ -1258,7 +1257,7 @@ export default function SchoolFinanceModule({ user }) {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Total Fees Collected</div>
-                <span style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 700 }}>🔍 View &rarr;</span>
+                <span style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 700 }}>View &rarr;</span>
               </div>
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#10b981', marginTop: '6px' }}>
                 ₹{(dashboardData.summary?.totalFeesCollected || 0).toLocaleString()}
@@ -1292,7 +1291,7 @@ export default function SchoolFinanceModule({ user }) {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Total Pending Student Fees</div>
-                <span style={{ fontSize: '0.74rem', color: '#ef4444', fontWeight: 700 }}>🔍 View &rarr;</span>
+                <span style={{ fontSize: '0.74rem', color: '#ef4444', fontWeight: 700 }}>View &rarr;</span>
               </div>
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ef4444', marginTop: '6px' }}>
                 ₹{(dashboardData.summary?.totalPendingStudentFees || 0).toLocaleString()}
@@ -1326,7 +1325,7 @@ export default function SchoolFinanceModule({ user }) {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Total Staff Salary</div>
-                <span style={{ fontSize: '0.74rem', color: '#6366f1', fontWeight: 700 }}>🔍 View &rarr;</span>
+                <span style={{ fontSize: '0.74rem', color: '#6366f1', fontWeight: 700 }}>View &rarr;</span>
               </div>
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#4f46e5', marginTop: '6px' }}>
                 ₹{(dashboardData.summary?.totalStaffSalary || 0).toLocaleString()}
@@ -1360,7 +1359,7 @@ export default function SchoolFinanceModule({ user }) {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Total Salary Paid</div>
-                <span style={{ fontSize: '0.74rem', color: '#14b8a6', fontWeight: 700 }}>🔍 View &rarr;</span>
+                <span style={{ fontSize: '0.74rem', color: '#14b8a6', fontWeight: 700 }}>View &rarr;</span>
               </div>
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0d9488', marginTop: '6px' }}>
                 ₹{(dashboardData.summary?.totalSalaryPaid || 0).toLocaleString()}
@@ -1394,7 +1393,7 @@ export default function SchoolFinanceModule({ user }) {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Total Salary Pending</div>
-                <span style={{ fontSize: '0.74rem', color: '#f59e0b', fontWeight: 700 }}>🔍 View &rarr;</span>
+                <span style={{ fontSize: '0.74rem', color: '#f59e0b', fontWeight: 700 }}>View &rarr;</span>
               </div>
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#d97706', marginTop: '6px' }}>
                 ₹{(dashboardData.summary?.totalSalaryPending || 0).toLocaleString()}
@@ -1428,7 +1427,7 @@ export default function SchoolFinanceModule({ user }) {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Total School Expenses</div>
-                <span style={{ fontSize: '0.74rem', color: '#8b5cf6', fontWeight: 700 }}>🔍 View &rarr;</span>
+                <span style={{ fontSize: '0.74rem', color: '#8b5cf6', fontWeight: 700 }}>View &rarr;</span>
               </div>
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#7c3aed', marginTop: '6px' }}>
                 ₹{(dashboardData.summary?.totalSchoolExpenses || 0).toLocaleString()}
@@ -1462,7 +1461,7 @@ export default function SchoolFinanceModule({ user }) {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Total Income</div>
-                <span style={{ fontSize: '0.74rem', color: '#059669', fontWeight: 700 }}>🔍 View &rarr;</span>
+                <span style={{ fontSize: '0.74rem', color: '#059669', fontWeight: 700 }}>View &rarr;</span>
               </div>
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#059669', marginTop: '6px' }}>
                 ₹{(dashboardData.summary?.totalIncome || 0).toLocaleString()}
@@ -1496,7 +1495,7 @@ export default function SchoolFinanceModule({ user }) {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Total Outstanding Payments</div>
-                <span style={{ fontSize: '0.74rem', color: '#e11d48', fontWeight: 700 }}>🔍 View &rarr;</span>
+                <span style={{ fontSize: '0.74rem', color: '#e11d48', fontWeight: 700 }}>View &rarr;</span>
               </div>
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#e11d48', marginTop: '6px' }}>
                 ₹{(dashboardData.summary?.totalOutstandingPayments || 0).toLocaleString()}
@@ -1550,7 +1549,7 @@ export default function SchoolFinanceModule({ user }) {
             {/* Visual 2: Expense Category Breakdown */}
             <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px' }}>
               <h4 style={{ margin: '0 0 16px', fontSize: '1rem', color: '#1e3a8a', fontWeight: 700 }}>
-                📊 Campus Expense Category Distribution
+                Campus Expense Category Distribution
               </h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {Object.entries(dashboardData.charts?.categoryTotals || {}).map(([cat, amt]) => {
@@ -1657,7 +1656,7 @@ export default function SchoolFinanceModule({ user }) {
                 }}
                 style={{ borderRadius: '8px' }}
               >
-                📥 Export Excel
+                Export Excel
               </button>
             </div>
           </div>
@@ -1831,7 +1830,7 @@ export default function SchoolFinanceModule({ user }) {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontSize: '1.4rem' }}>🎓</span>
+                    <span style={{ fontSize: '1.4rem' }}></span>
                     <div>
                       <h4 style={{ margin: 0, fontSize: '1.3rem', color: '#1e3a8a', fontWeight: 800 }}>
                         {selectedStudentCard.studentName}
@@ -1938,7 +1937,7 @@ export default function SchoolFinanceModule({ user }) {
                     onClick={() => handleOpenPayModal(selectedStudentCard, 'Student')}
                     style={{ borderRadius: '6px', fontSize: '0.85rem' }}
                   >
-                    💳 Record Payment
+                    Record Payment
                   </button>
                 )}
                 <button
@@ -1960,7 +1959,7 @@ export default function SchoolFinanceModule({ user }) {
                   onClick={() => downloadStudentBillPDF(selectedStudentCard)}
                   style={{ borderRadius: '6px', fontSize: '0.85rem' }}
                 >
-                  📄 Download Bill PDF
+                  Download Bill PDF
                 </button>
                 <button
                   className="btn btn-outline"
@@ -2162,7 +2161,7 @@ export default function SchoolFinanceModule({ user }) {
                                 style={{ padding: '4px 8px', fontSize: '0.75rem', borderRadius: '4px' }}
                                 title="Download Bill"
                               >
-                                📄 Download
+                                Download
                               </button>
                             </div>
                           </td>
@@ -2259,7 +2258,7 @@ export default function SchoolFinanceModule({ user }) {
                 }}
                 style={{ borderRadius: '8px' }}
               >
-                📥 Export Excel
+                Export Excel
               </button>
             </div>
           </div>
@@ -2549,7 +2548,7 @@ export default function SchoolFinanceModule({ user }) {
           }}>
             <div style={{ padding: '12px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#1e3a8a' }}>
-                💼 Staff Payroll Register (Scroll ⇄ Left to Right to view all fields)
+                Staff Payroll Register (Scroll ⇄ Left to Right to view all fields)
               </div>
               <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
                 Showing {filteredSalaries.length} staff records
@@ -2658,7 +2657,7 @@ export default function SchoolFinanceModule({ user }) {
                                   style={{ padding: '4px 8px', fontSize: '0.75rem', borderRadius: '4px' }}
                                   title="Disburse salary payment"
                                 >
-                                  💳 Pay
+                                  Pay
                                 </button>
                               )}
                               <button
@@ -2667,7 +2666,7 @@ export default function SchoolFinanceModule({ user }) {
                                 style={{ padding: '4px 8px', fontSize: '0.75rem', borderRadius: '4px' }}
                                 title="Download Payslip PDF"
                               >
-                                📄 Slip
+                                Slip
                               </button>
                               <button
                                 className="btn btn-sm btn-outline"
@@ -2752,7 +2751,7 @@ export default function SchoolFinanceModule({ user }) {
                 }}
                 style={{ borderRadius: '8px' }}
               >
-                📥 Export Excel
+                Export Excel
               </button>
             </div>
           </div>
@@ -2874,7 +2873,7 @@ export default function SchoolFinanceModule({ user }) {
                                   style={{ padding: '4px 8px', fontSize: '0.75rem', borderRadius: '4px' }}
                                   title="Record vendor payout"
                                 >
-                                  💳 Settle
+                                  Settle
                                 </button>
                               )}
                               <button
@@ -3093,7 +3092,7 @@ export default function SchoolFinanceModule({ user }) {
                 }}
                 style={{ borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}
               >
-                📊 Download Excel
+                Download Excel
               </button>
 
               <button
@@ -3141,7 +3140,7 @@ export default function SchoolFinanceModule({ user }) {
               onClick={() => exportToExcel(paymentHistory, 'Centralized_Payment_History')}
               style={{ borderRadius: '8px' }}
             >
-              📥 Export Excel
+              Export Excel
             </button>
           </div>
 
@@ -4171,7 +4170,7 @@ export default function SchoolFinanceModule({ user }) {
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '16px' }}>
                 <button className="btn btn-primary btn-sm" onClick={() => downloadStudentBillPDF(selectedBillForView)}>
-                  📄 Download PDF Invoice
+                  Download PDF Invoice
                 </button>
                 <button className="btn btn-outline btn-sm" onClick={() => setSelectedBillForView(null)}>
                   Close
@@ -4240,7 +4239,7 @@ export default function SchoolFinanceModule({ user }) {
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '16px' }}>
                 <button className="btn btn-primary btn-sm" onClick={() => downloadSalarySlipPDF(selectedSalaryForView)}>
-                  📄 Download Payslip PDF
+                  Download Payslip PDF
                 </button>
                 <button className="btn btn-outline btn-sm" onClick={() => setSelectedSalaryForView(null)}>
                   Close
@@ -4259,7 +4258,7 @@ export default function SchoolFinanceModule({ user }) {
           <div className="modal-content" style={{ maxWidth: '960px', width: '95%', maxHeight: '90vh', overflowY: 'auto' }}>
             <div className="modal-header" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '1.4rem' }}>📊</span>
+                <span style={{ fontSize: '1.4rem' }}></span>
                 <div>
                   <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#1e3a8a', fontWeight: 800 }}>
                     Bulk Excel Upload - {bulkImportModal.type === 'student' ? 'Student Fee Billing' : 'Staff Salary Register'}
@@ -4307,7 +4306,7 @@ export default function SchoolFinanceModule({ user }) {
                     onClick={() => downloadSampleTemplate(bulkImportModal.type)}
                     style={{ fontWeight: 700, borderColor: '#2563eb', color: '#1d4ed8' }}
                   >
-                    📥 Download Sample Template (.xlsx)
+                    Download Sample Template (.xlsx)
                   </button>
 
                   <label
@@ -4497,7 +4496,7 @@ export default function SchoolFinanceModule({ user }) {
                     onClick={handleConfirmBulkImport}
                     style={{ fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                   >
-                    <span>⚡</span> {bulkImportModal.importing ? 'Importing Records...' : `Confirm & Import ${bulkImportModal.previewData.length} Records`}
+                    <span></span> {bulkImportModal.importing ? 'Importing Records...' : `Confirm & Import ${bulkImportModal.previewData.length} Records`}
                   </button>
                 )}
               </div>

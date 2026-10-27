@@ -1334,7 +1334,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                   {activeCampusRole === 'schooladmin' && (
                     <>
                       <button className={`btn btn-sm ${activeCampusTab === 'school-admin-users' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('school-admin-users')}>DashBoard</button>
-                      <button className={`btn btn-sm ${activeCampusTab === 'finance-management' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('finance-management')} style={{ fontWeight: 700 }}>💰 Finance Management</button>
+                      <button className={`btn btn-sm ${activeCampusTab === 'finance-management' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('finance-management')} style={{ fontWeight: 700 }}>Finance Manage</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'school-services-tab' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('school-services-tab')}>Campus Services & Activities</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'manage-staff' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('manage-staff')}>Manage Staff</button>
                       <button className={`btn btn-sm ${activeCampusTab === 'manage-students' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveCampusTab('manage-students')}>Manage Students</button>

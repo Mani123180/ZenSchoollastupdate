@@ -6,24 +6,12 @@ export default function Footer() {
     <footer className="footer">
       <div className="container footer-grid">
         <div>
-          <Link to="/" className="logo footer-logo">
+          <Link to="/" className="logo footer-logo" style={{ display: 'inline-block', marginBottom: '16px' }}>
             <img
               src="/images/zenschool_logo.jpg"
               alt="ZenSkool Logo"
-              style={{
-                height: '46px',
-                width: 'auto',
-                borderRadius: '8px',
-                backgroundColor: 'var(--color-bg-white)',
-                padding: '2px',
-              }}
+              style={{ height: '70px', width: 'auto', objectFit: 'contain', background: '#ffffff', borderRadius: '8px', padding: '4px' }}
             />
-            <div className="zenskool-brand-wrap">
-              <div className="zenskool-brand-text light">
-                <span className="brand-zen">ZEN</span>
-                <span className="brand-skool">SKOOLL</span>
-              </div>
-            </div>
           </Link>
           <p className="footer-desc">
             Smart School Management Platform empowering schools with seamless digital administration and real-time communication.

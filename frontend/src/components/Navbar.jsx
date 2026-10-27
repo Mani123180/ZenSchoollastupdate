@@ -13,73 +13,44 @@ export default function Navbar() {
   return (
     <header className="header public-header">
       <div className="container nav-container">
-        <Link to="/" className="logo" onClick={closeMenu}>
+        <Link to="/" className="logo" onClick={closeMenu} style={{ display: 'flex', alignItems: 'center' }}>
           <img
-            src="/images/zenschool_logo.jpg"
+            src="/images/zenschool_logo.png"
             alt="ZenSkool Logo"
-            style={{ height: '48px', width: 'auto', borderRadius: '10px', objectFit: 'contain', boxShadow: '0 2px 8px rgba(124, 58, 237, 0.15)' }}
+            style={{ height: '70px', maxWidth: '240px', width: 'auto', objectFit: 'contain', display: 'block' }}
           />
-          <div className="zenskool-brand-wrap">
-            <div className="zenskool-brand-text">
-              <span className="brand-zen">ZEN</span>
-              <span className="brand-skool">SKOOLL</span>
-            </div>
-          </div>
         </Link>
 
         <nav className={`nav-links ${mobileMenuOpen ? 'active' : ''}`}>
-          <a
-            href="/#home"
-            className="nav-link"
-            onClick={(e) => {
-              closeMenu();
-              if (window.location.pathname === '/') {
-                e.preventDefault();
-                document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+            onClick={closeMenu}
           >
             Home
-          </a>
-          <a
-            href="/#features-section"
-            className="nav-link"
-            onClick={(e) => {
-              closeMenu();
-              if (window.location.pathname === '/') {
-                e.preventDefault();
-                document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
+          </NavLink>
+          <NavLink
+            to="/features"
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+            onClick={closeMenu}
           >
             Features
-          </a>
-          <a
-            href="/#pricing-section"
-            className="nav-link"
-            onClick={(e) => {
-              closeMenu();
-              if (window.location.pathname === '/') {
-                e.preventDefault();
-                document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
+          </NavLink>
+          <NavLink
+            to="/pricing"
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+            onClick={closeMenu}
           >
             Pricing
-          </a>
-          <a
-            href="/#about-section"
-            className="nav-link"
-            onClick={(e) => {
-              closeMenu();
-              if (window.location.pathname === '/') {
-                e.preventDefault();
-                document.getElementById('about-section')?.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
+          </NavLink>
+          <NavLink
+            to="/about"
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+            onClick={closeMenu}
           >
             About Us
-          </a>
+          </NavLink>
           <NavLink
             to="/contact"
             className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
@@ -99,42 +70,45 @@ export default function Navbar() {
           )}
         </nav>
 
-        <div className="nav-cta">
+        <div className="nav-actions">
           {user ? (
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <Link
-                to="/portal"
+              <button
+                type="button"
                 className="btn btn-primary"
-                style={{ padding: '8px 18px', fontSize: '0.85rem' }}
+                onClick={() => {
+                  closeMenu();
+                  navigate('/portal');
+                }}
+                style={{ padding: '8px 18px', fontSize: '0.9rem' }}
               >
                 ERP Portal
-              </Link>
+              </button>
               <button
-                onClick={() => {
-                  logout();
-                  navigate('/login');
-                }}
+                type="button"
                 className="btn btn-outline"
-                style={{ padding: '8px 12px', fontSize: '0.8rem' }}
+                onClick={() => {
+                  closeMenu();
+                  logout();
+                  navigate('/');
+                }}
+                style={{ padding: '8px 14px', fontSize: '0.85rem' }}
               >
                 Logout
               </button>
             </div>
           ) : (
-            <Link
-              to="/login"
-              className="btn btn-primary"
-              style={{ padding: '10px 24px', fontSize: '0.85rem' }}
-            >
+            <Link to="/login" className="btn btn-primary" onClick={closeMenu} style={{ padding: '10px 22px' }}>
               Portal Login
             </Link>
           )}
         </div>
 
         <button
-          className={`menu-toggle ${mobileMenuOpen ? 'active' : ''}`}
-          aria-label="Toggle Navigation"
+          className="menu-toggle"
           onClick={toggleMenu}
+          aria-label="Toggle Navigation"
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
         >
           <span></span>
           <span></span>

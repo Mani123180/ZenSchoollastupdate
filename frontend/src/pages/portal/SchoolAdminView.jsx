@@ -580,7 +580,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  const getTabTitle = () => {
  const titles = {
  'school-admin-users': 'DashBoard',
- 'finance-management': 'Finance Management & Institutional Ledger',
+ 'finance-management': 'Finance Manage',
  'school-services-tab': 'Campus Enrichment Services & Practice Labs',
  'manage-staff': 'Manage Staff (Principals & Teachers)',
  'manage-principal': 'Manage Principal',

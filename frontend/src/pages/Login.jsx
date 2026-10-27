@@ -84,19 +84,13 @@ export default function Login() {
     <div className="login-wrapper">
       <div className="login-container">
         {/* Login Header matching login.html lines 138-142 */}
-        <div className="login-header">
+        <div className="login-header" style={{ background: '#ffffff', borderBottom: '2px solid #e2e8f0', padding: '18px 16px', display: 'flex', justifyContent: 'center' }}>
           <img
-            src="/images/zenschool_logo.jpg"
+            src="/images/zenschool_logo.png"
             alt="ZenSkool Logo"
             className="login-logo-img"
-            style={{ borderRadius: '12px', background: '#ffffff', padding: '4px', height: '48px', width: '48px', objectFit: 'contain', boxShadow: '0 2px 10px rgba(0,0,0,0.15)' }}
+            style={{ height: '80px', maxWidth: '260px', width: 'auto', objectFit: 'contain', margin: '0 auto', display: 'block' }}
           />
-          <div className="zenskool-brand-wrap" style={{ alignItems: 'center', marginTop: '4px' }}>
-            <div className="zenskool-brand-text light" style={{ fontSize: '1.35rem', letterSpacing: '2px' }}>
-              <span className="brand-zen">ZEN</span>
-              <span className="brand-skool">SKOOLL</span>
-            </div>
-          </div>
         </div>
 
         {/* Login Body matching login.html lines 143-170 */}
