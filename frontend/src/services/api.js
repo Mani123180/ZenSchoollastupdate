@@ -263,4 +263,164 @@ export const api = {
     });
     return handleResponse(res);
   },
+
+  // ==========================================
+  // School Finance Module API Endpoints
+  // ==========================================
+  getFinanceDashboard: async (filters = {}) => {
+    const query = new URLSearchParams(filters).toString();
+    const res = await fetch(`${API_BASE}/finance/dashboard${query ? `?${query}` : ''}`, {
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(res);
+  },
+
+  // Student Billing
+  getStudentBills: async () => {
+    const res = await fetch(`${API_BASE}/finance/student-bills`, {
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(res);
+  },
+
+  createStudentBill: async (billData) => {
+    const res = await fetch(`${API_BASE}/finance/student-bills`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(billData),
+    });
+    return handleResponse(res);
+  },
+
+  updateStudentBill: async (id, billData) => {
+    const res = await fetch(`${API_BASE}/finance/student-bills/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(billData),
+    });
+    return handleResponse(res);
+  },
+
+  deleteStudentBill: async (id) => {
+    const res = await fetch(`${API_BASE}/finance/student-bills/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(res);
+  },
+
+  bulkImportStudentBills: async (items) => {
+    const res = await fetch(`${API_BASE}/finance/student-bills/bulk`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ items }),
+    });
+    return handleResponse(res);
+  },
+
+  recordStudentBillPayment: async (id, paymentData) => {
+    const res = await fetch(`${API_BASE}/finance/student-bills/${id}/pay`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(paymentData),
+    });
+    return handleResponse(res);
+  },
+
+  // Staff Salary
+  getStaffSalaries: async () => {
+    const res = await fetch(`${API_BASE}/finance/staff-salaries`, {
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(res);
+  },
+
+  bulkImportStaffSalaries: async (items) => {
+    const res = await fetch(`${API_BASE}/finance/staff-salaries/bulk`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ items }),
+    });
+    return handleResponse(res);
+  },
+
+  generateStaffSalary: async (salaryData) => {
+    const res = await fetch(`${API_BASE}/finance/staff-salaries`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(salaryData),
+    });
+    return handleResponse(res);
+  },
+
+  updateStaffSalary: async (id, salaryData) => {
+    const res = await fetch(`${API_BASE}/finance/staff-salaries/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(salaryData),
+    });
+    return handleResponse(res);
+  },
+
+  recordStaffSalaryPayment: async (id, paymentData) => {
+    const res = await fetch(`${API_BASE}/finance/staff-salaries/${id}/pay`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(paymentData),
+    });
+    return handleResponse(res);
+  },
+
+  // School Expenses
+  getSchoolExpenses: async () => {
+    const res = await fetch(`${API_BASE}/finance/expenses`, {
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(res);
+  },
+
+  addSchoolExpense: async (expenseData) => {
+    const res = await fetch(`${API_BASE}/finance/expenses`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(expenseData),
+    });
+    return handleResponse(res);
+  },
+
+  updateSchoolExpense: async (id, expenseData) => {
+    const res = await fetch(`${API_BASE}/finance/expenses/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(expenseData),
+    });
+    return handleResponse(res);
+  },
+
+  deleteSchoolExpense: async (id) => {
+    const res = await fetch(`${API_BASE}/finance/expenses/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(res);
+  },
+
+  recordSchoolExpensePayment: async (id, paymentData) => {
+    const res = await fetch(`${API_BASE}/finance/expenses/${id}/pay`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(paymentData),
+    });
+    return handleResponse(res);
+  },
+
+  // Payment History
+  getPaymentHistory: async (filters = {}) => {
+    const query = new URLSearchParams(filters).toString();
+    const res = await fetch(`${API_BASE}/finance/payment-history${query ? `?${query}` : ''}`, {
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(res);
+  },
 };
+

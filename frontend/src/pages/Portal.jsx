@@ -79,6 +79,7 @@ export default function Portal() {
     ],
     schooladmin: [
       { id: 'school-admin-users', label: 'DashBoard', icon: saIcons.dashboard },
+      { id: 'finance-management', label: 'Finance', icon: saIcons.billing },
       { id: 'school-services-tab', label: 'Campus Services & Activities', icon: saIcons.services },
       { id: 'manage-staff', label: 'Manage Staff', icon: schIcons.teachers },
       { id: 'manage-students', label: 'Manage Students', icon: schIcons.students },
@@ -125,6 +126,7 @@ export default function Portal() {
       { id: 'receive-announcements', label: 'Announcements', icon: schIcons.announcements },
       { id: 'chat-teachers', label: 'Chat with Teachers', icon: schIcons.messaging },
       { id: 'track-exams', label: 'Track Upcoming Exams', icon: schIcons.reports },
+      { id: 'fee-reminders', label: 'Fee Collection & Dues', icon: saIcons.billing },
     ],
     parent: [
       { id: 'child-information', label: 'Child Information', icon: schIcons.students },

@@ -157,6 +157,7 @@ const defaultData = {
 
   classes: [
     { name: 'Grade 10-A', teacher: 'Mrs. Priya Krishnan', strength: 38, room: 'A-102', schoolId: 'SCHOOL002' },
+    { name: 'Grade 10-B', teacher: 'Mr. K. Manickam', strength: 36, room: 'A-104', schoolId: 'SCHOOL002' },
     { name: 'Grade 11-B', teacher: 'Dr. Anandhi Rajan', strength: 40, room: 'B-204', schoolId: 'SCHOOL002' }
   ],
 
@@ -196,7 +197,19 @@ const defaultData = {
     { className: 'Grade 11-B', day: 'Tuesday', period: 3, subject: 'Chemistry', teacherName: 'Mrs. Selvi Murugan', schoolId: 'SCHOOL002' },
     { className: 'Grade 11-B', day: 'Wednesday', period: 1, subject: 'Physics', teacherName: 'Dr. Anandhi Rajan', schoolId: 'SCHOOL002' },
     { className: 'Grade 11-B', day: 'Thursday', period: 2, subject: 'Chemistry', teacherName: 'Mrs. Selvi Murugan', schoolId: 'SCHOOL002' },
-    { className: 'Grade 11-B', day: 'Friday', period: 3, subject: 'Computer Science', teacherName: 'Dr. Anandhi Rajan', schoolId: 'SCHOOL002' }
+    { className: 'Grade 11-B', day: 'Friday', period: 3, subject: 'Computer Science', teacherName: 'Dr. Anandhi Rajan', schoolId: 'SCHOOL002' },
+
+    { className: 'Grade 10-B', day: 'Monday', period: 1, subject: 'Tamil', teacherName: 'Mr. K. Manickam', schoolId: 'SCHOOL002' },
+    { className: 'Grade 10-B', day: 'Monday', period: 2, subject: 'Mathematics', teacherName: 'Mrs. Priya Krishnan', schoolId: 'SCHOOL002' },
+    { className: 'Grade 10-B', day: 'Monday', period: 3, subject: 'Physics', teacherName: 'Dr. Anandhi Rajan', schoolId: 'SCHOOL002' },
+    { className: 'Grade 10-B', day: 'Tuesday', period: 1, subject: 'Mathematics', teacherName: 'Mrs. Priya Krishnan', schoolId: 'SCHOOL002' },
+    { className: 'Grade 10-B', day: 'Tuesday', period: 2, subject: 'Chemistry', teacherName: 'Mrs. Selvi Murugan', schoolId: 'SCHOOL002' },
+    { className: 'Grade 10-B', day: 'Wednesday', period: 1, subject: 'English', teacherName: 'Mrs. Priya Krishnan', schoolId: 'SCHOOL002' },
+    { className: 'Grade 10-B', day: 'Wednesday', period: 2, subject: 'Biology', teacherName: 'Dr. Savithri Raman', schoolId: 'SCHOOL002' },
+    { className: 'Grade 10-B', day: 'Thursday', period: 1, subject: 'Tamil', teacherName: 'Mr. K. Manickam', schoolId: 'SCHOOL002' },
+    { className: 'Grade 10-B', day: 'Thursday', period: 2, subject: 'Social Science', teacherName: 'Mrs. Selvi Murugan', schoolId: 'SCHOOL002' },
+    { className: 'Grade 10-B', day: 'Friday', period: 1, subject: 'Mathematics', teacherName: 'Mrs. Priya Krishnan', schoolId: 'SCHOOL002' },
+    { className: 'Grade 10-B', day: 'Friday', period: 2, subject: 'Computer Science', teacherName: 'Dr. Anandhi Rajan', schoolId: 'SCHOOL002' }
   ],
 
   subjects: [
@@ -359,7 +372,12 @@ const defaultData = {
 
   parents: [
     { id: 'PAR001', name: 'Ramesh Kumar', relationship: 'Father', phone: '+91 98401 99009', email: 'ramesh.k@gmail.com', studentName: 'Aishwarya Kumar', studentRoll: 'S101', schoolId: 'SCHOOL002' },
-    { id: 'PAR002', name: 'Selvam Periasamy', relationship: 'Father', phone: '+91 98402 33445', email: 'selvam.p@gmail.com', studentName: 'Kavitha Selvam', studentRoll: 'S102', schoolId: 'SCHOOL002' }
+    { id: 'PAR002', name: 'Selvam Periasamy', relationship: 'Father', phone: '+91 98402 33445', email: 'selvam.p@gmail.com', studentName: 'Kavitha Selvam', studentRoll: 'S102', schoolId: 'SCHOOL002' },
+    { id: 'PAR003', name: 'Geetha Ramesh', relationship: 'Mother', phone: '+91 98840 12399', email: 'geetha.r@gmail.com', studentName: 'Sandhya Ramesh', studentRoll: 'S103', schoolId: 'SCHOOL002' },
+    { id: 'PAR004', name: 'Venkatesh R', relationship: 'Father', phone: '+91 97910 65421', email: 'venkatesh.r@gmail.com', studentName: 'Deepa Venkatesh', studentRoll: 'S104', schoolId: 'SCHOOL002' },
+    { id: 'PAR005', name: 'Lakshmi Natarajan', relationship: 'Mother', phone: '+91 94451 77209', email: 'lakshmi.n@gmail.com', studentName: 'Meena Natarajan', studentRoll: 'S105', schoolId: 'SCHOOL002' },
+    { id: 'PAR006', name: 'Murugan Palani', relationship: 'Father', phone: '+91 98403 66778', email: 'murugan.p@gmail.com', studentName: 'Rithanya Murugan', studentRoll: 'S107', schoolId: 'SCHOOL002' },
+    { id: 'PAR007', name: 'Sundaram Pillai', relationship: 'Father', phone: '+91 98412 33418', email: 'sundaram.p@gmail.com', studentName: 'Priyadarshini Sundaram', studentRoll: 'S106', schoolId: 'SCHOOL002' }
   ],
 
   users: [
@@ -419,6 +437,17 @@ const defaultData = {
     { id: 'SSA-04', serviceId: 'SRV-04', serviceName: 'Drawing & Art', schoolId: 'SCHOOL001', schoolName: 'ABC Matriculation School', status: 'Active', assignedDate: '2026-01-10' },
     { id: 'SSA-05', serviceId: 'SRV-05', serviceName: 'Spoken English', schoolId: 'SCHOOL001', schoolName: 'ABC Matriculation School', status: 'Inactive', assignedDate: '2026-01-12' },
     { id: 'SSA-06', serviceId: 'SRV-06', serviceName: 'Abacus & Vedic Maths', schoolId: 'SCHOOL003', schoolName: 'St. Marys Academy', status: 'Active', assignedDate: '2026-03-01' },
+  ],
+
+  feeRecords: [
+    { id: 'FEE-101', roll: 'S101', name: 'Aishwarya Kumar', class: 'Grade 10-A', parent: 'Ramesh Kumar', phone: '+91 98456 12301', totalFee: '₹28,000', paid: '₹28,000', due: '₹0', status: 'PAID', invoiceNumber: 'INV-2026-001', dueDate: '2026-10-15' },
+    { id: 'FEE-102', roll: 'S102', name: 'Kavitha Selvam', class: 'Grade 10-A', parent: 'Selvam Murugan', phone: '+91 98456 12302', totalFee: '₹26,000', paid: '₹16,000', due: '₹10,000', status: 'PARTIAL', invoiceNumber: 'INV-2026-002', dueDate: '2026-10-15' },
+    { id: 'FEE-103', roll: 'S103', name: 'Sandhya Ramesh', class: 'Grade 10-A', parent: 'Ramesh Krishnan', phone: '+91 98456 12303', totalFee: '₹28,500', paid: '₹0', due: '₹28,500', status: 'OVERDUE', invoiceNumber: 'INV-2026-003', dueDate: '2026-10-10' },
+    { id: 'FEE-104', roll: 'S104', name: 'Deepa Venkatesh', class: 'Grade 10-A', parent: 'Venkatesh S.', phone: '+91 98456 12304', totalFee: '₹28,000', paid: '₹28,000', due: '₹0', status: 'PAID', invoiceNumber: 'INV-2026-004', dueDate: '2026-10-20' },
+    { id: 'FEE-105', roll: 'S105', name: 'Meena Natarajan', class: 'Grade 10-A', parent: 'Natarajan M.', phone: '+91 98456 12305', totalFee: '₹23,000', paid: '₹11,500', due: '₹11,500', status: 'PARTIAL', invoiceNumber: 'INV-2026-005', dueDate: '2026-10-15' },
+    { id: 'FEE-106', roll: 'S106', name: 'Pooja Sundaram', class: 'Grade 10-B', parent: 'Sundaram P.', phone: '+91 98456 12306', totalFee: '₹28,000', paid: '₹28,000', due: '₹0', status: 'PAID', invoiceNumber: 'INV-2026-006', dueDate: '2026-10-15' },
+    { id: 'FEE-107', roll: 'S107', name: 'Swathi Rajesh', class: 'Grade 10-B', parent: 'Rajesh K.', phone: '+91 98456 12307', totalFee: '₹28,000', paid: '₹20,000', due: '₹8,000', status: 'PARTIAL', invoiceNumber: 'INV-2026-007', dueDate: '2026-10-15' },
+    { id: 'FEE-108', roll: 'S108', name: 'Bhavani Chandran', class: 'Grade 9-A', parent: 'Chandran M.', phone: '+91 98456 12308', totalFee: '₹26,000', paid: '₹26,000', due: '₹0', status: 'PAID', invoiceNumber: 'INV-2026-008', dueDate: '2026-10-15' },
   ]
 };
 
@@ -459,6 +488,9 @@ export function getPortalData() {
       if (!parsed.attendanceLogs || parsed.attendanceLogs.length === 0) {
         parsed.attendanceLogs = defaultData.attendanceLogs;
       }
+      if (!parsed.feeRecords || parsed.feeRecords.length === 0) {
+        parsed.feeRecords = defaultData.feeRecords;
+      }
       if (parsed.students && parsed.students.length > 0) {
         parsed.students = parsed.students.map((s) => {
           const match = defaultData.students.find((ds) => ds.roll === s.roll);
@@ -485,6 +517,59 @@ export function savePortalData(data) {
     }
   } catch (err) {
     console.error('Portal data saving error:', err);
+  }
+}
+
+/**
+ * Synchronize any student fee bill updates or payments into portalData.feeRecords
+ * and broadcast the event so SchoolAdmin, Principal, Teacher, Student, and Parent views update live immediately.
+ */
+export function syncBillToPortalFeeRecords(bill) {
+  if (!bill) return;
+  try {
+    const cur = getPortalData();
+    let records = Array.isArray(cur.feeRecords) ? [...cur.feeRecords] : [...defaultData.feeRecords];
+    const billRoll = bill.rollNo || bill.studentId;
+    const billInv = bill.invoiceNumber;
+
+    const idx = records.findIndex(r => (billInv && r.invoiceNumber === billInv) || (billRoll && r.roll === billRoll));
+
+    const totalAmt = Number(bill.totalFees) || 0;
+    const paidAmt = Number(bill.paidAmount) || 0;
+    const dueAmt = Math.max(0, totalAmt - paidAmt);
+    const statusUpper = dueAmt === 0 ? 'PAID' : (paidAmt > 0 ? 'PARTIAL' : 'OVERDUE');
+
+    const mapped = {
+      id: bill._id || `FEE-${billRoll || Date.now()}`,
+      roll: billRoll || 'S101',
+      name: bill.studentName,
+      class: `${bill.grade || 'Grade 10'}-${bill.section || 'A'}`,
+      parent: bill.parentName || 'Parent / Guardian',
+      phone: bill.parentPhone || '+91 98456 12301',
+      totalFee: `₹${totalAmt.toLocaleString('en-IN')}`,
+      paid: `₹${paidAmt.toLocaleString('en-IN')}`,
+      due: `₹${dueAmt.toLocaleString('en-IN')}`,
+      status: statusUpper,
+      invoiceNumber: bill.invoiceNumber,
+      dueDate: bill.dueDate || '2026-10-15',
+      billingMonth: bill.billingMonth || 'October',
+      feeItems: bill.feeItems || []
+    };
+
+    if (idx !== -1) {
+      records[idx] = { ...records[idx], ...mapped };
+    } else {
+      records.unshift(mapped);
+    }
+
+    cur.feeRecords = records;
+    savePortalData(cur);
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('fee_records_updated', { detail: { bill, feeRecords: records } }));
+    }
+  } catch (e) {
+    console.warn('syncBillToPortalFeeRecords error:', e);
   }
 }
 

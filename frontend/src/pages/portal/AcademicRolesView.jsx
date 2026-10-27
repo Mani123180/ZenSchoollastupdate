@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import {
   getPortalData,
-  savePortalData
+  savePortalData,
+  syncBillToPortalFeeRecords
 } from '../../services/portalData';
+import { api } from '../../services/api';
 import ChatBox from './ChatBox';
 import InteractiveServicePlayerModal from './InteractiveServicePlayerModal';
 import { downloadStudyMaterialPDF } from '../../services/pdfDownloadUtil';
@@ -98,6 +100,8 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
   });
 
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [activePayRecord, setActivePayRecord] = useState(null);
+  const [payAmountInput, setPayAmountInput] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('UPI');
   const [reportCardStudent, setReportCardStudent] = useState(null);
   const [analyticsModal, setAnalyticsModal] = useState(null);
@@ -115,16 +119,20 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
   // Exam Scheduling State
   const [isExamModalOpen, setIsExamModalOpen] = useState(false);
   const [examGradeFilter, setExamGradeFilter] = useState('All');
+  const [editingExamId, setEditingExamId] = useState(null);
+  const defaultExamSubjects = [
+    { subject: 'Tamil', date: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0], time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35 },
+    { subject: 'English', date: new Date(Date.now() + 6 * 86400000).toISOString().split('T')[0], time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35 },
+    { subject: 'Mathematics', date: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0], time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35 },
+    { subject: 'Science', date: new Date(Date.now() + 8 * 86400000).toISOString().split('T')[0], time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35 },
+    { subject: 'Social Science', date: new Date(Date.now() + 9 * 86400000).toISOString().split('T')[0], time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35 }
+  ];
+
   const [examForm, setExamForm] = useState({
     name: 'Midterm Examination 2026',
-    subject: 'Mathematics',
     grade: 'Grade 10-A',
-    date: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
-    time: '09:30 AM - 12:30 PM',
-    room: 'Hall A-1',
-    maxMarks: 100,
-    passMarks: 35,
-    syllabus: 'Chapters 1 to 5: Algebra, Trigonometry and Statistics'
+    syllabus: '',
+    subjectsList: defaultExamSubjects
   });
 
   useEffect(() => {
@@ -133,6 +141,9 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
     if (cur.staffLeaves) {
       setStaffLeaves(cur.staffLeaves);
     }
+    if (cur.feeRecords && cur.feeRecords.length > 0) {
+      setFeeRecords(cur.feeRecords);
+    }
 
     const handleDataUpdate = (e) => {
       const freshData = (e && e.detail) ? e.detail : getPortalData();
@@ -140,13 +151,27 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
       if (freshData && freshData.staffLeaves) {
         setStaffLeaves(freshData.staffLeaves);
       }
+      if (freshData && freshData.feeRecords) {
+        setFeeRecords(freshData.feeRecords);
+      }
+    };
+
+    const handleFeeRecordsUpdate = (e) => {
+      if (e && e.detail && e.detail.feeRecords) {
+        setFeeRecords(e.detail.feeRecords);
+      } else {
+        const cur = getPortalData();
+        if (cur.feeRecords) setFeeRecords(cur.feeRecords);
+      }
     };
 
     window.addEventListener('portal_data_updated', handleDataUpdate);
+    window.addEventListener('fee_records_updated', handleFeeRecordsUpdate);
     window.addEventListener('storage', handleDataUpdate);
 
     return () => {
       window.removeEventListener('portal_data_updated', handleDataUpdate);
+      window.removeEventListener('fee_records_updated', handleFeeRecordsUpdate);
       window.removeEventListener('storage', handleDataUpdate);
     };
   }, [activeTab, role]);
@@ -354,44 +379,97 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
   };
 
   // Exam Scheduling Handlers
+  const handleOpenEditExam = (exam) => {
+    setEditingExamId(exam.id);
+    setExamForm({
+      name: exam.name || 'Midterm Examination 2026',
+      grade: exam.grade || 'Grade 10-A',
+      syllabus: exam.syllabus || '',
+      subjectsList: [
+        {
+          subject: exam.subject || '',
+          date: exam.date || new Date().toISOString().split('T')[0],
+          time: exam.time || '09:30 AM - 12:30 PM',
+          room: exam.room || 'Hall A-1',
+          maxMarks: exam.maxMarks || 100,
+          passMarks: exam.passMarks || 35
+        }
+      ]
+    });
+    setIsExamModalOpen(true);
+  };
+
   const handleSaveExam = (e) => {
     e.preventDefault();
     const current = getPortalData();
     if (!current.exams) current.exams = [];
 
-    const newExam = {
-      id: `EX-${Date.now().toString().slice(-4)}`,
-      name: examForm.name,
-      subject: examForm.subject,
-      grade: examForm.grade,
-      date: examForm.date,
-      time: examForm.time || '09:30 AM - 12:30 PM',
-      room: examForm.room || 'Examination Hall',
-      maxMarks: parseInt(examForm.maxMarks) || 100,
-      passMarks: parseInt(examForm.passMarks) || 35,
-      syllabus: examForm.syllabus || 'As prescribed by State Board curriculum',
-      status: 'Scheduled',
-      uploadedBy: user?.name || (role === 'principal' ? 'Principal Office' : 'Faculty Member')
-    };
+    const listToSave = (examForm.subjectsList && examForm.subjectsList.length > 0)
+      ? examForm.subjectsList
+      : [{ subject: 'General', date: new Date().toISOString().split('T')[0], time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35 }];
 
-    current.exams.unshift(newExam);
+    if (editingExamId) {
+      // Update existing exam
+      const subItem = listToSave[0];
+      const examIndex = current.exams.findIndex((x) => x.id === editingExamId);
+      if (examIndex !== -1) {
+        current.exams[examIndex] = {
+          ...current.exams[examIndex],
+          name: examForm.name,
+          grade: examForm.grade,
+          subject: subItem.subject,
+          date: subItem.date,
+          time: subItem.time,
+          room: subItem.room,
+          maxMarks: parseInt(subItem.maxMarks) || 100,
+          passMarks: parseInt(subItem.passMarks) || 35,
+          updatedBy: user?.name || (role === 'principal' ? 'Principal Office' : 'Faculty Member'),
+          lastUpdated: new Date().toISOString()
+        };
+      }
+    } else {
+      // Add new batch of exams
+      listToSave.forEach((subItem, index) => {
+        const newExam = {
+          id: `EX-${Date.now().toString().slice(-4)}-${index + 1}`,
+          name: examForm.name,
+          subject: subItem.subject || 'Subject ' + (index + 1),
+          grade: examForm.grade,
+          date: subItem.date || new Date().toISOString().split('T')[0],
+          time: subItem.time || '09:30 AM - 12:30 PM',
+          room: subItem.room || 'Hall A-1',
+          maxMarks: parseInt(subItem.maxMarks) || 100,
+          passMarks: parseInt(subItem.passMarks) || 35,
+          syllabus: examForm.syllabus || 'Full subject syllabus',
+          status: 'Scheduled',
+          uploadedBy: user?.name || (role === 'principal' ? 'Principal Office' : 'Faculty Member')
+        };
+        current.exams.unshift(newExam);
+      });
+    }
+
     savePortalData(current);
     refreshData();
+    const isEditMode = Boolean(editingExamId);
     setIsExamModalOpen(false);
+    setEditingExamId(null);
     setExamForm({
       name: 'Midterm Examination 2026',
-      subject: 'Mathematics',
       grade: 'Grade 10-A',
-      date: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
-      time: '09:30 AM - 12:30 PM',
-      room: 'Hall A-1',
-      maxMarks: 100,
-      passMarks: 35,
-      syllabus: 'Chapters 1 to 5: Algebra, Trigonometry and Statistics'
+      syllabus: '',
+      subjectsList: [
+        { subject: 'Tamil', date: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0], time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35 },
+        { subject: 'English', date: new Date(Date.now() + 6 * 86400000).toISOString().split('T')[0], time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35 },
+        { subject: 'Mathematics', date: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0], time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35 },
+        { subject: 'Science', date: new Date(Date.now() + 8 * 86400000).toISOString().split('T')[0], time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35 },
+        { subject: 'Social Science', date: new Date(Date.now() + 9 * 86400000).toISOString().split('T')[0], time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35 }
+      ]
     });
     setFeedback({
-      title: 'Exam Scheduled & Published',
-      body: `Examination "${newExam.subject}" for ${newExam.grade} on ${newExam.date} has been published and is now visible to all students and parents.`
+      title: isEditMode ? 'Exam Details Updated' : 'Exam Scheduled & Published',
+      body: isEditMode
+        ? `Exam details have been updated successfully and synced to Student & Parent dashboards.`
+        : `Examination schedule for ${examForm.grade} has been published and is now visible to all students and parents.`
     });
   };
 
@@ -3033,7 +3111,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {/* Stat Summary Cards */}
-              <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+              <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
                 <div className="portal-card" style={{ borderLeft: '4px solid #10b981', margin: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h4 style={{ margin: 0, color: '#334155', fontSize: '0.95rem' }}>My Attendance Rate</h4>
@@ -3047,14 +3125,14 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
 
                 <div className="portal-card" style={{ borderLeft: '4px solid #f59e0b', margin: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h4 style={{ margin: 0, color: '#334155', fontSize: '0.95rem' }}>Pending Homework & Assignments</h4>
+                    <h4 style={{ margin: 0, color: '#334155', fontSize: '0.95rem' }}>Pending Homework</h4>
                     <span style={{ fontSize: '1.4rem' }}>📝</span>
                   </div>
                   <p style={{ fontSize: '2.2rem', fontWeight: 800, color: '#f59e0b', margin: '8px 0 4px 0' }}>
-                    {studentHw.length} <span style={{ fontSize: '1.1rem', fontWeight: 500, color: '#64748b' }}>Active Tasks</span>
+                    {studentHw.length} <span style={{ fontSize: '1.1rem', fontWeight: 500, color: '#64748b' }}>Tasks</span>
                   </p>
                   <p style={{ fontSize: '0.82rem', color: '#64748b', margin: 0 }}>
-                    {studentHw.length > 0 ? `Next due: ${studentHw[0].title}` : 'All caught up!'}
+                    {studentHw.length > 0 ? `Next: ${studentHw[0].title}` : 'All caught up!'}
                   </p>
                 </div>
 
@@ -3066,8 +3144,38 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   <p style={{ fontSize: '2.2rem', fontWeight: 800, color: '#3b82f6', margin: '8px 0 4px 0' }}>
                     {upcomingExams.length} <span style={{ fontSize: '1.1rem', fontWeight: 500, color: '#64748b' }}>Scheduled</span>
                   </p>
-                  <p style={{ fontSize: '0.82rem', color: '#64748b', margin: 0 }}>Grade 10-A Midterm Schedule</p>
+                  <p style={{ fontSize: '0.82rem', color: '#64748b', margin: 0 }}>Grade 10-A Midterm</p>
                 </div>
+
+                {(() => {
+                  const studentFeeRec = feeRecords.find(r => r.roll === studentRoll) || feeRecords[0];
+                  const hasDue = studentFeeRec && studentFeeRec.status !== 'PAID';
+                  const dueAmt = studentFeeRec ? studentFeeRec.due : '₹0';
+                  return (
+                    <div
+                      className="portal-card"
+                      style={{
+                        borderLeft: `4px solid ${hasDue ? '#ef4444' : '#10b981'}`,
+                        margin: 0,
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => setActiveTab && setActiveTab('fee-reminders')}
+                      title="Click to view full fee billing and dues"
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h4 style={{ margin: 0, color: '#334155', fontSize: '0.95rem' }}>Fee Dues & Status</h4>
+                        <span style={{ fontSize: '1.4rem' }}>💳</span>
+                      </div>
+                      <p style={{ fontSize: '2.2rem', fontWeight: 800, color: hasDue ? '#ef4444' : '#10b981', margin: '8px 0 4px 0' }}>
+                        {hasDue ? dueAmt : 'Cleared ✓'}
+                      </p>
+                      <p style={{ fontSize: '0.82rem', color: '#64748b', margin: 0, display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Status: <strong>{studentFeeRec?.status || 'PAID'}</strong></span>
+                        <span style={{ color: '#2563eb', fontWeight: 600 }}>View Details &rarr;</span>
+                      </p>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Pending Homework & Assignments Section */}
@@ -3504,7 +3612,16 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                     <button
                       type="button"
                       className="btn btn-primary btn-sm"
-                      onClick={() => setIsExamModalOpen(true)}
+                      onClick={() => {
+                        setEditingExamId(null);
+                        setExamForm({
+                          name: 'Midterm Examination 2026',
+                          grade: 'Grade 10-A',
+                          syllabus: '',
+                          subjectsList: defaultExamSubjects
+                        });
+                        setIsExamModalOpen(true);
+                      }}
                       style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '7px 14px', borderRadius: '6px' }}
                     >
                       <span>+</span>
@@ -3663,16 +3780,27 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                             </td>
 
                             {canManageExams && (
-                              <td data-label="Actions" style={{ padding: '14px 16px', textAlign: 'right' }}>
-                                <button
-                                  type="button"
-                                  className="sa-tbl-action danger"
-                                  onClick={() => handleDeleteExam(ex.id)}
-                                  title="Cancel and remove this scheduled examination"
-                                  style={{ padding: '5px 10px', fontSize: '0.78rem' }}
-                                >
-                                  Delete ✕
-                                </button>
+                              <td data-label="Actions" style={{ padding: '14px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                                <div style={{ display: 'inline-flex', gap: '6px', justifyContent: 'flex-end' }}>
+                                  <button
+                                    type="button"
+                                    className="sa-tbl-action primary"
+                                    onClick={() => handleOpenEditExam(ex)}
+                                    title="Edit date, timing, room or marks for this exam"
+                                    style={{ padding: '5px 10px', fontSize: '0.78rem', background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', borderRadius: '4px' }}
+                                  >
+                                    Edit ✎
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="sa-tbl-action danger"
+                                    onClick={() => handleDeleteExam(ex.id)}
+                                    title="Cancel and remove this scheduled examination"
+                                    style={{ padding: '5px 10px', fontSize: '0.78rem' }}
+                                  >
+                                    Delete ✕
+                                  </button>
+                                </div>
                               </td>
                             )}
                           </tr>
@@ -3714,64 +3842,92 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
             </div>
 
             {/* Fee Collection & Dues Summary Card for Parent (Pending Fee Only) */}
-            <div
-              className="portal-card"
-              style={{
-                borderLeftColor: '#dc2626',
-                background: '#ffffff',
-                borderRadius: '14px',
-                padding: '22px 24px',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0f172a', fontWeight: 800 }}>
-                    Fee Collection & Dues
-                  </h3>
-                  <p style={{ margin: '3px 0 0', fontSize: '0.84rem', color: '#64748b' }}>
-                    Academic Year 2026-27 &bull; Student: Aishwarya Kumar (Grade 10-A &bull; Roll No: S101)
-                  </p>
-                </div>
-                <span className="badge badge-warning" style={{ fontSize: '0.8rem', padding: '5px 12px', fontWeight: 700 }}>
-                  Due Date: 10 Aug 2026
-                </span>
-              </div>
+            {(() => {
+              const myRoll = user?.studentRoll || 'S101';
+              const myFee = feeRecords.find(r => r.roll === myRoll) || feeRecords[0] || {
+                roll: 'S101',
+                name: 'Aishwarya Kumar',
+                class: 'Grade 10-A',
+                due: '₹0',
+                status: 'PAID',
+                dueDate: '2026-10-15'
+              };
+              const hasDue = myFee.status !== 'PAID';
+              const dueAmount = myFee.due;
 
-              <div style={{ background: '#fef2f2', padding: '18px 20px', borderRadius: '12px', border: '1px solid #fecaca', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-                <div>
-                  <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#991b1b', fontWeight: 800, letterSpacing: '0.5px' }}>
-                    Student Pending Fee
-                  </span>
-                  <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#dc2626', marginTop: '2px' }}>
-                    ₹12,500
+              return (
+                <div
+                  className="portal-card"
+                  style={{
+                    borderLeftColor: hasDue ? '#dc2626' : '#10b981',
+                    background: '#ffffff',
+                    borderRadius: '14px',
+                    padding: '22px 24px',
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0f172a', fontWeight: 800 }}>
+                        Fee Collection & Dues
+                      </h3>
+                      <p style={{ margin: '3px 0 0', fontSize: '0.84rem', color: '#64748b' }}>
+                        Academic Year 2026-27 &bull; Student: {myFee.name} ({myFee.class} &bull; Roll: {myFee.roll})
+                      </p>
+                    </div>
+                    <span className={`badge ${hasDue ? 'badge-warning' : 'badge-success'}`} style={{ fontSize: '0.8rem', padding: '5px 12px', fontWeight: 700 }}>
+                      {hasDue ? `Due Date: ${myFee.dueDate || '15 Oct 2026'}` : 'All Fees Paid ✓'}
+                    </span>
                   </div>
-                  <span style={{ fontSize: '0.8rem', color: '#7f1d1d' }}>Term-II Academic & Facility Fee</span>
-                </div>
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={() => setActiveTab && setActiveTab('fee-reminders')}
-                  style={{ padding: '8px 18px', fontWeight: 700 }}
-                >
-                  Pay Pending Fee &rarr;
-                </button>
-              </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: '1px solid #f1f5f9', flexWrap: 'wrap', gap: '10px' }}>
-                <span style={{ fontSize: '0.82rem', color: '#64748b' }}>
-                  Complete official payment receipts and transaction records are maintained securely.
-                </span>
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm"
-                  onClick={() => setActiveTab && setActiveTab('fee-reminders')}
-                  style={{ fontWeight: 700, borderColor: '#dc2626', color: '#dc2626', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                >
-                  View Fee Details &rarr;
-                </button>
-              </div>
-            </div>
+                  <div style={{ background: hasDue ? '#fef2f2' : '#f0fdf4', padding: '18px 20px', borderRadius: '12px', border: `1px solid ${hasDue ? '#fecaca' : '#bbf7d0'}`, marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                    <div>
+                      <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: hasDue ? '#991b1b' : '#166534', fontWeight: 800, letterSpacing: '0.5px' }}>
+                        {hasDue ? 'Student Pending Fee' : 'Payment Status'}
+                      </span>
+                      <div style={{ fontSize: '1.85rem', fontWeight: 900, color: hasDue ? '#dc2626' : '#16a34a', marginTop: '2px' }}>
+                        {hasDue ? dueAmount : '₹0 (No Dues)'}
+                      </div>
+                      <span style={{ fontSize: '0.8rem', color: hasDue ? '#7f1d1d' : '#15803d' }}>
+                        {hasDue ? 'Term Academic & Facility Fee Outstanding' : 'All installments cleared for this term'}
+                      </span>
+                    </div>
+                    {hasDue ? (
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        onClick={() => {
+                          setActivePayRecord(myFee);
+                          setPayAmountInput(String(myFee.due).replace(/[^0-9]/g, ''));
+                          setIsPaymentModalOpen(true);
+                        }}
+                        style={{ padding: '8px 18px', fontWeight: 700 }}
+                      >
+                        ⚡ Pay Pending Fee ({dueAmount}) &rarr;
+                      </button>
+                    ) : (
+                      <span className="badge badge-success" style={{ padding: '8px 16px', fontSize: '0.88rem' }}>
+                        ✓ Cleared
+                      </span>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: '1px solid #f1f5f9', flexWrap: 'wrap', gap: '10px' }}>
+                    <span style={{ fontSize: '0.82rem', color: '#64748b' }}>
+                      Complete official payment receipts and transaction records are maintained securely.
+                    </span>
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm"
+                      onClick={() => setActiveTab && setActiveTab('fee-reminders')}
+                      style={{ fontWeight: 700, borderColor: '#1e3a8a', color: '#1e3a8a', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      View Fee Register & Dues &rarr;
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
 
@@ -3817,66 +3973,190 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           </div>
         )}
 
-        {role === 'parent' && activeTab === 'fee-reminders' && (
+        {(role === 'parent' || role === 'student') && activeTab === 'fee-reminders' && (
           <div>
-            {/* Student Pending Fee Card */}
-            <div className="portal-card" style={{ borderLeftColor: '#dc2626', marginBottom: '20px', padding: '22px 24px' }}>
-              <div className="portal-card-header" style={{ marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
-                <div>
-                  <h4 style={{ margin: '0 0 4px 0', fontSize: '1.25rem', color: '#0f172a', fontWeight: 800 }}>Student Pending Fee Details</h4>
-                  <div style={{ fontSize: '0.86rem', color: '#64748b' }}>Student: Aishwarya Kumar &bull; Grade 10-A (Roll No: S101)</div>
-                </div>
-                <span className="badge badge-warning" style={{ fontSize: '0.82rem', padding: '6px 12px', fontWeight: 700 }}>Due Date: 10 Aug 2026</span>
-              </div>
+            {(() => {
+              const myRoll = role === 'student' ? 'S101' : (user?.studentRoll || 'S101');
+              const myFee = feeRecords.find(r => r.roll === myRoll) || feeRecords[0] || {
+                roll: 'S101',
+                name: 'Aishwarya Kumar',
+                class: 'Grade 10-A',
+                parent: 'Ramesh Kumar',
+                phone: '+91 98456 12301',
+                totalFee: '₹28,000',
+                paid: '₹28,000',
+                due: '₹0',
+                status: 'PAID',
+                invoiceNumber: 'INV-2026-001',
+                dueDate: '2026-10-15',
+                billingMonth: 'October'
+              };
+              const hasDue = myFee.status !== 'PAID';
+              const dueAmount = myFee.due;
 
-              <div style={{ background: '#fef2f2', padding: '18px 20px', borderRadius: '12px', border: '1px solid #fecaca', marginBottom: '18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px' }}>
+              return (
                 <div>
-                  <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#991b1b', fontWeight: 800, letterSpacing: '0.5px' }}>Total Pending Fee</span>
-                  <div style={{ fontSize: '2.1rem', fontWeight: 900, color: '#dc2626', margin: '4px 0 2px' }}>₹12,500</div>
-                  <div style={{ fontSize: '0.84rem', color: '#7f1d1d' }}>Term-II Academic & Facility Fee 2026-27</div>
-                </div>
-                <button
-                  className="btn btn-primary btn-sm"
-                  onClick={() => setIsPaymentModalOpen(true)}
-                  style={{ padding: '10px 24px', display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.92rem' }}
-                >
-                  ⚡ Pay Pending Fee via UPI / Gateway
-                </button>
-              </div>
-            </div>
+                  {/* Live Pending Fee Card */}
+                  <div className="portal-card" style={{ borderLeftColor: hasDue ? '#dc2626' : '#10b981', marginBottom: '20px', padding: '22px 24px' }}>
+                    <div className="portal-card-header" style={{ marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                      <div>
+                        <h4 style={{ margin: '0 0 4px 0', fontSize: '1.25rem', color: '#0f172a', fontWeight: 800 }}>Student Fee & Dues Account</h4>
+                        <div style={{ fontSize: '0.86rem', color: '#64748b' }}>
+                          Student: <strong>{myFee.name}</strong> &bull; Class: {myFee.class} &bull; Roll: <code>{myFee.roll}</code> &bull; Invoice: <code>{myFee.invoiceNumber || 'INV-2026-001'}</code>
+                        </div>
+                      </div>
+                      <span className={`badge ${hasDue ? 'badge-warning' : 'badge-success'}`} style={{ fontSize: '0.82rem', padding: '6px 12px', fontWeight: 700 }}>
+                        {hasDue ? `Due Date: ${myFee.dueDate || '15 Oct 2026'}` : 'Fee Fully Settled ✓'}
+                      </span>
+                    </div>
 
-            <div className="table-responsive">
-              <table className="sa-schools-table">
-                <thead>
-                  <tr>
-                    <th>Receipt No</th>
-                    <th>Fee Description</th>
-                    <th>Amount Paid</th>
-                    <th>Date</th>
-                    <th>Payment Mode</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td data-label="Receipt No"><code>REC-2026-084</code></td>
-                    <td data-label="Fee Description">Term-I Tuition & Lab Fee</td>
-                    <td data-label="Amount Paid">₹15,000</td>
-                    <td data-label="Date">2026-05-12</td>
-                    <td data-label="Payment Mode">UPI / PhonePe</td>
-                    <td data-label="Status"><span className="badge badge-success">PAID</span></td>
-                  </tr>
-                  <tr>
-                    <td data-label="Receipt No"><code>REC-2026-012</code></td>
-                    <td data-label="Fee Description">Annual Sports & Library Fee</td>
-                    <td data-label="Amount Paid">₹3,500</td>
-                    <td data-label="Date">2026-04-10</td>
-                    <td data-label="Payment Mode">Net Banking</td>
-                    <td data-label="Status"><span className="badge badge-success">PAID</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                    <div style={{ background: hasDue ? '#fef2f2' : '#f0fdf4', padding: '18px 20px', borderRadius: '12px', border: `1px solid ${hasDue ? '#fecaca' : '#bbf7d0'}`, marginBottom: '18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px' }}>
+                      <div>
+                        <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: hasDue ? '#991b1b' : '#166534', fontWeight: 800, letterSpacing: '0.5px' }}>
+                          {hasDue ? 'Outstanding Pending Dues' : 'Fee Status'}
+                        </span>
+                        <div style={{ fontSize: '2.1rem', fontWeight: 900, color: hasDue ? '#dc2626' : '#16a34a', margin: '4px 0 2px' }}>
+                          {hasDue ? dueAmount : '₹0'}
+                        </div>
+                        <div style={{ fontSize: '0.84rem', color: hasDue ? '#7f1d1d' : '#15803d' }}>
+                          {hasDue ? `${myFee.billingMonth || 'October'} Fee Assessment • Please clear before due date` : 'No pending dues. Receipt acknowledgement confirmed.'}
+                        </div>
+                      </div>
+                      {hasDue ? (
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() => {
+                            setActivePayRecord(myFee);
+                            setPayAmountInput(String(myFee.due).replace(/[^0-9]/g, ''));
+                            setIsPaymentModalOpen(true);
+                          }}
+                          style={{ padding: '10px 24px', display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.92rem' }}
+                        >
+                          ⚡ Pay Pending Fee ({dueAmount}) via UPI / Gateway
+                        </button>
+                      ) : (
+                        <span className="badge badge-success" style={{ padding: '10px 20px', fontSize: '0.92rem' }}>
+                          ✓ Fully Paid
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Itemized Fee Breakdown & Recent Ledger Table */}
+                  <div className="portal-card" style={{ padding: '20px 24px', marginBottom: '20px' }}>
+                    <h4 style={{ margin: '0 0 14px 0', fontSize: '1.05rem', color: '#1e3a8a', fontWeight: 700 }}>
+                      📋 Fee Structure Breakdown ({myFee.billingMonth || 'October'} 2026-2027)
+                    </h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '18px' }}>
+                      <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                        <div style={{ fontSize: '0.74rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Total Fee Amount</div>
+                        <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>{myFee.totalFee}</div>
+                      </div>
+                      <div style={{ background: '#f0fdf4', padding: '14px', borderRadius: '10px', border: '1px solid #bbf7d0' }}>
+                        <div style={{ fontSize: '0.74rem', color: '#166534', textTransform: 'uppercase', fontWeight: 700 }}>Amount Paid</div>
+                        <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#16a34a', marginTop: '4px' }}>{myFee.paid}</div>
+                      </div>
+                      <div style={{ background: hasDue ? '#fef2f2' : '#f0fdf4', padding: '14px', borderRadius: '10px', border: `1px solid ${hasDue ? '#fecaca' : '#bbf7d0'}` }}>
+                        <div style={{ fontSize: '0.74rem', color: hasDue ? '#991b1b' : '#166534', textTransform: 'uppercase', fontWeight: 700 }}>Balance Due</div>
+                        <div style={{ fontSize: '1.25rem', fontWeight: 800, color: hasDue ? '#dc2626' : '#16a34a', marginTop: '4px' }}>{dueAmount}</div>
+                      </div>
+                      <div style={{ background: '#eff6ff', padding: '14px', borderRadius: '10px', border: '1px solid #bfdbfe' }}>
+                        <div style={{ fontSize: '0.74rem', color: '#1e40af', textTransform: 'uppercase', fontWeight: 700 }}>Overall Status</div>
+                        <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1d4ed8', marginTop: '4px' }}>{myFee.status}</div>
+                      </div>
+                    </div>
+
+                    {/* Detailed Fee Categories Breakdown (Monthly, Transport, Co-curricular, Term Fees) */}
+                    <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid #e2e8f0' }}>
+                      <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#1e3a8a', marginBottom: '10px' }}>
+                        Categorized Fee Breakdown & Live Payment Status:
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '12px' }}>
+                        {[
+                          { name: 'Monthly Fees', defaultAmt: 15000 },
+                          { name: 'Transport Fees', defaultAmt: 5000 },
+                          { name: 'Co-curricular Fees', defaultAmt: 3000 },
+                          { name: 'Term Fees', defaultAmt: 5000 }
+                        ].map((cat) => {
+                          const item = (myFee.feeItems || []).find(f => (f.feeType || '').toLowerCase().includes(cat.name.toLowerCase()));
+                          const amt = item ? Number(item.netAmount || item.amount || 0) : cat.defaultAmt;
+                          const isPaid = item?.status ? item.status === 'Paid' : myFee.status === 'PAID';
+                          return (
+                            <div key={cat.name} style={{
+                              background: '#ffffff',
+                              border: `1px solid ${isPaid ? '#bbf7d0' : '#fecaca'}`,
+                              borderRadius: '8px',
+                              padding: '12px 14px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'space-between',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                            }}>
+                              <div style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>
+                                {cat.name}
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                                <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
+                                  ₹{amt.toLocaleString()}
+                                </span>
+                                <span style={{
+                                  fontSize: '0.72rem',
+                                  padding: '2px 8px',
+                                  borderRadius: '4px',
+                                  fontWeight: 800,
+                                  background: isPaid ? '#dcfce7' : '#fee2e2',
+                                  color: isPaid ? '#15803d' : '#b91c1c'
+                                }}>
+                                  {isPaid ? '✓ Paid' : '✕ Unpaid'}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Payment Transactions & Receipts Table */}
+                  <div className="table-responsive">
+                    <table className="sa-schools-table">
+                      <thead>
+                        <tr>
+                          <th>Receipt / Invoice No</th>
+                          <th>Fee Description</th>
+                          <th>Amount Paid</th>
+                          <th>Date</th>
+                          <th>Payment Mode</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td data-label="Receipt No"><code>{myFee.invoiceNumber || 'INV-2026-001'}</code></td>
+                          <td data-label="Fee Description">Term-I Tuition & Facility Assessment</td>
+                          <td data-label="Amount Paid"><strong>{myFee.paid}</strong></td>
+                          <td data-label="Date">2026-10-01</td>
+                          <td data-label="Payment Mode">UPI / Online Gateway</td>
+                          <td data-label="Status">
+                            <span className={`badge ${myFee.status === 'PAID' ? 'badge-success' : 'badge-warning'}`}>
+                              {myFee.status}
+                            </span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td data-label="Receipt No"><code>REC-2026-012</code></td>
+                          <td data-label="Fee Description">Annual Sports & Library Fee</td>
+                          <td data-label="Amount Paid">₹3,500</td>
+                          <td data-label="Date">2026-04-10</td>
+                          <td data-label="Payment Mode">Net Banking</td>
+                          <td data-label="Status"><span className="badge badge-success">PAID</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
 
@@ -4576,21 +4856,22 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         </div>
       )}
 
-      {/* 3b. Schedule Examination Modal (Principal & Teacher) */}
+      {/* 3b. Schedule Examination Modal (Single class with 5 Subjects in Table format) */}
       {isExamModalOpen && (
-        <div className="modal-backdrop" onClick={() => setIsExamModalOpen(false)} style={{ zIndex: 9999 }}>
+        <div className="modal-backdrop" onClick={() => setIsExamModalOpen(false)} style={{ zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(3px)' }}>
           <div
             className="modal-content"
             style={{
-              maxWidth: '640px',
-              width: '92%',
-              maxHeight: '90vh',
+              maxWidth: '920px',
+              width: '95%',
+              maxHeight: '92vh',
               display: 'flex',
               flexDirection: 'column',
-              borderRadius: '14px',
+              borderRadius: '16px',
               overflow: 'hidden',
               padding: 0,
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.25)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+              background: '#ffffff'
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -4607,10 +4888,12 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
             >
               <div>
                 <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>
-                  🎯 Schedule New Examination
+                  {editingExamId ? '✎ Update Examination Details' : '🎯 Schedule Class Examination Timetable'}
                 </h3>
                 <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', opacity: 0.9 }}>
-                  Publish exam dates, timings, and syllabus to Student and Parent dashboards.
+                  {editingExamId
+                    ? 'Changes will update live across Student & Parent dashboards immediately.'
+                    : 'Fill all subjects, exam dates, timings, and rooms for the chosen class in one schedule.'}
                 </p>
               </div>
               <button
@@ -4642,8 +4925,9 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 flex: 1,
               }}
             >
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-                <div style={{ gridColumn: 'span 2' }}>
+              {/* Class & Exam Header Info */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '16px', marginBottom: '20px', background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <div>
                   <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
                     Exam Series Name <span style={{ color: '#ef4444' }}>*</span>
                   </label>
@@ -4653,38 +4937,18 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                     placeholder="e.g. Midterm Examination 2026 / Term-II Final Board Mock"
                     value={examForm.name}
                     onChange={(e) => setExamForm({ ...examForm, name: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem' }}
+                    style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 600 }}
                   />
                 </div>
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
-                    Subject <span style={{ color: '#ef4444' }}>*</span>
-                  </label>
-                  <select
-                    value={examForm.subject}
-                    onChange={(e) => setExamForm({ ...examForm, subject: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem' }}
-                  >
-                    <option value="Mathematics">Mathematics</option>
-                    <option value="Physics">Physics</option>
-                    <option value="Chemistry">Chemistry</option>
-                    <option value="Biology">Biology</option>
-                    <option value="Tamil">Tamil (Language I)</option>
-                    <option value="English">English (Language II)</option>
-                    <option value="Computer Science">Computer Science & Coding</option>
-                    <option value="Social Science">Social Science & History</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
-                    Target Class / Grade <span style={{ color: '#ef4444' }}>*</span>
+                    Target Class / Section <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <select
                     value={examForm.grade}
                     onChange={(e) => setExamForm({ ...examForm, grade: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem' }}
+                    style={{ width: '100%', padding: '9px 12px', border: '2px solid #2563eb', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 700, color: '#1e3a8a', background: '#ffffff' }}
                   >
                     <option value="Grade 10-A">Grade 10-A</option>
                     <option value="Grade 10-B">Grade 10-B</option>
@@ -4694,95 +4958,157 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                     <option value="Grade 12-B">Grade 12-B</option>
                     <option value="Grade 9-A">Grade 9-A</option>
                     <option value="Grade 9-B">Grade 9-B</option>
-                    <option value="All Grades">All Grades (School-wide)</option>
+                    <option value="Grade 8-A">Grade 8-A</option>
+                    <option value="Grade 7-A">Grade 7-A</option>
+                    <option value="Grade 6-A">Grade 6-A</option>
                   </select>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
-                    Exam Date <span style={{ color: '#ef4444' }}>*</span>
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={examForm.date}
-                    onChange={(e) => setExamForm({ ...examForm, date: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
-                    Exam Timing <span style={{ color: '#ef4444' }}>*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="09:30 AM - 12:30 PM"
-                    value={examForm.time}
-                    onChange={(e) => setExamForm({ ...examForm, time: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
-                    Exam Hall / Room
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Hall A-1 or Main Auditorium"
-                    value={examForm.room}
-                    onChange={(e) => setExamForm({ ...examForm, room: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem' }}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
-                      Max Marks
-                    </label>
-                    <input
-                      type="number"
-                      value={examForm.maxMarks}
-                      onChange={(e) => setExamForm({ ...examForm, maxMarks: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem' }}
-                    />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
-                      Pass Marks
-                    </label>
-                    <input
-                      type="number"
-                      value={examForm.passMarks}
-                      onChange={(e) => setExamForm({ ...examForm, passMarks: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem' }}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ gridColumn: 'span 2' }}>
-                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
-                    Syllabus / Covered Chapters (Optional)
-                  </label>
-                  <textarea
-                    rows="3"
-                    placeholder="Specify syllabus portions or study material reference..."
-                    value={examForm.syllabus}
-                    onChange={(e) => setExamForm({ ...examForm, syllabus: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.9rem' }}
-                  ></textarea>
                 </div>
               </div>
 
+              {/* Multi-Subject Table for Selected Class */}
+              <div style={{ marginBottom: '18px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <label style={{ fontSize: '0.92rem', fontWeight: 800, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>📚</span> Subject Exam Papers Schedule ({examForm.subjectsList?.length || 0} Subjects for {examForm.grade})
+                  </label>
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    onClick={() => {
+                      const updated = [...(examForm.subjectsList || []), { subject: '', date: new Date().toISOString().split('T')[0], time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35 }];
+                      setExamForm({ ...examForm, subjectsList: updated });
+                    }}
+                    style={{ fontSize: '0.8rem', padding: '4px 10px', borderRadius: '6px' }}
+                  >
+                    + Add Subject Row
+                  </button>
+                </div>
+
+                <div style={{ border: '1px solid #cbd5e1', borderRadius: '10px', overflowX: 'auto', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                  <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                    <thead>
+                      <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1', textAlign: 'left' }}>
+                        <th style={{ padding: '10px 12px', color: '#1e3a8a', width: '22%' }}>Subject Name *</th>
+                        <th style={{ padding: '10px 12px', color: '#1e3a8a', width: '20%' }}>Exam Date *</th>
+                        <th style={{ padding: '10px 12px', color: '#1e3a8a', width: '22%' }}>Exam Timing *</th>
+                        <th style={{ padding: '10px 12px', color: '#1e3a8a', width: '16%' }}>Hall / Room</th>
+                        <th style={{ padding: '10px 12px', color: '#1e3a8a', width: '14%' }}>Max / Pass</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'center', width: '6%' }}>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(examForm.subjectsList || []).map((subRow, sIdx) => (
+                        <tr key={sIdx} style={{ borderBottom: '1px solid #f1f5f9', background: sIdx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
+                          <td style={{ padding: '8px 10px' }}>
+                            <input
+                              type="text"
+                              required
+                              placeholder="e.g. Mathematics"
+                              value={subRow.subject}
+                              onChange={(e) => {
+                                const copy = [...examForm.subjectsList];
+                                copy[sIdx].subject = e.target.value;
+                                setExamForm({ ...examForm, subjectsList: copy });
+                              }}
+                              style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '6px', fontWeight: 700 }}
+                            />
+                          </td>
+                          <td style={{ padding: '8px 10px' }}>
+                            <input
+                              type="date"
+                              required
+                              value={subRow.date}
+                              onChange={(e) => {
+                                const copy = [...examForm.subjectsList];
+                                copy[sIdx].date = e.target.value;
+                                setExamForm({ ...examForm, subjectsList: copy });
+                              }}
+                              style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '6px' }}
+                            />
+                          </td>
+                          <td style={{ padding: '8px 10px' }}>
+                            <input
+                              type="text"
+                              required
+                              placeholder="09:30 AM - 12:30 PM"
+                              value={subRow.time}
+                              onChange={(e) => {
+                                const copy = [...examForm.subjectsList];
+                                copy[sIdx].time = e.target.value;
+                                setExamForm({ ...examForm, subjectsList: copy });
+                              }}
+                              style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '6px' }}
+                            />
+                          </td>
+                          <td style={{ padding: '8px 10px' }}>
+                            <input
+                              type="text"
+                              placeholder="Hall A-1"
+                              value={subRow.room}
+                              onChange={(e) => {
+                                const copy = [...examForm.subjectsList];
+                                copy[sIdx].room = e.target.value;
+                                setExamForm({ ...examForm, subjectsList: copy });
+                              }}
+                              style={{ width: '100%', padding: '6px 8px', border: '1px solid #cbd5e1', borderRadius: '6px' }}
+                            />
+                          </td>
+                          <td style={{ padding: '8px 10px' }}>
+                            <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                              <input
+                                type="number"
+                                title="Max Marks"
+                                value={subRow.maxMarks}
+                                onChange={(e) => {
+                                  const copy = [...examForm.subjectsList];
+                                  copy[sIdx].maxMarks = e.target.value;
+                                  setExamForm({ ...examForm, subjectsList: copy });
+                                }}
+                                style={{ width: '48px', padding: '6px 4px', border: '1px solid #cbd5e1', borderRadius: '6px', textAlign: 'center' }}
+                              />
+                              <span>/</span>
+                              <input
+                                type="number"
+                                title="Pass Marks"
+                                value={subRow.passMarks}
+                                onChange={(e) => {
+                                  const copy = [...examForm.subjectsList];
+                                  copy[sIdx].passMarks = e.target.value;
+                                  setExamForm({ ...examForm, subjectsList: copy });
+                                }}
+                                style={{ width: '45px', padding: '6px 4px', border: '1px solid #cbd5e1', borderRadius: '6px', textAlign: 'center' }}
+                              />
+                            </div>
+                          </td>
+                          <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                            {examForm.subjectsList.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const copy = examForm.subjectsList.filter((_, i) => i !== sIdx);
+                                  setExamForm({ ...examForm, subjectsList: copy });
+                                }}
+                                style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '1.1rem', cursor: 'pointer', padding: '2px 6px' }}
+                                title="Remove Subject"
+                              >
+                                &times;
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Bottom Actions */}
               <div
                 style={{
                   display: 'flex',
                   justifyContent: 'flex-end',
                   gap: '10px',
-                  marginTop: '24px',
+                  marginTop: '16px',
                   paddingTop: '16px',
                   borderTop: '1px solid #e2e8f0',
                   position: 'sticky',
@@ -4801,9 +5127,10 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 <button
                   type="submit"
                   className="btn btn-primary"
-                  style={{ padding: '8px 24px', borderRadius: '6px' }}
+                  style={{ padding: '8px 24px', borderRadius: '6px', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 >
-                  Publish Exam Schedule ✓
+                  <span>✓</span>
+                  <span>{editingExamId ? 'Update & Sync to Student / Parent Dashboards ✓' : `Publish All ${examForm.subjectsList?.length || 0} Subjects for ${examForm.grade}`}</span>
                 </button>
               </div>
             </form>
@@ -4836,59 +5163,140 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               <button className="modal-close" onClick={() => setIsPaymentModalOpen(false)}>&times;</button>
             </div>
             <div style={{ padding: '20px' }}>
-              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Term-II School Fee:</span>
-                  <span style={{ fontWeight: 800, fontSize: '1.25rem', color: '#1e3a8a' }}>₹12,500/-</span>
-                </div>
-                <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '4px' }}>
-                  Student: Aishwarya Kumar (Grade 10-A, SSV Girls School)
-                </div>
-              </div>
+              {(() => {
+                const rec = activePayRecord || feeRecords[0] || {
+                  roll: 'S101',
+                  name: 'Aishwarya Kumar',
+                  class: 'Grade 10-A',
+                  due: '₹12,500',
+                  paid: '₹0',
+                  totalFee: '₹28,000',
+                  invoiceNumber: 'INV-2026-001'
+                };
+                const maxDue = parseInt(String(rec.due || '').replace(/[^0-9]/g, ''), 10) || 12500;
+                const amtToPay = parseInt(String(payAmountInput || maxDue).replace(/[^0-9]/g, ''), 10) || maxDue;
 
-              <div style={{ marginBottom: '18px' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px' }}>Select Payment Mode</label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-                  {['UPI', 'Card', 'NetBanking'].map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      className={`btn btn-sm ${paymentMethod === m ? 'btn-primary' : 'btn-outline'}`}
-                      style={{ padding: '10px 4px', fontSize: '0.85rem' }}
-                      onClick={() => setPaymentMethod(m)}
-                    >
-                      {m === 'UPI' ? '⚡ UPI / GPay' : m === 'Card' ? '💳 Debit/Credit' : '🏦 Net Banking'}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                return (
+                  <div>
+                    <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Student Fee Due:</span>
+                        <span style={{ fontWeight: 800, fontSize: '1.25rem', color: '#dc2626' }}>{rec.due}</span>
+                      </div>
+                      <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '4px' }}>
+                        Student: <strong>{rec.name}</strong> ({rec.class} &bull; Roll: <code>{rec.roll}</code>) &bull; Inv: <code>{rec.invoiceNumber || 'INV-2026-001'}</code>
+                      </div>
+                    </div>
 
-              {paymentMethod === 'UPI' && (
-                <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '12px', borderRadius: '8px', textAlign: 'center', marginBottom: '20px' }}>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#047857', marginBottom: '4px' }}>Instant UPI VPA</div>
-                  <code>zenschool.ssv@hdfcbank</code>
-                  <div style={{ fontSize: '0.75rem', color: '#065f46', marginTop: '4px' }}>Supports Google Pay, PhonePe, Paytm, BHIM</div>
-                </div>
-              )}
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                        Enter Amount to Pay (₹)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max={maxDue}
+                        value={payAmountInput}
+                        onChange={(e) => setPayAmountInput(e.target.value)}
+                        placeholder={`Max ₹${maxDue.toLocaleString('en-IN')}`}
+                        style={{
+                          width: '100%',
+                          padding: '10px 14px',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          fontSize: '1.05rem',
+                          fontWeight: 700,
+                          color: '#0f172a',
+                          outline: 'none'
+                        }}
+                      />
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>
+                        You can pay in full (₹{maxDue.toLocaleString('en-IN')}) or make a partial installment.
+                      </div>
+                    </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', paddingTop: '12px', borderTop: '1px solid #e2e8f0' }}>
-                <button type="button" className="btn btn-outline btn-sm" onClick={() => setIsPaymentModalOpen(false)}>
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={() => {
-                    setIsPaymentModalOpen(false);
-                    setFeedback({
-                      title: 'Payment Successful',
-                      body: '₹12,500/- received successfully via Razorpay/UPI gateway.\nReceipt REC-2026-118 generated & SMS acknowledgement sent.',
-                    });
-                  }}
-                >
-                  Pay ₹12,500 Securely ✓
-                </button>
-              </div>
+                    <div style={{ marginBottom: '18px' }}>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px' }}>Select Payment Mode</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                        {['UPI', 'Card', 'NetBanking'].map((m) => (
+                          <button
+                            key={m}
+                            type="button"
+                            className={`btn btn-sm ${paymentMethod === m ? 'btn-primary' : 'btn-outline'}`}
+                            style={{ padding: '10px 4px', fontSize: '0.85rem' }}
+                            onClick={() => setPaymentMethod(m)}
+                          >
+                            {m === 'UPI' ? '⚡ UPI / GPay' : m === 'Card' ? '💳 Debit/Credit' : '🏦 Net Banking'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {paymentMethod === 'UPI' && (
+                      <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '12px', borderRadius: '8px', textAlign: 'center', marginBottom: '20px' }}>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#047857', marginBottom: '4px' }}>Instant UPI VPA</div>
+                        <code>zenschool.ssv@hdfcbank</code>
+                        <div style={{ fontSize: '0.75rem', color: '#065f46', marginTop: '4px' }}>Supports Google Pay, PhonePe, Paytm, BHIM</div>
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', paddingTop: '12px', borderTop: '1px solid #e2e8f0' }}>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setIsPaymentModalOpen(false)}>
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        onClick={async () => {
+                          const currentPaid = parseInt(String(rec.paid || '0').replace(/[^0-9]/g, ''), 10) || 0;
+                          const totalVal = parseInt(String(rec.totalFee || '0').replace(/[^0-9]/g, ''), 10) || (currentPaid + maxDue);
+                          const newPaidNum = currentPaid + amtToPay;
+                          const newDueNum = Math.max(0, totalVal - newPaidNum);
+
+                          const updatedBill = {
+                            _id: rec.id,
+                            rollNo: rec.roll,
+                            studentId: rec.roll,
+                            studentName: rec.name,
+                            grade: rec.class?.split('-')[0] || 'Grade 10',
+                            section: rec.class?.split('-')[1] || 'A',
+                            totalFees: totalVal,
+                            paidAmount: newPaidNum,
+                            pendingAmount: newDueNum,
+                            invoiceNumber: rec.invoiceNumber || 'INV-2026-001',
+                            dueDate: rec.dueDate || '2026-10-15',
+                            parentName: rec.parent || 'Parent',
+                            parentPhone: rec.phone || '+91 98456 12301'
+                          };
+
+                          // Try backend call as well
+                          try {
+                            if (rec.id || rec.invoiceNumber) {
+                              await api.recordStudentBillPayment(rec.id || rec.invoiceNumber, {
+                                amount: amtToPay,
+                                paymentMethod: paymentMethod === 'UPI' ? 'UPI / NetBanking' : 'Bank Transfer',
+                                paymentDate: new Date().toISOString().split('T')[0],
+                                remarks: `Online portal checkout by ${role}`
+                              });
+                            }
+                          } catch (e) {
+                            console.warn('API bill payment fallback:', e);
+                          }
+
+                          syncBillToPortalFeeRecords(updatedBill);
+                          setIsPaymentModalOpen(false);
+                          setFeedback({
+                            title: 'Payment Successful',
+                            body: `₹${amtToPay.toLocaleString('en-IN')}/- received successfully via Razorpay/UPI gateway for ${rec.name}.\nRemaining Pending Dues: ₹${newDueNum.toLocaleString('en-IN')}.\nReceipt REC-2026-${Math.floor(100 + Math.random() * 900)} generated & SMS acknowledgement sent.`,
+                          });
+                        }}
+                      >
+                        Pay ₹{amtToPay.toLocaleString('en-IN')} Securely ✓
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

@@ -13,6 +13,7 @@ const messageRoutes = require('./routes/messageRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const timetableRoutes = require('./routes/timetableRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+const financeRoutes = require('./routes/financeRoutes');
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/timetable', timetableRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/finance', financeRoutes);
 
 // Health Check
 app.get('/api/health', (req, res) => {

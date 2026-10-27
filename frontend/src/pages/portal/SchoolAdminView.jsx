@@ -6,6 +6,7 @@ import {
 import ChatBox from './ChatBox';
 import InteractiveServicePlayerModal from './InteractiveServicePlayerModal';
 import { DashboardDetailModal } from './SuperAdminModals';
+import SchoolFinanceModule from './SchoolFinanceModule';
 import * as XLSX from 'xlsx';
 
 export default function SchoolAdminView({ activeTab, setActiveTab }) {
@@ -55,6 +56,8 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
  const [editingStudent, setEditingStudent] = useState(null);
  const [studentForm, setStudentForm] = useState({
+ roll: '',
+ regNo: '',
  name: '',
  class: 'Grade 10-A',
  gender: 'Female',
@@ -111,6 +114,14 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
    new Date().toISOString().split('T')[0]
  );
  const [analyticsModal, setAnalyticsModal] = useState(null);
+ // Filter states
+ const [studentGradeFilter, setStudentGradeFilter] = useState('All');
+ const [studentSectionFilter, setStudentSectionFilter] = useState('All');
+ const [parentSearch, setParentSearch] = useState('');
+ const [parentGradeFilter, setParentGradeFilter] = useState('All');
+  const [parentSectionFilter, setParentSectionFilter] = useState('All');
+  const [parentClassFilter, setParentClassFilter] = useState('All');
+ const [subjectCategoryFilter, setSubjectCategoryFilter] = useState('All');
  // Bulk Students State
  const [isBulkStudentOpen, setIsBulkStudentOpen] = useState(false);
  const [bulkCsvText, setBulkCsvText] = useState('');
@@ -127,13 +138,40 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  const [feeClassFilter, setFeeClassFilter] = useState('All');
  const [feeSearch, setFeeSearch] = useState('');
  const [feeReminderModal, setFeeReminderModal] = useState(null); // { record, channel: 'whatsapp'|'sms'|'call', message: string, sent: boolean }
- const [feeRecords, setFeeRecords] = useState([
- { id: 'FEE-101', roll: 'S101', name: 'Aishwarya Kumar', class: 'Grade 10-A', parent: 'Ramesh Kumar', phone: '+91 98456 12301', totalFee: '₹28,000', paid: '₹28,000', due: '₹0', status: 'PAID' },
- { id: 'FEE-102', roll: 'S102', name: 'Kavitha Selvam', class: 'Grade 10-A', parent: 'Selvam Murugan', phone: '+91 98456 12302', totalFee: '₹28,000', paid: '₹18,000', due: '₹10,000', status: 'PARTIAL' },
- { id: 'FEE-103', roll: 'S103', name: 'Sandhya Ramesh', class: 'Grade 10-A', parent: 'Ramesh Krishnan', phone: '+91 98456 12303', totalFee: '₹28,000', paid: '₹0', due: '₹28,000', status: 'OVERDUE' },
- { id: 'FEE-104', roll: 'S104', name: 'Deepa Venkatesh', class: 'Grade 10-A', parent: 'Venkatesh S.', phone: '+91 98456 12304', totalFee: '₹28,000', paid: '₹28,000', due: '₹0', status: 'PAID' },
- { id: 'FEE-105', roll: 'S105', name: 'Meena Natarajan', class: 'Grade 10-A', parent: 'Natarajan M.', phone: '+91 98456 12305', totalFee: '₹28,000', paid: '₹14,000', due: '₹14,000', status: 'PARTIAL' },
- ]);
+ const [feeRecords, setFeeRecords] = useState(() => {
+   const cur = getPortalData();
+   return (cur && cur.feeRecords && cur.feeRecords.length > 0) ? cur.feeRecords : [
+     { id: 'FEE-101', roll: 'S101', name: 'Aishwarya Kumar', class: 'Grade 10-A', parent: 'Ramesh Kumar', phone: '+91 98456 12301', totalFee: '₹28,000', paid: '₹28,000', due: '₹0', status: 'PAID' },
+     { id: 'FEE-102', roll: 'S102', name: 'Kavitha Selvam', class: 'Grade 10-A', parent: 'Selvam Murugan', phone: '+91 98456 12302', totalFee: '₹26,000', paid: '₹16,000', due: '₹10,000', status: 'PARTIAL' },
+     { id: 'FEE-103', roll: 'S103', name: 'Sandhya Ramesh', class: 'Grade 10-A', parent: 'Ramesh Krishnan', phone: '+91 98456 12303', totalFee: '₹28,500', paid: '₹0', due: '₹28,500', status: 'OVERDUE' },
+     { id: 'FEE-104', roll: 'S104', name: 'Deepa Venkatesh', class: 'Grade 10-A', parent: 'Venkatesh S.', phone: '+91 98456 12304', totalFee: '₹28,000', paid: '₹28,000', due: '₹0', status: 'PAID' },
+     { id: 'FEE-105', roll: 'S105', name: 'Meena Natarajan', class: 'Grade 10-A', parent: 'Natarajan M.', phone: '+91 98456 12305', totalFee: '₹23,000', paid: '₹11,500', due: '₹11,500', status: 'PARTIAL' },
+   ];
+ });
+
+ useEffect(() => {
+   const handlePortalSync = (e) => {
+     const cur = (e && e.detail) ? e.detail : getPortalData();
+     if (cur && cur.feeRecords) setFeeRecords(cur.feeRecords);
+     setData(cur);
+   };
+   const handleFeeSync = (e) => {
+     if (e && e.detail && e.detail.feeRecords) {
+       setFeeRecords(e.detail.feeRecords);
+     } else {
+       const cur = getPortalData();
+       if (cur && cur.feeRecords) setFeeRecords(cur.feeRecords);
+     }
+   };
+   window.addEventListener('portal_data_updated', handlePortalSync);
+   window.addEventListener('fee_records_updated', handleFeeSync);
+   window.addEventListener('storage', handlePortalSync);
+   return () => {
+     window.removeEventListener('portal_data_updated', handlePortalSync);
+     window.removeEventListener('fee_records_updated', handleFeeSync);
+     window.removeEventListener('storage', handlePortalSync);
+   };
+ }, []);
 
  // Fee Excel Upload handler
  const handleFeeExcelUpload = (e) => {
@@ -542,6 +580,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  const getTabTitle = () => {
  const titles = {
  'school-admin-users': 'DashBoard',
+ 'finance-management': 'Finance Management & Institutional Ledger',
  'school-services-tab': 'Campus Enrichment Services & Practice Labs',
  'manage-staff': 'Manage Staff (Principals & Teachers)',
  'manage-principal': 'Manage Principal',
@@ -1227,6 +1266,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  }
  savePortalData(current);
  refreshData();
+    setSelectedClass(classForm.name);
  setIsClassModalOpen(false);
  setFeedback({
  title: editingClass ? 'Class Updated' : 'Class Created',
@@ -1236,16 +1276,18 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
  // Timetable Period Assignment Handlers
  const handleOpenAssignWork = (className, day, period, teacherName = '') => {
+ const normClass = (className || '').trim().toLowerCase();
+ const pNum = parseInt(period);
  const existing = (data.classTimetables || []).find(
- (t) => (t.className === className || !className) && t.day === day && parseInt(t.period) === period && (!teacherName || t.teacherName === teacherName)
+ (t) => (t.className || '').trim().toLowerCase() === normClass && t.day === day && parseInt(t.period) === pNum && (!teacherName || t.teacherName === teacherName)
  ) || (data.classTimetables || []).find(
- (t) => t.className === className && t.day === day && parseInt(t.period) === period
+ (t) => (t.className || '').trim().toLowerCase() === normClass && t.day === day && parseInt(t.period) === pNum
  );
- const targetClass = className || (existing ? existing.className : 'Grade 10-A');
- setAssignWorkSlot({ className: targetClass, day, period, lockedTeacher: teacherName });
+ const targetClass = className || (existing ? existing.className : (selectedClassObj ? selectedClassObj.name : 'Grade 10-A'));
+ setAssignWorkSlot({ className: targetClass, day, period: pNum, lockedTeacher: teacherName });
  setAssignWorkForm({
  subject: existing ? existing.subject : '',
- teacherName: teacherName || (existing ? existing.teacherName : (data.teachers[0] ? data.teachers[0].name : '')),
+ teacherName: existing ? existing.teacherName : (teacherName || ''),
  className: targetClass
  });
  };
@@ -1257,28 +1299,30 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  const current = getPortalData();
  if (!current.classTimetables) current.classTimetables = [];
 
- const finalClassName = assignWorkForm.className || assignWorkSlot.className;
+ const finalClassName = (assignWorkForm.className || assignWorkSlot.className || '').trim();
+ const normFinal = finalClassName.toLowerCase();
+ const slotPeriod = parseInt(assignWorkSlot.period);
 
- // Filter out existing slot for this class/day/period OR if editing from teacher view, their slot
+ // Filter out existing slot with case-insensitive check
  current.classTimetables = current.classTimetables.filter(
  (t) =>
  !(
- t.className === finalClassName &&
+ (t.className || '').trim().toLowerCase() === normFinal &&
  t.day === assignWorkSlot.day &&
- parseInt(t.period) === assignWorkSlot.period
+ parseInt(t.period) === slotPeriod
  ) &&
  !(
  assignWorkSlot.lockedTeacher &&
  t.teacherName === assignWorkSlot.lockedTeacher &&
  t.day === assignWorkSlot.day &&
- parseInt(t.period) === assignWorkSlot.period
+ parseInt(t.period) === slotPeriod
  )
  );
 
  current.classTimetables.push({
  className: finalClassName,
  day: assignWorkSlot.day,
- period: assignWorkSlot.period,
+ period: slotPeriod,
  subject: assignWorkForm.subject,
  teacherName: assignWorkForm.teacherName,
  schoolId: 'SCHOOL002'
@@ -1286,7 +1330,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
  savePortalData(current);
  refreshData();
- const slotDesc = `${assignWorkForm.subject} (${assignWorkForm.teacherName}) for ${finalClassName} on ${assignWorkSlot.day} Period ${assignWorkSlot.period}`;
+ const slotDesc = `${assignWorkForm.subject} (${assignWorkForm.teacherName}) for ${finalClassName} on ${assignWorkSlot.day} Period ${slotPeriod}`;
  setAssignWorkSlot(null);
  setFeedback({
  title: 'Work Assigned & Live Synced',
@@ -1297,8 +1341,10 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  const handleClearAssignWork = (className, day, period) => {
  const current = getPortalData();
  if (!current.classTimetables) return;
+ const normClass = (className || '').trim().toLowerCase();
+ const pNum = parseInt(period);
  current.classTimetables = current.classTimetables.filter(
- (t) => !(t.className === className && t.day === day && parseInt(t.period) === period)
+ (t) => !((t.className || '').trim().toLowerCase() === normClass && t.day === day && parseInt(t.period) === pNum)
  );
  savePortalData(current);
  refreshData();
@@ -1308,7 +1354,6 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  body: `Period ${period} slot cleared for ${className} on ${day}.`
  });
  };
-
  // Subject Handlers
  const handleOpenSubjectModal = (sub = null) => {
  setEditingSubject(sub);
@@ -1461,7 +1506,8 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  data.classes.find((c) => c.name === selectedClass) ||
  data.classes[0] || { name: 'Grade 10-A', teacher: 'Mrs. Priya Krishnan', room: 'A-102', strength: 38 };
 
- const classSlots = (data.classTimetables || []).filter((t) => t.className === selectedClassObj.name);
+ const normalizeClassName = (name) => (name || '').trim().toLowerCase();
+ const classSlots = (data.classTimetables || []).filter((t) => normalizeClassName(t.className) === normalizeClassName(selectedClassObj.name));
 
  return (
  <div>
@@ -1479,6 +1525,14 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
 
  <div id="portal-content">
+ {/* =================================================================== */}
+ {/* UNIFIED FINANCE MANAGEMENT MODULE (finance-management) */}
+ {/* Includes: Dashboard, Student Billing, Staff Salary, School Expenses, Reports, History */}
+ {/* =================================================================== */}
+ {activeTab === 'finance-management' && (
+   <SchoolFinanceModule />
+ )}
+
  {/* =================================================================== */}
  {/* CAMPUS SERVICES & ACTIVITIES (school-services-tab) */}
  {/* Controlled by Super Admin Service Visibility & Assignments */}
@@ -2567,9 +2621,31 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  {/* =================================================================== */}
  {/* 3. MANAGE STUDENTS (manage-students) */}
  {/* =================================================================== */}
- {activeTab === 'manage-students' && (
+ {activeTab === 'manage-students' && (() => {
+ const availableGrades = ['Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
+ const availableSections = ['A', 'B', 'C', 'D'];
+
+ const filteredStudents = (data.students || []).filter((s) => {
+ const matchSearch =
+ !studentSearch ||
+ s.name.toLowerCase().includes(studentSearch.toLowerCase()) ||
+ s.roll.toLowerCase().includes(studentSearch.toLowerCase()) ||
+ (s.class && s.class.toLowerCase().includes(studentSearch.toLowerCase()));
+
+ const matchGrade =
+ studentGradeFilter === 'All' ||
+ (s.class && s.class.toLowerCase().includes(studentGradeFilter.toLowerCase()));
+
+ const matchSection =
+ studentSectionFilter === 'All' ||
+ (s.class && (s.class.toUpperCase().endsWith('-' + studentSectionFilter) || s.class.toUpperCase().endsWith(' ' + studentSectionFilter)));
+
+ return matchSearch && matchGrade && matchSection;
+ });
+
+ return (
  <div>
- <div className="sa-schools-header-bar">
+ <div className="sa-schools-header-bar" style={{ marginBottom: '14px' }}>
  <div className="sa-search-wrap" style={{ minWidth: '280px', maxWidth: '440px', flex: 1 }}>
  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
  <input
@@ -2582,7 +2658,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  <div className="sa-toolbar-right" style={{ display: 'flex', gap: '8px' }}>
  <button className="btn btn-outline btn-sm" onClick={() => setIsBulkStudentOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
- <span></span> Bulk Import (Excel)
+ <span>📥</span> Bulk Import (Excel)
  </button>
  <button className="btn btn-primary btn-sm" onClick={() => handleOpenStudentModal()}>
  + Add Student
@@ -2590,11 +2666,108 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
+ {/* Filter Controls: Class Buttons + Section Dropdown */}
+ <div
+ style={{
+ display: 'flex',
+ flexWrap: 'wrap',
+ alignItems: 'center',
+ justifyContent: 'space-between',
+ gap: '12px',
+ background: '#f8fafc',
+ border: '1px solid #e2e8f0',
+ borderRadius: '12px',
+ padding: '12px 16px',
+ marginBottom: '16px'
+ }}
+ >
+ <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+ <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#475569', display: 'flex', alignItems: 'center', gap: '4px' }}>
+ 🎓 <span>Class:</span>
+ </span>
+ <button
+ type="button"
+ className={`btn btn-sm ${studentGradeFilter === 'All' ? 'btn-primary' : 'btn-outline'}`}
+ onClick={() => setStudentGradeFilter('All')}
+ style={{ padding: '4px 12px', fontSize: '0.82rem', borderRadius: '20px' }}
+ >
+ All Classes
+ </button>
+ {availableGrades.map((grade) => (
+ <button
+ key={grade}
+ type="button"
+ className={`btn btn-sm ${studentGradeFilter === grade ? 'btn-primary' : 'btn-outline'}`}
+ onClick={() => setStudentGradeFilter(grade)}
+ style={{ padding: '4px 12px', fontSize: '0.82rem', borderRadius: '20px' }}
+ >
+ {grade}
+ </button>
+ ))}
+ </div>
+
+ <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+ <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+ <label htmlFor="student-section-select" style={{ fontSize: '0.84rem', fontWeight: 700, color: '#475569' }}>
+ Section:
+ </label>
+ <select
+ id="student-section-select"
+ value={studentSectionFilter}
+ onChange={(e) => setStudentSectionFilter(e.target.value)}
+ style={{
+ padding: '5px 12px',
+ borderRadius: '8px',
+ border: '1.5px solid #cbd5e1',
+ fontWeight: 700,
+ fontSize: '0.85rem',
+ color: '#1e3a8a',
+ background: '#ffffff',
+ cursor: 'pointer'
+ }}
+ >
+ <option value="All">All Sections (A, B, C, D)</option>
+ {availableSections.map((sec) => (
+ <option key={sec} value={sec}>
+ Section {sec}
+ </option>
+ ))}
+ </select>
+ </div>
+
+ {(studentGradeFilter !== 'All' || studentSectionFilter !== 'All' || studentSearch) && (
+ <button
+ type="button"
+ onClick={() => {
+ setStudentGradeFilter('All');
+ setStudentSectionFilter('All');
+ setStudentSearch('');
+ }}
+ style={{
+ background: 'none',
+ border: 'none',
+ color: '#dc2626',
+ fontSize: '0.8rem',
+ fontWeight: 700,
+ cursor: 'pointer',
+ padding: '4px 8px'
+ }}
+ >
+ Reset ✕
+ </button>
+ )}
+
+ <span className="badge badge-info" style={{ fontSize: '0.78rem', padding: '4px 8px' }}>
+ {filteredStudents.length} Students Found
+ </span>
+ </div>
+ </div>
+
  <div className="table-responsive">
  <table className="sa-schools-table">
  <thead>
  <tr>
- <th style={{ minWidth: '90px' }}>Roll No</th>
+ <th style={{ minWidth: '120px' }}>Roll & Reg No</th>
  <th style={{ minWidth: '170px' }}>Student Name</th>
  <th style={{ minWidth: '100px' }}>Class</th>
  <th style={{ minWidth: '90px' }}>Blood Group</th>
@@ -2605,20 +2778,26 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </tr>
  </thead>
  <tbody>
- {data.students
- .filter(
- (s) =>
- s.name.toLowerCase().includes(studentSearch.toLowerCase()) ||
- s.roll.toLowerCase().includes(studentSearch.toLowerCase()) ||
- s.class.toLowerCase().includes(studentSearch.toLowerCase())
- )
- .map((s, idx) => {
+ {filteredStudents.length === 0 ? (
+ <tr>
+ <td colSpan="8" style={{ textAlign: 'center', padding: '36px', color: '#64748b' }}>
+ <div style={{ fontSize: '1.5rem', marginBottom: '6px' }}>🔍</div>
+ <strong>No students found matching the selected Class / Section filters.</strong>
+ </td>
+ </tr>
+ ) : (
+ filteredStudents.map((s, idx) => {
  const bloodGroups = ['B+ve', 'O+ve', 'A+ve', 'AB+ve', 'A-ve'];
  const blood = s.bloodGroup || bloodGroups[idx % bloodGroups.length];
  const emergency = s.emergencyContact || s.parentPhone || `+91 98456 ${12301 + idx}`;
  return (
  <tr key={s.roll}>
- <td data-label="Roll No"><code>{s.roll}</code></td>
+ <td data-label="Roll & Reg No">
+ <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+ <code>{s.roll}</code>
+ <small style={{ color: '#64748b', fontSize: '0.74rem', fontWeight: 600 }}>{s.regNo || ('REG-' + s.roll)}</small>
+ </div>
+ </td>
  <td data-label="Student Name">
  <div className="school-meta-line">
  <strong>{s.name}</strong>
@@ -2648,19 +2827,168 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </td>
  </tr>
  );
- })}
+ })
+ )}
  </tbody>
  </table>
  </div>
  </div>
- )}
+ );
+ })()}
+
 
  {/* =================================================================== */}
  {/* 4. MANAGE PARENTS (manage-parents) */}
  {/* =================================================================== */}
- {activeTab === 'manage-parents' && (
- <div>
- <div className="table-responsive">
+ {activeTab === 'manage-parents' && (() => {
+    const parentList = data.parents || [];
+    const studentList = data.students || [];
+    const availableGrades = ['Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
+    const availableSections = ['A', 'B', 'C', 'D'];
+
+    const filteredParents = parentList.filter((p) => {
+      const linkedStudent = studentList.find(s => s.roll === p.studentRoll || s.name === p.studentName);
+      const studentClass = linkedStudent ? (linkedStudent.class || '') : (p.class || '');
+
+      const matchSearch =
+        !parentSearch ||
+        (p.name && p.name.toLowerCase().includes(parentSearch.toLowerCase())) ||
+        (p.phone && p.phone.toLowerCase().includes(parentSearch.toLowerCase())) ||
+        (p.email && p.email.toLowerCase().includes(parentSearch.toLowerCase())) ||
+        (p.studentName && p.studentName.toLowerCase().includes(parentSearch.toLowerCase())) ||
+        (p.studentRoll && p.studentRoll.toLowerCase().includes(parentSearch.toLowerCase())) ||
+        studentClass.toLowerCase().includes(parentSearch.toLowerCase());
+
+      const matchGrade =
+        parentGradeFilter === 'All' ||
+        (studentClass && studentClass.toLowerCase().includes(parentGradeFilter.toLowerCase()));
+
+      const matchSection =
+        parentSectionFilter === 'All' ||
+        (studentClass && (studentClass.toUpperCase().endsWith('-' + parentSectionFilter) || studentClass.toUpperCase().endsWith(' ' + parentSectionFilter)));
+
+      return matchSearch && matchGrade && matchSection;
+    });
+
+    return (
+      <div>
+        {/* Parent Search & Header Bar */}
+        <div className="sa-schools-header-bar" style={{ marginBottom: '14px' }}>
+          <div className="sa-search-wrap" style={{ minWidth: '280px', maxWidth: '440px', flex: 1 }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+            <input
+              type="text"
+              className="sa-search-input"
+              placeholder="Search parents by name, ward student, phone, or roll..."
+              value={parentSearch}
+              onChange={(e) => setParentSearch(e.target.value)}
+            />
+          </div>
+          <div className="sa-toolbar-right" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <span className="badge badge-purple" style={{ padding: '6px 14px', fontSize: '0.84rem', fontWeight: 700 }}>
+              👨‍👩‍👧 Total Enrolled Parents: {parentList.length}
+            </span>
+          </div>
+        </div>
+
+        {/* Filter Controls: Class Buttons + Section Dropdown matching Manage Students */}
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            marginBottom: '16px'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#475569', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              🎓 <span>Class:</span>
+            </span>
+            <button
+              type="button"
+              className={`btn btn-sm ${parentGradeFilter === 'All' ? 'btn-primary' : 'btn-outline'}`}
+              onClick={() => setParentGradeFilter('All')}
+              style={{ padding: '4px 12px', fontSize: '0.82rem', borderRadius: '20px' }}
+            >
+              All Classes
+            </button>
+            {availableGrades.map((grade) => (
+              <button
+                key={grade}
+                type="button"
+                className={`btn btn-sm ${parentGradeFilter === grade ? 'btn-primary' : 'btn-outline'}`}
+                onClick={() => setParentGradeFilter(grade)}
+                style={{ padding: '4px 12px', fontSize: '0.82rem', borderRadius: '20px' }}
+              >
+                {grade}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <label htmlFor="parent-section-select" style={{ fontSize: '0.84rem', fontWeight: 700, color: '#475569' }}>
+                Section:
+              </label>
+              <select
+                id="parent-section-select"
+                value={parentSectionFilter}
+                onChange={(e) => setParentSectionFilter(e.target.value)}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: '8px',
+                  border: '1.5px solid #cbd5e1',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  color: '#1e3a8a',
+                  background: '#ffffff',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="All">All Sections (A, B, C, D)</option>
+                {availableSections.map((sec) => (
+                  <option key={sec} value={sec}>
+                    Section {sec}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {(parentGradeFilter !== 'All' || parentSectionFilter !== 'All' || parentSearch) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setParentGradeFilter('All');
+                  setParentSectionFilter('All');
+                  setParentSearch('');
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#dc2626',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  padding: '4px 8px'
+                }}
+              >
+                Reset ✕
+              </button>
+            )}
+
+            <span className="badge badge-info" style={{ fontSize: '0.78rem', padding: '4px 8px' }}>
+              {filteredParents.length} STUDENTS FOUND
+            </span>
+          </div>
+        </div>
+
+        <div className="table-responsive">
  <table className="sa-schools-table">
  <thead>
  <tr>
@@ -2668,21 +2996,39 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <th style={{ minWidth: '120px' }}>Relationship</th>
  <th style={{ minWidth: '140px' }}>Phone Number</th>
  <th style={{ minWidth: '180px' }}>Contact Email</th>
- <th style={{ minWidth: '170px' }}>Linked Ward (Student)</th>
+ <th style={{ minWidth: '170px' }}>Linked Ward (Student & Class)</th>
  <th style={{ minWidth: '130px', textAlign: 'right' }}>Actions</th>
  </tr>
  </thead>
  <tbody>
- {data.parents.map((p) => (
+ {filteredParents.length === 0 ? (
+ <tr>
+ <td colSpan="6" style={{ textAlign: 'center', padding: '36px', color: '#64748b' }}>
+ <div style={{ fontSize: '1.5rem', marginBottom: '6px' }}>🔍</div>
+ <strong>No parent records found for the selected Class filter.</strong>
+ </td>
+ </tr>
+ ) : (
+ filteredParents.map((p) => {
+ const linkedStudent = studentList.find(s => s.roll === p.studentRoll || s.name === p.studentName);
+ const sClass = linkedStudent ? linkedStudent.class : (p.class || 'Grade 10-A');
+ return (
  <tr key={p.id}>
  <td data-label="Parent Name"><strong>{p.name}</strong></td>
- <td data-label="Relationship"><span className="badge badge-purple">{p.relationship || 'Guardian'}</span></td>
+ <td data-label="Relationship">
+ <span className={`badge ${p.relationship === 'Father' ? 'badge-primary' : p.relationship === 'Mother' ? 'badge-indigo' : 'badge-purple'}`}>
+ {p.relationship || 'Parent'}
+ </span>
+ </td>
  <td data-label="Phone Number"><span style={{ fontWeight: 600, color: 'var(--color-text-dark)' }}>{p.phone}</span></td>
  <td data-label="Contact Email">{p.email}</td>
  <td data-label="Linked Ward">
  <div className="school-meta-line">
  <strong>{p.studentName}</strong>
+ <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '2px' }}>
+ <span className="badge badge-info" style={{ fontSize: '0.72rem' }}>{sClass}</span>
  <small>Roll: {p.studentRoll}</small>
+ </div>
  </div>
  </td>
  <td data-label="Actions" style={{ textAlign: 'right' }}>
@@ -2694,64 +3040,156 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </td>
  </tr>
- ))}
+ );
+ })
+ )}
  </tbody>
  </table>
  </div>
  </div>
- )}
+ );
+ })()}
+
 
  {/* =================================================================== */}
  {/* 5. MANAGE CLASSES (manage-classes with full period grid & work modal) */}
  {/* =================================================================== */}
  {activeTab === 'manage-classes' && (
  <div>
- <div className="sa-schools-header-bar">
- <div style={{ fontSize: '0.88rem', color: 'var(--color-text-light)', flex: 1, minWidth: '280px' }}>
- Select any classroom card to view teacher assignments and edit weekly period timetables.
+ {/* Header Bar with Class/Section Dropdown and + Add Class Button */}
+ <div
+ className="sa-schools-header-bar"
+ style={{
+ display: 'flex',
+ flexWrap: 'wrap',
+ alignItems: 'center',
+ justifyContent: 'space-between',
+ gap: '14px',
+ background: '#ffffff',
+ border: '1px solid #e2e8f0',
+ borderRadius: '12px',
+ padding: '14px 18px',
+ marginBottom: '20px'
+ }}
+ >
+ <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+ <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+ <span style={{ fontSize: '1.2rem' }}>🏫</span>
+ <label htmlFor="class-section-dropdown" style={{ fontWeight: 800, fontSize: '0.92rem', color: '#1e3a8a' }}>
+ Select Class & Section:
+ </label>
  </div>
+ <select
+ id="class-section-dropdown"
+ value={selectedClassObj.name}
+ onChange={(e) => setSelectedClass(e.target.value)}
+ style={{
+ padding: '8px 16px',
+ borderRadius: '8px',
+ border: '2px solid #2563eb',
+ fontWeight: 800,
+ fontSize: '0.95rem',
+ color: '#1e3a8a',
+ background: '#eff6ff',
+ cursor: 'pointer',
+ minWidth: '180px'
+ }}
+ >
+ {data.classes.map((c) => (
+ <option key={c.name} value={c.name}>
+ {c.name} • Room {c.room} ({c.teacher})
+ </option>
+ ))}
+ </select>
  </div>
 
- {/* Class Cards Selection Grid */}
- <div className="grid-3" style={{ marginBottom: '25px' }}>
- {data.classes.map((c) => {
- const isSelected = c.name === selectedClassObj.name;
- return (
- <div
- key={c.name}
- className="portal-card"
- style={{
- borderLeftColor: isSelected ? 'var(--color-primary)' : 'var(--color-border)',
- background: isSelected ? 'rgba(30,58,138,0.05)' : 'var(--color-bg-white)',
- cursor: 'pointer',
- transition: 'all 0.2s'
- }}
- onClick={() => setSelectedClass(c.name)}
- >
- <div className="portal-card-header">
- <span className="portal-card-title" style={{ color: 'var(--color-primary)' }}>{c.name}</span>
- <span className={`badge ${isSelected ? 'badge-info' : 'badge-success'}`}>Room {c.room}</span>
- </div>
- <p style={{ margin: '4px 0' }}>Class Teacher: <strong>{c.teacher}</strong></p>
- <p style={{ margin: '4px 0' }}>Strength: <strong>{c.strength} Students</strong></p>
- <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
- <span style={{ fontSize: '0.75rem', fontWeight: 700, color: isSelected ? 'var(--color-primary)' : 'var(--color-text-light)' }}>
- {isSelected ? 'Currently Selected' : 'Click to View Timetable'}
- </span>
+ <div style={{ display: 'flex', gap: '8px' }}>
  <button
- className="sa-tbl-action edit"
- style={{ padding: '3px 8px', fontSize: '0.75rem' }}
- onClick={(e) => {
- e.stopPropagation();
- handleOpenClassModal(c);
- }}
+ type="button"
+ className="btn btn-outline btn-sm"
+ onClick={() => handleOpenClassModal(selectedClassObj)}
+ style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
  >
- Edit Class
+ ✏️ Edit This Class
+ </button>
+ <button
+ type="button"
+ className="btn btn-primary btn-sm"
+ onClick={() => handleOpenClassModal()}
+ style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 18px', fontWeight: 700 }}
+ >
+ + Add Class
  </button>
  </div>
  </div>
+
+ {/* Section Switcher Buttons */}
+ <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
+ {data.classes.map((c) => {
+ const isSelected = c.name === selectedClassObj.name;
+ return (
+ <button
+ key={c.name}
+ type="button"
+ className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-outline'}`}
+ onClick={() => setSelectedClass(c.name)}
+ style={{
+ padding: '8px 18px',
+ fontSize: '0.88rem',
+ borderRadius: '10px',
+ display: 'flex',
+ alignItems: 'center',
+ gap: '8px',
+ fontWeight: isSelected ? 800 : 600
+ }}
+ >
+ <span>📚</span>
+ <span>{c.name}</span>
+ <span className="badge" style={{ background: isSelected ? '#ffffff' : '#e2e8f0', color: isSelected ? '#1e3a8a' : '#475569', fontSize: '0.75rem', padding: '2px 6px' }}>
+ Room {c.room}
+ </span>
+ </button>
  );
  })}
+ </div>
+
+ {/* Selected Class Overview Card */}
+ <div
+ style={{
+ display: 'grid',
+ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+ gap: '14px',
+ background: '#f8fafc',
+ border: '1px solid #e2e8f0',
+ borderRadius: '12px',
+ padding: '16px 20px',
+ marginBottom: '20px'
+ }}
+ >
+ <div>
+ <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Selected Section</div>
+ <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#1e3a8a', marginTop: '2px' }}>
+ {selectedClassObj.name}
+ </div>
+ </div>
+ <div>
+ <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Class Teacher</div>
+ <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+ 👩‍🏫 {selectedClassObj.teacher}
+ </div>
+ </div>
+ <div>
+ <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Classroom / Room No</div>
+ <div style={{ fontSize: '1rem', fontWeight: 800, color: '#059669', marginTop: '4px' }}>
+ 🚪 Room {selectedClassObj.room}
+ </div>
+ </div>
+ <div>
+ <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Class Strength</div>
+ <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#2563eb', marginTop: '2px' }}>
+ 👥 {selectedClassObj.strength} Students Enrolled
+ </div>
+ </div>
  </div>
 
  {/* Selected Class Timetable Container */}
@@ -2759,33 +3197,37 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '15px', borderBottom: '1px solid rgba(0,0,0,0.08)', paddingBottom: '12px' }}>
  <div>
  <h3 style={{ color: 'var(--color-primary)', margin: '0 0 4px 0' }}>
- Timetable & Work Assignments &mdash; {selectedClassObj.name}
+ Timetable & Period Schedule &mdash; {selectedClassObj.name}
  </h3>
- <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', fontSize: '0.9rem', color: 'var(--color-text-dark)' }}>
- <span><strong>Class Teacher:</strong> {selectedClassObj.teacher}</span>
- <span><strong>Room No:</strong> {selectedClassObj.room}</span>
- <span><strong>Strength:</strong> {selectedClassObj.strength} Students</span>
+ <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>
+ Weekly academic period allocation and assigned instructors for this section.
+ </p>
  </div>
- </div>
- <small style={{ color: 'var(--color-text-light)' }}>Click any Period slot below to assign/edit Subject & Teacher</small>
+ <button
+ className="btn btn-outline btn-sm"
+ style={{ padding: '6px 14px', fontSize: '0.8rem' }}
+ onClick={() => handleOpenClassModal(selectedClassObj)}
+ >
+ ✏️ Configure Class Details
+ </button>
  </div>
 
  <div className="table-responsive">
  <table className="timetable-grid" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center' }}>
  <thead>
- <tr style={{ background: 'var(--color-bg-light)', borderBottom: '2px solid rgba(30,58,138,0.15)' }}>
- <th style={{ padding: '10px', minWidth: '120px', textAlign: 'left' }}>Time / Period</th>
+ <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
+ <th style={{ padding: '10px', textAlign: 'left', minWidth: '120px' }}>Period / Time</th>
  {days.map((d) => (
- <th key={d} style={{ padding: '10px', minWidth: '110px' }}>{d}</th>
+ <th key={d} style={{ padding: '10px', minWidth: '130px' }}>{d}</th>
  ))}
  </tr>
  </thead>
  <tbody>
  {periods.map((p) => (
- <tr key={p.period} style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
- <td data-label="Period" style={{ padding: '10px', textAlign: 'left', fontWeight: 700, color: 'var(--color-primary)', background: 'rgba(30,58,138,0.02)' }}>
+ <tr key={p.period} style={{ borderBottom: '1px solid #f1f5f9' }}>
+ <td style={{ padding: '10px', textAlign: 'left', fontWeight: 700, background: '#f8fafc', color: 'var(--color-primary)' }}>
  <div>Period {p.period}</div>
- <div style={{ fontSize: '0.72rem', fontWeight: 'normal', color: 'var(--color-text-light)' }}>{p.time}</div>
+ <div style={{ fontSize: '0.72rem', fontWeight: 400, color: '#64748b' }}>{p.time}</div>
  </td>
  {days.map((day) => {
  const slot = classSlots.find((s) => s.day === day && parseInt(s.period) === p.period);
@@ -2793,28 +3235,44 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  return (
  <td key={day} style={{ padding: '6px' }}>
  <div
- style={{ background: 'rgba(37,99,235,0.08)', borderLeft: '3px solid var(--color-primary)', padding: '8px 6px', borderRadius: '4px', textAlign: 'left', cursor: 'pointer' }}
+ style={{
+ background: 'rgba(37, 99, 235, 0.08)',
+ borderLeft: '3px solid var(--color-primary)',
+ borderRadius: '4px',
+ padding: '8px 6px',
+ cursor: 'pointer',
+ transition: 'all 0.15s'
+ }}
  onClick={() => handleOpenAssignWork(selectedClassObj.name, day, p.period)}
- title="Click to Edit Work Assignment"
+ title="Click to modify teacher or subject assignment"
  >
- <div style={{ fontWeight: 700, color: 'var(--color-primary)', fontSize: '0.82rem' }}>{slot.subject}</div>
- <div style={{ fontSize: '0.75rem', color: '#475569' }}> {slot.teacherName}</div>
- </div>
- </td>
- );
- } else {
- return (
- <td key={day} style={{ padding: '6px' }}>
- <div
- style={{ background: 'rgba(0,0,0,0.02)', border: '1px dashed rgba(0,0,0,0.12)', padding: '8px 6px', borderRadius: '4px', textAlign: 'center', color: '#64748b', fontSize: '0.75rem', cursor: 'pointer' }}
- onClick={() => handleOpenAssignWork(selectedClassObj.name, day, p.period)}
- title="Click to Assign Work"
- >
- <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>+ Assign Work</span>
+ <div style={{ fontWeight: 700, color: 'var(--color-primary)', fontSize: '0.88rem' }}>{slot.subject}</div>
+ <div style={{ fontSize: '0.74rem', color: '#475569', marginTop: '2px' }}>{slot.teacherName}</div>
  </div>
  </td>
  );
  }
+ return (
+ <td key={day} style={{ padding: '6px' }}>
+ <button
+ type="button"
+ className="timetable-slot-empty"
+ style={{
+ width: '100%',
+ padding: '12px 6px',
+ border: '1px dashed #cbd5e1',
+ borderRadius: '4px',
+ background: 'none',
+ cursor: 'pointer',
+ color: '#94a3b8',
+ fontSize: '0.78rem'
+ }}
+ onClick={() => handleOpenAssignWork(selectedClassObj.name, day, p.period)}
+ >
+ + Assign
+ </button>
+ </td>
+ );
  })}
  </tr>
  ))}
@@ -2825,18 +3283,39 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
+
  {/* =================================================================== */}
  {/* 6. MANAGE SUBJECTS (manage-subjects) */}
  {/* =================================================================== */}
- {activeTab === 'manage-subjects' && (
+ {activeTab === 'manage-subjects' && (() => {
+ const subjectCategories = ['Tamil', 'English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Social Science'];
+
+ const filteredSubjects = (data.subjects || []).filter((s) => {
+ const q = (subjectSearch || '').toLowerCase();
+ const matchSearch =
+ !q ||
+ (s.name && s.name.toLowerCase().includes(q)) ||
+ (s.code && s.code.toLowerCase().includes(q)) ||
+ (s.teacher && s.teacher.toLowerCase().includes(q)) ||
+ (s.grade && s.grade.toLowerCase().includes(q));
+
+ const matchCategory =
+ subjectCategoryFilter === 'All' ||
+ (s.name && s.name.toLowerCase().includes(subjectCategoryFilter.toLowerCase())) ||
+ (s.code && s.code.toLowerCase().includes(subjectCategoryFilter.toLowerCase()));
+
+ return matchSearch && matchCategory;
+ });
+
+ return (
  <div>
- <div className="sa-schools-header-bar">
+ <div className="sa-schools-header-bar" style={{ marginBottom: '14px' }}>
  <div className="sa-search-wrap" style={{ minWidth: '280px', maxWidth: '440px', flex: 1 }}>
  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
  <input
  type="text"
  className="sa-search-input"
- placeholder="Search subjects or teachers (e.g. Maths, Physics, Priya)..."
+ placeholder="Search subjects or faculty teachers (e.g. Tamil, Physics, Priya)..."
  value={subjectSearch}
  onChange={(e) => setSubjectSearch(e.target.value)}
  />
@@ -2848,6 +3327,73 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
+ {/* Subject Filter Buttons (Tamil, English, Mathematics, Physics, Chemistry...) */}
+ <div
+ style={{
+ display: 'flex',
+ flexWrap: 'wrap',
+ alignItems: 'center',
+ justifyContent: 'space-between',
+ gap: '12px',
+ background: '#f8fafc',
+ border: '1px solid #e2e8f0',
+ borderRadius: '12px',
+ padding: '12px 16px',
+ marginBottom: '18px'
+ }}
+ >
+ <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+ <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#475569', display: 'flex', alignItems: 'center', gap: '4px' }}>
+ 📖 <span>Subjects:</span>
+ </span>
+ <button
+ type="button"
+ className={`btn btn-sm ${subjectCategoryFilter === 'All' ? 'btn-primary' : 'btn-outline'}`}
+ onClick={() => setSubjectCategoryFilter('All')}
+ style={{ padding: '4px 14px', fontSize: '0.82rem', borderRadius: '20px' }}
+ >
+ All Subjects
+ </button>
+ {subjectCategories.map((subName) => (
+ <button
+ key={subName}
+ type="button"
+ className={`btn btn-sm ${subjectCategoryFilter === subName ? 'btn-primary' : 'btn-outline'}`}
+ onClick={() => setSubjectCategoryFilter(subName)}
+ style={{ padding: '4px 14px', fontSize: '0.82rem', borderRadius: '20px' }}
+ >
+ {subName}
+ </button>
+ ))}
+ </div>
+
+ <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+ {(subjectCategoryFilter !== 'All' || subjectSearch) && (
+ <button
+ type="button"
+ onClick={() => {
+ setSubjectCategoryFilter('All');
+ setSubjectSearch('');
+ }}
+ style={{
+ background: 'none',
+ border: 'none',
+ color: '#dc2626',
+ fontSize: '0.8rem',
+ fontWeight: 700,
+ cursor: 'pointer',
+ padding: '4px 8px'
+ }}
+ >
+ Reset Filter ✕
+ </button>
+ )}
+ <span className="badge badge-info" style={{ fontSize: '0.78rem', padding: '4px 8px' }}>
+ {filteredSubjects.length} Courses Found
+ </span>
+ </div>
+ </div>
+
  <div className="table-responsive">
  <table className="sa-schools-table">
  <thead>
@@ -2855,25 +3401,22 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <th style={{ minWidth: '95px' }}>Course Code</th>
  <th style={{ minWidth: '180px' }}>Subject Title</th>
  <th style={{ minWidth: '110px' }}>Class / Grade</th>
- <th style={{ minWidth: '220px' }}>Assigned Faculty (Staff)</th>
+ <th style={{ minWidth: '240px' }}>Assigned Faculty & Details</th>
  <th style={{ minWidth: '110px', textAlign: 'center' }}>Periods / Wk</th>
  <th style={{ minWidth: '110px' }}>Classroom / Lab</th>
  <th style={{ minWidth: '110px', textAlign: 'center' }}>Action</th>
  </tr>
  </thead>
  <tbody>
- {(data.subjects || [])
- .filter((s) => {
- const q = (subjectSearch || '').toLowerCase();
- return (
- (s.name && s.name.toLowerCase().includes(q)) ||
- (s.code && s.code.toLowerCase().includes(q)) ||
- (s.teacher && s.teacher.toLowerCase().includes(q)) ||
- (s.grade && s.grade.toLowerCase().includes(q))
- );
- })
- .map((s) => {
- // Match staff to show their phone or email if available
+ {filteredSubjects.length === 0 ? (
+ <tr>
+ <td colSpan="7" style={{ textAlign: 'center', padding: '36px', color: '#64748b' }}>
+ <div style={{ fontSize: '1.5rem', marginBottom: '6px' }}>🔍</div>
+ <strong>No subjects found for the selected filter.</strong>
+ </td>
+ </tr>
+ ) : (
+ filteredSubjects.map((s) => {
  const staffObj = (data.teachers || []).find((t) => t.name === s.teacher) ||
  (data.principals || []).find((p) => p.name === s.teacher);
  return (
@@ -2887,13 +3430,13 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </td>
  <td data-label="Assigned Faculty">
  <div
- style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+ style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
  onClick={() => setSelectedStaffSchedule(s.teacher)}
- title={`Click to view ${s.teacher}'s weekly timetable`}
+ title={`Click to view ${s.teacher}'s complete schedule`}
  >
  <div style={{
- width: '32px',
- height: '32px',
+ width: '36px',
+ height: '36px',
  borderRadius: '50%',
  background: '#e0e7ff',
  color: '#3730a3',
@@ -2901,40 +3444,29 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  alignItems: 'center',
  justifyContent: 'center',
  fontWeight: 800,
- fontSize: '0.8rem',
+ fontSize: '0.95rem',
  flexShrink: 0
  }}>
- {s.teacher ? s.teacher.charAt(0).toUpperCase() : 'T'}
+ {s.teacher.charAt(s.teacher.indexOf(' ') + 1) || s.teacher.charAt(0)}
  </div>
  <div>
- <strong style={{ color: 'var(--color-primary)', display: 'block', fontSize: '0.88rem', textDecoration: 'underline dotted' }}>
- {s.teacher} 
- </strong>
- <span style={{ fontSize: '0.74rem', color: '#64748b' }}>
- {staffObj ? `${staffObj.subject || 'Faculty'} • ${staffObj.phone || ''}` : 'Faculty Instructor'}
- </span>
+ <div style={{ fontWeight: 800, color: '#1e3a8a', fontSize: '0.88rem' }}>
+ 👩‍🏫 {s.teacher}
+ </div>
+ <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>
+ 📞 {staffObj ? staffObj.phone : '+91 98401 23450'} • {staffObj ? (staffObj.subject || 'Faculty') : 'Instructor'}
+ </div>
  </div>
  </div>
  </td>
  <td data-label="Periods / Wk" style={{ textAlign: 'center' }}>
- <span className="badge badge-purple" style={{ fontWeight: 700 }}>
- {s.periodsPerWeek || 5} Periods
- </span>
+ <span className="badge badge-purple">{s.periodsPerWeek || 5} Periods</span>
  </td>
  <td data-label="Classroom / Lab">
- <span style={{ fontWeight: 600, color: '#334155', fontSize: '0.85rem' }}>
- {s.room || 'A-102'}
- </span>
+ <span style={{ fontWeight: 600, color: 'var(--color-text-dark)' }}>{s.room || 'A-102'}</span>
  </td>
  <td data-label="Action" style={{ textAlign: 'center' }}>
- <div className="sa-actions-cell" style={{ justifyContent: 'center', gap: '6px' }}>
- <button
- className="sa-tbl-action view"
- onClick={() => setSelectedStaffSchedule(s.teacher)}
- title="View this Staff's Weekly Timetable"
- >
- Schedule
- </button>
+ <div className="sa-actions-cell" style={{ justifyContent: 'center' }}>
  <button className="sa-tbl-action edit" onClick={() => handleOpenSubjectModal(s)}>
  Edit
  </button>
@@ -2942,12 +3474,15 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </td>
  </tr>
  );
- })}
+ })
+ )}
  </tbody>
  </table>
  </div>
  </div>
- )}
+ );
+ })()}
+
 
  {/* =================================================================== */}
  {/* FEE MANAGEMENT: FEE COLLECTION & DUE TRACKER (fee-collection-tracker) */}
@@ -4817,7 +5352,531 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  )}
 
  {/* 11. Feedback Modal */}
- {feedback && (
+
+  {/* Add / Edit Student Profile Modal */}
+  {isStudentModalOpen && (
+    <div className="modal-overlay" style={{ display: 'flex' }}>
+      <div className="modal-content wizard-modal-lg" style={{ maxWidth: '680px' }}>
+        <div className="modal-header">
+          <h3>{editingStudent ? 'Edit Student Profile' : 'Enroll New Student'}</h3>
+          <button className="modal-close" onClick={() => setIsStudentModalOpen(false)}>&times;</button>
+        </div>
+        <form onSubmit={handleSaveStudent}>
+          <div className="wizard-form-box">
+            <div className="wizard-header-strip">
+              <div className="wizard-header-icon" style={{ background: 'rgba(30, 58, 138, 0.08)', color: 'var(--color-primary)' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+              </div>
+              <div className="wizard-header-titles">
+                <h4>{editingStudent ? 'Update Student Record' : 'Student Admission & Enrollment'}</h4>
+                <p>Enter the student personal details, assigned class section, and guardian contact.</p>
+              </div>
+            </div>
+
+            <div className="wizard-grid-2">
+              <div className="wizard-field">
+                <label>Roll Number <span className="req">*</span></label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. S101"
+                  value={studentForm.roll}
+                  onChange={(e) => setStudentForm({ ...studentForm, roll: e.target.value })}
+                />
+              </div>
+
+              <div className="wizard-field">
+                <label>Register Number (Reg No) <span className="req">*</span></label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. REG-SSV-101"
+                  value={studentForm.regNo}
+                  onChange={(e) => setStudentForm({ ...studentForm, regNo: e.target.value })}
+                />
+              </div>
+
+              <div className="wizard-field span-2">
+                <label>Student Full Name <span className="req">*</span></label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Aishwarya Kumar"
+                  value={studentForm.name}
+                  onChange={(e) => setStudentForm({ ...studentForm, name: e.target.value })}
+                />
+              </div>
+
+              <div className="wizard-field">
+                <label>Class & Section <span className="req">*</span></label>
+                <select
+                  value={studentForm.class}
+                  onChange={(e) => setStudentForm({ ...studentForm, class: e.target.value })}
+                >
+                  <option value="Grade 6-A">Grade 6-A</option>
+                  <option value="Grade 6-B">Grade 6-B</option>
+                  <option value="Grade 7-A">Grade 7-A</option>
+                  <option value="Grade 7-B">Grade 7-B</option>
+                  <option value="Grade 8-A">Grade 8-A</option>
+                  <option value="Grade 8-B">Grade 8-B</option>
+                  <option value="Grade 9-A">Grade 9-A</option>
+                  <option value="Grade 9-B">Grade 9-B</option>
+                  <option value="Grade 10-A">Grade 10-A</option>
+                  <option value="Grade 10-B">Grade 10-B</option>
+                  <option value="Grade 11-A">Grade 11-A</option>
+                  <option value="Grade 11-B">Grade 11-B</option>
+                  <option value="Grade 12-A">Grade 12-A</option>
+                  <option value="Grade 12-B">Grade 12-B</option>
+                </select>
+              </div>
+
+              <div className="wizard-field">
+                <label>Gender <span className="req">*</span></label>
+                <select
+                  value={studentForm.gender}
+                  onChange={(e) => setStudentForm({ ...studentForm, gender: e.target.value })}
+                >
+                  <option value="Female">Female</option>
+                  <option value="Male">Male</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div className="wizard-field">
+                <label>Date of Birth <span className="req">*</span></label>
+                <input
+                  type="date"
+                  required
+                  value={studentForm.dob}
+                  onChange={(e) => setStudentForm({ ...studentForm, dob: e.target.value })}
+                />
+              </div>
+
+              <div className="wizard-field">
+                <label>Blood Group <span className="req">*</span></label>
+                <select
+                  value={studentForm.bloodGroup}
+                  onChange={(e) => setStudentForm({ ...studentForm, bloodGroup: e.target.value })}
+                >
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                </select>
+              </div>
+
+              <div className="wizard-field">
+                <label>Parent / Guardian Name <span className="req">*</span></label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Ramesh Kumar (Father)"
+                  value={studentForm.parentName}
+                  onChange={(e) => setStudentForm({ ...studentForm, parentName: e.target.value })}
+                />
+              </div>
+
+              <div className="wizard-field">
+                <label>Parent Contact Phone <span className="req">*</span></label>
+                <input
+                  type="text"
+                  required
+                  placeholder="+91 98456 12301"
+                  value={studentForm.parentPhone}
+                  onChange={(e) => setStudentForm({ ...studentForm, parentPhone: e.target.value })}
+                />
+              </div>
+
+              <div className="wizard-field">
+                <label>Parent Email Address</label>
+                <input
+                  type="email"
+                  placeholder="parent@gmail.com"
+                  value={studentForm.parentEmail}
+                  onChange={(e) => setStudentForm({ ...studentForm, parentEmail: e.target.value })}
+                />
+              </div>
+
+              <div className="wizard-field">
+                <label>Emergency Contact Phone</label>
+                <input
+                  type="text"
+                  placeholder="+91 98456 12301"
+                  value={studentForm.emergencyContact}
+                  onChange={(e) => setStudentForm({ ...studentForm, emergencyContact: e.target.value })}
+                />
+              </div>
+
+              <div className="wizard-field span-2">
+                <label>Residential Address</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 24, South Mada Street, Mylapore, Chennai - 600004"
+                  value={studentForm.address}
+                  onChange={(e) => setStudentForm({ ...studentForm, address: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+            <button type="button" className="btn btn-outline btn-sm" onClick={() => setIsStudentModalOpen(false)}>Cancel</button>
+            <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>
+              {editingStudent ? 'Save Changes' : 'Enroll Student'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+
+  {/* Student Exam Marks Modal */}
+  {marksStudent && (
+    <div className="modal-overlay" style={{ display: 'flex' }}>
+      <div className="modal-content wizard-modal-lg" style={{ maxWidth: '600px' }}>
+        <div className="modal-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '1.3rem' }}>📝</span>
+            <div>
+              <h3 style={{ margin: 0 }}>Exam Marks & Assessment</h3>
+              <small style={{ color: '#64748b' }}>{marksStudent.name} (Roll: {marksStudent.roll}) • {marksStudent.class}</small>
+            </div>
+          </div>
+          <button className="modal-close" onClick={() => setMarksStudent(null)}>&times;</button>
+        </div>
+        <form onSubmit={handleSaveMarks} style={{ padding: '20px' }}>
+          <p style={{ fontSize: '0.86rem', color: '#475569', marginBottom: '16px' }}>
+            Enter marks scored out of 100 for each subject. Type <strong>AB</strong> if student was absent.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' }}>
+            {['Mathematics', 'Physics', 'Chemistry', 'Tamil', 'English'].map((sub) => (
+              <div key={sub} className="wizard-field">
+                <label>{sub} (Max 100)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 85 or AB"
+                  value={marksInputs[sub] !== undefined ? marksInputs[sub] : ''}
+                  onChange={(e) => setMarksInputs({ ...marksInputs, [sub]: e.target.value })}
+                  style={{ fontWeight: 700 }}
+                />
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+            <button type="button" className="btn btn-outline btn-sm" onClick={() => setMarksStudent(null)}>Cancel</button>
+            <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>
+              Save Marks
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+
+  {/* Add / Edit Class Modal */}
+  {isClassModalOpen && (
+    <div className="modal-overlay" style={{ display: 'flex' }}>
+      <div className="modal-content wizard-modal-lg" style={{ maxWidth: '580px' }}>
+        <div className="modal-header">
+          <h3>{editingClass ? 'Edit Classroom Section' : 'Create New Classroom'}</h3>
+          <button className="modal-close" onClick={() => setIsClassModalOpen(false)}>&times;</button>
+        </div>
+        <form onSubmit={handleSaveClass}>
+          <div className="wizard-form-box">
+            <div className="wizard-header-strip">
+              <div className="wizard-header-icon" style={{ background: 'rgba(30, 58, 138, 0.08)', color: 'var(--color-primary)' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+              </div>
+              <div className="wizard-header-titles">
+                <h4>{editingClass ? 'Update Class Details' : 'New Classroom Section'}</h4>
+                <p>Configure classroom name, designated class teacher, room number and student capacity.</p>
+              </div>
+            </div>
+
+            <div className="wizard-grid-2">
+              <div className="wizard-field">
+                <label>Class Name & Section <span className="req">*</span></label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Grade 10-B"
+                  value={classForm.name}
+                  onChange={(e) => setClassForm({ ...classForm, name: e.target.value })}
+                />
+              </div>
+
+              <div className="wizard-field">
+                <label>Assigned Room Number <span className="req">*</span></label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. A-104"
+                  value={classForm.room}
+                  onChange={(e) => setClassForm({ ...classForm, room: e.target.value })}
+                />
+              </div>
+
+              <div className="wizard-field span-2">
+                <label>Class Teacher <span className="req">*</span></label>
+                <select
+                  value={classForm.teacher}
+                  onChange={(e) => setClassForm({ ...classForm, teacher: e.target.value })}
+                  required
+                >
+                  <option value="">-- Choose Assigned Class Teacher --</option>
+                  {(data.teachers || []).map((t) => (
+                    <option key={t.id} value={t.name}>
+                      {t.name} • {t.subject}
+                    </option>
+                  ))}
+                  {(data.principals || []).map((p) => (
+                    <option key={p.id} value={p.name}>
+                      {p.name} (Principal)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="wizard-field span-2">
+                <label>Total Student Capacity / Strength</label>
+                <input
+                  type="number"
+                  placeholder="38"
+                  value={classForm.strength}
+                  onChange={(e) => setClassForm({ ...classForm, strength: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+            <button type="button" className="btn btn-outline btn-sm" onClick={() => setIsClassModalOpen(false)}>Cancel</button>
+            <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>
+              {editingClass ? 'Save Changes' : 'Create Class'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+
+  {/* Add / Edit Subject Modal */}
+  {isSubjectModalOpen && (
+    <div className="modal-overlay" style={{ display: 'flex' }}>
+      <div className="modal-content wizard-modal-lg" style={{ maxWidth: '580px' }}>
+        <div className="modal-header">
+          <h3>{editingSubject ? 'Edit Subject Course' : 'Add Academic Subject'}</h3>
+          <button className="modal-close" onClick={() => setIsSubjectModalOpen(false)}>&times;</button>
+        </div>
+        <form onSubmit={handleSaveSubject}>
+          <div className="wizard-form-box">
+            <div className="wizard-header-strip">
+              <div className="wizard-header-icon" style={{ background: 'rgba(30, 58, 138, 0.08)', color: 'var(--color-primary)' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
+              </div>
+              <div className="wizard-header-titles">
+                <h4>{editingSubject ? 'Update Subject Course' : 'Create Academic Course'}</h4>
+                <p>Assign course code, subject title, teacher in charge and weekly period count.</p>
+              </div>
+            </div>
+
+            <div className="wizard-grid-2">
+              <div className="wizard-field">
+                <label>Course Code <span className="req">*</span></label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. TAM-10"
+                  value={subjectForm.code}
+                  onChange={(e) => setSubjectForm({ ...subjectForm, code: e.target.value })}
+                />
+              </div>
+
+              <div className="wizard-field">
+                <label>Subject Title <span className="req">*</span></label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Tamil (Language I)"
+                  value={subjectForm.name}
+                  onChange={(e) => setSubjectForm({ ...subjectForm, name: e.target.value })}
+                />
+              </div>
+
+              <div className="wizard-field">
+                <label>Applicable Class / Grade <span className="req">*</span></label>
+                <select
+                  value={subjectForm.grade}
+                  onChange={(e) => setSubjectForm({ ...subjectForm, grade: e.target.value })}
+                >
+                  {data.classes.map((c) => (
+                    <option key={c.name} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="wizard-field">
+                <label>Assigned Faculty / Teacher <span className="req">*</span></label>
+                <select
+                  value={subjectForm.teacher}
+                  onChange={(e) => setSubjectForm({ ...subjectForm, teacher: e.target.value })}
+                  required
+                >
+                  <option value="">-- Choose Faculty Teacher --</option>
+                  {(data.teachers || []).map((t) => (
+                    <option key={t.id} value={t.name}>
+                      {t.name} • {t.subject}
+                    </option>
+                  ))}
+                  {(data.principals || []).map((p) => (
+                    <option key={p.id} value={p.name}>
+                      {p.name} (Principal)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="wizard-field">
+                <label>Periods per Week</label>
+                <input
+                  type="number"
+                  placeholder="5"
+                  value={subjectForm.periodsPerWeek}
+                  onChange={(e) => setSubjectForm({ ...subjectForm, periodsPerWeek: e.target.value })}
+                />
+              </div>
+
+              <div className="wizard-field">
+                <label>Room / Laboratory</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Room A-102 or Bio-Lab"
+                  value={subjectForm.room}
+                  onChange={(e) => setSubjectForm({ ...subjectForm, room: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+            <button type="button" className="btn btn-outline btn-sm" onClick={() => setIsSubjectModalOpen(false)}>Cancel</button>
+            <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>
+              {editingSubject ? 'Save Changes' : 'Save Subject'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+
+ 
+  {/* Assign Period / Subject & Faculty Modal */}
+  {assignWorkSlot && (
+    <div className="modal-overlay" style={{ display: 'flex' }}>
+      <div className="modal-content wizard-modal-lg" style={{ maxWidth: '540px' }}>
+        <div className="modal-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '1.3rem' }}>📅</span>
+            <div>
+              <h3 style={{ margin: 0 }}>Assign Subject & Teacher</h3>
+              <small style={{ color: '#64748b', fontWeight: 600 }}>
+                {assignWorkSlot.className} &bull; {assignWorkSlot.day} Period {assignWorkSlot.period}
+              </small>
+            </div>
+          </div>
+          <button className="modal-close" onClick={() => setAssignWorkSlot(null)}>&times;</button>
+        </div>
+        <form onSubmit={handleSaveAssignWork} style={{ padding: '20px' }}>
+          <div className="wizard-form-box" style={{ marginBottom: 0 }}>
+            <div className="wizard-grid-2">
+              <div className="wizard-field span-2">
+                <label>Classroom Section <span className="req">*</span></label>
+                <select
+                  value={assignWorkForm.className || assignWorkSlot.className}
+                  onChange={(e) => setAssignWorkForm({ ...assignWorkForm, className: e.target.value })}
+                  required
+                >
+                  {data.classes.map((c) => (
+                    <option key={c.name} value={c.name}>{c.name} (Room {c.room})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="wizard-field span-2">
+                <label>Subject / Course <span className="req">*</span></label>
+                <select
+                  value={assignWorkForm.subject}
+                  onChange={(e) => {
+                    const subName = e.target.value;
+                    // Auto-suggest faculty teacher assigned to this subject
+                    const matchedSub = (data.subjects || []).find((s) => s.name === subName);
+                    const suggestedTeacher = matchedSub && matchedSub.teacher ? matchedSub.teacher : assignWorkForm.teacherName;
+                    setAssignWorkForm({
+                      ...assignWorkForm,
+                      subject: subName,
+                      teacherName: assignWorkSlot.lockedTeacher || suggestedTeacher
+                    });
+                  }}
+                  required
+                >
+                  <option value="">-- Choose Subject Course --</option>
+                  {(data.subjects || []).map((s) => (
+                    <option key={s.code} value={s.name}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="wizard-field span-2">
+                <label>Assigned Faculty / Teacher <span className="req">*</span></label>
+                <select
+                  value={assignWorkForm.teacherName}
+                  onChange={(e) => setAssignWorkForm({ ...assignWorkForm, teacherName: e.target.value })}
+                  required
+                >
+                  <option value="">-- Choose Assigned Teacher --</option>
+                  {(data.teachers || []).map((t) => (
+                    <option key={t.id} value={t.name}>
+                      {t.name}
+                    </option>
+                  ))}
+                  {(data.principals || []).map((p) => (
+                    <option key={p.id} value={p.name}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              style={{ color: '#ef4444', borderColor: '#fca5a5' }}
+              onClick={() => handleClearAssignWork(assignWorkSlot.className, assignWorkSlot.day, assignWorkSlot.period)}
+            >
+              Clear Slot
+            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button type="button" className="btn btn-outline btn-sm" onClick={() => setAssignWorkSlot(null)}>Cancel</button>
+              <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '8px 22px' }}>
+                Save Assignment & Live Track
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+
+{feedback && (
  <div className="modal-overlay" style={{ display: 'flex' }}>
  <div className="modal-content" style={{ maxWidth: '440px', textAlign: 'center', padding: '30px 24px' }}>
  <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: '1.8rem' }}>
@@ -5222,20 +6281,21 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <td key={day} style={{ padding: '6px' }}>
  <div
  style={{
- background: '#fafafa',
+ textAlign: 'center',
+ color: '#94a3b8',
+ fontSize: '1.1rem',
+ fontWeight: 700,
+ padding: '8px 6px',
+ background: '#f8fafc',
  border: '1px dashed #cbd5e1',
  borderRadius: '6px',
- padding: '8px 6px',
- color: 'var(--color-primary)',
- fontSize: '0.75rem',
  cursor: 'pointer',
- fontWeight: 600,
  transition: 'all 0.15s ease'
  }}
- onClick={() => handleOpenAssignWork('Grade 10-A', day, p.period, staffName)}
- title="Click to Assign Class to this Staff"
+ onClick={() => handleOpenAssignWork(staffObj ? staffObj.class : 'Grade 10-A', day, p.period, staffName)}
+ title={`Click to Assign Class Period to ${staffName}`}
  >
- + Assign Class
+ -
  </div>
  </td>
  );
