@@ -4,7 +4,7 @@ const SchoolExpense = require('../models/SchoolExpense');
 const PaymentHistory = require('../models/PaymentHistory');
 const { getDBStatus } = require('../config/db');
 
-// In-memory fallback stores if MongoDB is not running or disconnected
+
 let memoryStudentBills = [
   {
     _id: 'bill_001',
@@ -241,7 +241,7 @@ let memoryStudentBills = [
 ];
 
 let memoryStaffSalaries = [
-  // Teaching Staff
+  
   {
     _id: 'sal_001',
     salarySlipNo: 'SLIP-2026-10-01',
@@ -336,7 +336,7 @@ let memoryStaffSalaries = [
     remarks: 'Awaiting end of month payroll batch run'
   },
 
-  // Non-Teaching Staff (Transport Drivers, Cleaning Workers, Hostel Wardens)
+  
   {
     _id: 'sal_nt_001',
     salarySlipNo: 'SLIP-2026-10-04',
@@ -606,7 +606,7 @@ let memoryPaymentHistory = [
   }
 ];
 
-// Helper to determine payment status of a bill
+
 const calculateBillStatus = (totalFees, paidAmount, dueDate) => {
   if (paidAmount >= totalFees) return 'Paid';
   if (paidAmount > 0 && paidAmount < totalFees) return 'Partially Paid';
@@ -620,9 +620,9 @@ const calculateBillStatus = (totalFees, paidAmount, dueDate) => {
   return 'Unpaid';
 };
 
-// ==========================================
-// 1. DASHBOARD OVERVIEW & METRICS
-// ==========================================
+
+
+
 exports.getDashboardSummary = async (req, res) => {
   try {
     const { academicYear, month, class: gradeFilter, section: secFilter } = req.query;
@@ -645,7 +645,7 @@ exports.getDashboardSummary = async (req, res) => {
       payments = [...memoryPaymentHistory];
     }
 
-    // Apply filters if passed
+    
     if (academicYear && academicYear !== 'All') {
       studentBills = studentBills.filter(b => b.academicYear === academicYear);
     }
@@ -660,7 +660,7 @@ exports.getDashboardSummary = async (req, res) => {
       studentBills = studentBills.filter(b => b.section === secFilter);
     }
 
-    // Aggregations
+    
     const totalStudentFees = studentBills.reduce((acc, b) => acc + (Number(b.totalFees) || 0), 0);
     const totalFeesCollected = studentBills.reduce((acc, b) => acc + (Number(b.paidAmount) || 0), 0);
     const totalPendingStudentFees = studentBills.reduce((acc, b) => acc + (Number(b.pendingAmount) || 0), 0);
@@ -676,7 +676,7 @@ exports.getDashboardSummary = async (req, res) => {
     const totalIncome = totalFeesCollected;
     const totalOutstandingPayments = totalPendingStudentFees + totalSalaryPending + totalExpensesPending;
 
-    // Monthly Trends for Charts
+    
     const months = ['June', 'July', 'August', 'September', 'October', 'November'];
     const monthlyIncomeData = months.map(m => {
       const matchBills = studentBills.filter(b => b.billingMonth === m);
@@ -688,7 +688,7 @@ exports.getDashboardSummary = async (req, res) => {
       return { month: m, salary: matchSal || (m === 'October' ? totalSalaryPaid : 140000), expenses: m === 'October' ? totalExpensesPaid : 75000 };
     });
 
-    // Expenses Breakdown By Category
+    
     const categoryTotals = {};
     expenses.forEach(e => {
       const cat = e.expenseCategory || 'Other Expenses';
@@ -728,9 +728,9 @@ exports.getDashboardSummary = async (req, res) => {
   }
 };
 
-// ==========================================
-// 2. STUDENT BILLING CRUD & PAYMENT
-// ==========================================
+
+
+
 exports.getStudentBills = async (req, res) => {
   try {
     const isMongo = getDBStatus();
@@ -749,13 +749,13 @@ exports.getStudentBills = async (req, res) => {
       bills = bills.filter(b => (b.grade || '').toLowerCase().includes(grade.toLowerCase()));
     }
 
-    // Role-specific auto-filtering if logged in as student or parent
+    
     if (userRole === 'student') {
-      // If student user has an associated roll or studentId, filter to their own record
+      
       const sRoll = req.user?.studentRoll || req.user?.roll || 'S101';
       bills = bills.filter(b => b.studentId === sRoll || b.rollNo === sRoll);
     } else if (userRole === 'parent') {
-      // If parent has an associated studentRoll or studentName
+      
       const sRoll = req.user?.studentRoll || 'S101';
       const sName = (req.user?.studentName || '').toLowerCase();
       bills = bills.filter(b => b.studentId === sRoll || b.rollNo === sRoll || (sName && (b.studentName || '').toLowerCase().includes(sName)));
@@ -788,7 +788,7 @@ exports.createStudentBill = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Student Name, Grade, and at least one Fee Item are required.' });
     }
 
-    // Calculate sum of fee items
+    
     const parsedItems = feeItems.map(item => {
       const amt = Number(item.amount) || 0;
       const disc = Number(item.discount) || 0;
@@ -847,7 +847,7 @@ exports.createStudentBill = async (req, res) => {
       memoryStudentBills.unshift(createdBill);
     }
 
-    // If an initial payment was recorded at time of bill creation
+    
     if (paidAmount > 0) {
       const txn = {
         transactionId: `TXN-${Date.now()}`,
@@ -882,7 +882,7 @@ exports.updateStudentBill = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    // Recalculate totals if fee items changed
+    
     if (updateData.feeItems && Array.isArray(updateData.feeItems)) {
       let itemPaidTotal = 0;
       let hasExplicitItemStatus = false;
@@ -966,7 +966,7 @@ exports.recordStudentFeePayment = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Bill record not found' });
     }
 
-    // Validation: prevent overpayment exceeding pending amount
+    
     if (payAmt > bill.pendingAmount) {
       return res.status(400).json({
         success: false,
@@ -987,7 +987,7 @@ exports.recordStudentFeePayment = async (req, res) => {
       await bill.save();
     }
 
-    // Create payment transaction history
+    
     const txn = {
       transactionId: `TXN-${Date.now()}`,
       schoolId: bill.schoolId,
@@ -1016,9 +1016,9 @@ exports.recordStudentFeePayment = async (req, res) => {
   }
 };
 
-// ==========================================
-// 3. STAFF SALARY MANAGEMENT CRUD & PAYMENT
-// ==========================================
+
+
+
 exports.getStaffSalaries = async (req, res) => {
   try {
     const isMongo = getDBStatus();
@@ -1059,7 +1059,7 @@ exports.generateStaffSalary = async (req, res) => {
     const yr = Number(salaryYear);
     const sid = staffId || `STF-${Date.now().toString().slice(-4)}`;
 
-    // Duplicate check: Prevent duplicate salary generation for the same staff member in same month & year
+    
     if (getDBStatus()) {
       const exists = await StaffSalary.findOne({ staffId: sid, salaryMonth, salaryYear: yr });
       if (exists) {
@@ -1174,7 +1174,7 @@ exports.updateStaffSalary = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    // Recalculate salary
+    
     const b = Number(updateData.basicSalary != null ? updateData.basicSalary : 0);
     const h = Number(updateData.hra || 0);
     const a = Number(updateData.allowances || 0);
@@ -1284,9 +1284,9 @@ exports.recordStaffSalaryPayment = async (req, res) => {
   }
 };
 
-// ==========================================
-// 4. SCHOOL EXPENSES CRUD & PAYMENT
-// ==========================================
+
+
+
 exports.getSchoolExpenses = async (req, res) => {
   try {
     const isMongo = getDBStatus();
@@ -1496,9 +1496,9 @@ exports.recordSchoolExpensePayment = async (req, res) => {
   }
 };
 
-// ==========================================
-// 5. PAYMENT HISTORY & AUDIT LOGS
-// ==========================================
+
+
+
 exports.getPaymentHistory = async (req, res) => {
   try {
     const { type, search, startDate, endDate } = req.query;
@@ -1529,9 +1529,9 @@ exports.getPaymentHistory = async (req, res) => {
   }
 };
 
-// ==========================================
-// 6. BULK EXCEL IMPORT HANDLERS
-// ==========================================
+
+
+
 exports.bulkImportStudentBills = async (req, res) => {
   try {
     const { items } = req.body;

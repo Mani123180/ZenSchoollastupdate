@@ -8,7 +8,7 @@ let memPlans = [...initialPlans];
 let memSubscriptions = [...initialSubscriptions];
 let memBills = [...initialBills];
 
-// Plans
+
 const getPlans = async (req, res) => {
   try {
     if (getDBStatus()) {
@@ -52,7 +52,7 @@ const createPlan = async (req, res) => {
   }
 };
 
-// Subscriptions
+
 const getSubscriptions = async (req, res) => {
   try {
     if (getDBStatus()) {
@@ -96,7 +96,7 @@ const createSubscription = async (req, res) => {
     }
     memSubscriptions.unshift(newSub);
 
-    // Also auto-generate an invoice in Bills!
+    
     const invoiceNo = `INV-2026-${Math.floor(100 + Math.random() * 900)}`;
     const newBill = {
       invoiceNo,
@@ -118,7 +118,7 @@ const createSubscription = async (req, res) => {
   }
 };
 
-// Bills
+
 const getBills = async (req, res) => {
   try {
     if (getDBStatus()) {

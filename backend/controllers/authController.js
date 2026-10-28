@@ -3,7 +3,7 @@ const User = require('../models/User');
 const { initialUsers } = require('../seed/seedData');
 const { getDBStatus } = require('../config/db');
 
-// Exact 6 Active Portal Users matching the 6 Login Presets
+
 const realPortalUsers = [
   {
     userId: 'USR001',
@@ -79,7 +79,7 @@ const realPortalUsers = [
   },
 ];
 
-// In-memory store for fallback if DB is disconnected
+
 let memUsers = [...realPortalUsers];
 
 const generateToken = (user) => {
@@ -116,7 +116,7 @@ const login = async (req, res) => {
       });
     }
 
-    // Fallback to memUsers if not found in DB or DB disconnected
+    
     if (!foundUser) {
       foundUser = memUsers.find(
         (u) =>
@@ -130,7 +130,7 @@ const login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid username/email or password.' });
     }
 
-    // Verify password
+    
     if (foundUser.password !== password) {
       return res.status(401).json({ success: false, message: 'Invalid username/email or password.' });
     }

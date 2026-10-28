@@ -49,7 +49,7 @@ export default function SuperAdminSecurityView() {
       user: 'Super Admin',
       severity
     };
-    return [newLog, ...securityData.auditLogs].slice(0, 50); // Keep last 50
+    return [newLog, ...securityData.auditLogs].slice(0, 50); 
   };
 
   const toggleLockdown = () => {
@@ -73,7 +73,7 @@ export default function SuperAdminSecurityView() {
     });
   };
 
-  // Modern Premium Styling
+  
   const styles = {
     container: {
       padding: '24px',
@@ -231,7 +231,7 @@ export default function SuperAdminSecurityView() {
       </div>
 
       <div style={styles.cardGrid}>
-        {/* Emergency Lockdown Card */}
+        
         <div style={styles.lockdownCard}>
           <h3 style={{ margin: '0 0 8px 0', color: securityData.lockdownActive ? '#fca5a5' : '#f8fafc', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -247,7 +247,7 @@ export default function SuperAdminSecurityView() {
           </button>
         </div>
 
-        {/* Global Security Policies */}
+        
         <div style={styles.card}>
           <h3 style={{ margin: '0 0 16px 0', fontSize: '1.1rem' }}>Global Security Policies</h3>
           
@@ -284,7 +284,7 @@ export default function SuperAdminSecurityView() {
           </div>
         </div>
 
-        {/* Access Control & MFA */}
+        
         <div style={styles.card}>
           <h3 style={{ margin: '0 0 16px 0', fontSize: '1.1rem' }}>Role-Based MFA Enforcement</h3>
           <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: '0 0 16px 0' }}>
@@ -307,7 +307,7 @@ export default function SuperAdminSecurityView() {
         </div>
       </div>
 
-      {/* Security Audit Trail */}
+      
       <div style={styles.card}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ margin: '0', fontSize: '1.1rem' }}>Live Security Telemetry</h3>

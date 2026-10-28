@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   const [demoAccounts, setDemoAccounts] = useState([]);
 
   useEffect(() => {
-    // Load demo accounts list for easy role testing
+    
     api.getDemoAccounts()
       .then((data) => {
         if (data.success) {
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const impersonate = (targetUser) => {
-    // Save original super admin for exit masquerade
+    
     const originalAdmin = localStorage.getItem('originalAdmin') || JSON.stringify(user);
     localStorage.setItem('originalAdmin', originalAdmin);
     setUser(targetUser);

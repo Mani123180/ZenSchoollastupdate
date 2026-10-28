@@ -11,7 +11,7 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // Exact demo credentials matching login.html lines 176-183
+  
   const demoCredentials = {
     superadmin: {
       label: 'Super Admin',
@@ -83,7 +83,7 @@ export default function Login() {
   return (
     <div className="login-wrapper">
       <div className="login-container">
-        {/* Login Header matching login.html lines 138-142 */}
+        
         <div className="login-header" style={{ background: '#ffffff', borderBottom: '2px solid #e2e8f0', padding: '18px 16px', display: 'flex', justifyContent: 'center' }}>
           <img
             src="/images/zenschool_logo.png"
@@ -93,7 +93,7 @@ export default function Login() {
           />
         </div>
 
-        {/* Login Body matching login.html lines 143-170 */}
+        
         <div className="login-body">
           {error && (
             <div className="error-msg" style={{ display: 'block', padding: '8px 12px', fontSize: '0.82rem', marginBottom: '10px' }}>
@@ -101,7 +101,7 @@ export default function Login() {
             </div>
           )}
 
-          {/* Quick Demo Presets matching login.html lines 146-156 */}
+          
           <div
             className="demo-login-box"
             style={{

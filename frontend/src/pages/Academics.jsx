@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 export default function Academics() {
   return (
     <>
-      {/* Banner Section */}
+      
       <section className="hero" style={{ padding: '80px 0' }}>
         <div className="container hero-content">
           <h1 className="hero-title" style={{ fontSize: '2.8rem', marginBottom: '12px' }}>
@@ -16,7 +16,7 @@ export default function Academics() {
         </div>
       </section>
 
-      {/* High School Overview */}
+      
       <section className="section section-bg">
         <div className="container grid-2" style={{ alignItems: 'center' }}>
           <div>
@@ -76,7 +76,7 @@ export default function Academics() {
         </div>
       </section>
 
-      {/* STEM & Lab Focus */}
+      
       <section className="section">
         <div className="container grid-2" style={{ alignItems: 'center' }}>
           <div>
@@ -128,7 +128,7 @@ export default function Academics() {
         </div>
       </section>
 
-      {/* Counseling Section */}
+      
       <section className="section section-bg">
         <div className="container" style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
           <span className="badge badge-secondary" style={{ marginBottom: '14px' }}>Future Preparation</span>

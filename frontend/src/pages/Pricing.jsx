@@ -63,7 +63,7 @@ export default function Pricing() {
 
   return (
     <div className="landing-wrapper">
-      {/* Hero Section */}
+      
       <section className="landing-hero" style={{ background: '#ffffff', padding: '60px 20px 40px', textAlign: 'center' }}>
         <span className="badge-pricing-title" style={{ background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', padding: '6px 16px', borderRadius: '20px', fontWeight: 800, fontSize: '0.85rem' }}>
           Pricing Plans
@@ -76,7 +76,7 @@ export default function Pricing() {
         </p>
       </section>
 
-      {/* Pricing Cards Grid */}
+      
       <section className="landing-section" style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '28px', alignItems: 'stretch' }}>
           {plans.map((p, idx) => (
@@ -155,7 +155,7 @@ export default function Pricing() {
           ))}
         </div>
 
-        {/* FAQ Section inside Pricing */}
+        
         <div style={{ marginTop: '70px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '40px 32px' }}>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0f172a', marginBottom: '8px', textAlign: 'center' }}>
             Frequently Asked Billing Questions

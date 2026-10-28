@@ -3,7 +3,7 @@ const User = require('../models/User');
 const { initialMessages, initialUsers } = require('../seed/seedData');
 const { getDBStatus } = require('../config/db');
 
-// Exact 6 Active Portal Users matching the 6 Login Buttons
+
 const realPortalUsers = [
   {
     userId: 'USR001',
@@ -69,7 +69,7 @@ const realPortalUsers = [
 
 let memMessages = [...initialMessages];
 
-// Helper to normalize user identifiers (e.g. USR-ADM -> USR002, USR-TCH -> USR004)
+
 const normalizeId = (id) => {
   if (!id) return id;
   const map = {
@@ -85,10 +85,10 @@ const normalizeId = (id) => {
 
 const { memUsers } = require('./userController');
 
-// In-memory active presence tracker: userId -> timestamp of last heartbeat
+
 const activeUserPresence = new Map();
 
-// Helper to check if a user is online (heartbeat received within last 12 seconds)
+
 const isUserOnline = (userId) => {
   const norm = normalizeId(userId);
   const lastSeen = activeUserPresence.get(norm);
@@ -96,7 +96,7 @@ const isUserOnline = (userId) => {
   return Date.now() - lastSeen < 12000;
 };
 
-// Heartbeat endpoint called by logged-in users
+
 const heartbeat = async (req, res) => {
   try {
     const rawUserId = req.user ? (req.user.userId || req.user.id) : null;
@@ -104,7 +104,7 @@ const heartbeat = async (req, res) => {
     if (currentUserId) {
       activeUserPresence.set(currentUserId, Date.now());
 
-      // If user is online, mark messages sent TO this user as delivered
+      
       memMessages.forEach((m) => {
         if (normalizeId(m.receiverId) === currentUserId && !m.delivered) {
           m.delivered = true;
@@ -122,7 +122,7 @@ const heartbeat = async (req, res) => {
             { $set: { lastActiveAt: new Date() } }
           );
         } catch (e) {
-          // ignore
+          
         }
       }
     }
@@ -140,10 +140,10 @@ const getContacts = async (req, res) => {
       activeUserPresence.set(currentUserId, Date.now());
     }
 
-    // Strict list: Only include users who actually have an active portal dashboard
+    
     const portalUserIds = new Set(realPortalUsers.map((u) => u.userId));
 
-    // Combine predefined real portal users and dynamic memUsers (avoiding duplicate IDs)
+    
     const userMap = new Map();
     realPortalUsers.forEach((u) => {
       const uid = normalizeId(u.userId);
@@ -159,7 +159,7 @@ const getContacts = async (req, res) => {
       });
     });
 
-    // Also include any new users created via Admin dashboard
+    
     if (Array.isArray(memUsers)) {
       memUsers.forEach((u) => {
         const uId = normalizeId(u.userId || u.id);
@@ -180,7 +180,7 @@ const getContacts = async (req, res) => {
 
     allUsers = Array.from(userMap.values());
 
-    // Helper to count unread incoming messages from contact to current logged-in user
+    
     const getUnreadCount = (contactId) => {
       const cId = normalizeId(contactId);
       return memMessages.filter(
@@ -188,7 +188,7 @@ const getContacts = async (req, res) => {
       ).length;
     };
 
-    // Helper to get last message snippet
+    
     const getLastMsg = (contactId) => {
       const cId = normalizeId(contactId);
       const matched = memMessages.filter(
@@ -202,7 +202,7 @@ const getContacts = async (req, res) => {
       return null;
     };
 
-    // Filter out the logged-in user so they don't chat with themselves and attach unread count
+    
     const filteredContacts = allUsers
       .filter((c) => c.id !== currentUserId && c.id !== rawUserId)
       .map((c) => {
@@ -232,7 +232,7 @@ const getMessages = async (req, res) => {
       activeUserPresence.set(currentUserId, Date.now());
     }
 
-    // When the logged in user opens the chat with contactId, mark incoming messages from contactId as delivered AND read!
+    
     if (contactId && currentUserId) {
       memMessages.forEach((m) => {
         const mSender = normalizeId(m.senderId);
@@ -253,7 +253,7 @@ const getMessages = async (req, res) => {
             { $set: { delivered: true, read: true } }
           );
         } catch (e) {
-          // ignore
+          
         }
       }
     }
@@ -316,18 +316,18 @@ const sendMessage = async (req, res) => {
     const currentUserRole = req.user ? req.user.role : 'schooladmin';
     const normalizedReceiverId = normalizeId(receiverId);
 
-    // Keep sender active
+    
     activeUserPresence.set(currentUserId, Date.now());
 
-    // Check if receiver is online right now
+    
     const receiverOnline = isUserOnline(normalizedReceiverId);
 
     const msgId = 'MSG' + String(Date.now()).slice(-4);
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // Single tick if receiver offline (delivered: false, read: false)
-    // Double grey tick if receiver is online (delivered: true, read: false)
-    // Double blue tick only when receiver reads the conversation (read: true)
+    
+    
+    
     const newMsg = {
       messageId: msgId,
       senderId: currentUserId,

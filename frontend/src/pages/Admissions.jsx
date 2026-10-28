@@ -44,7 +44,7 @@ export default function Admissions() {
 
   return (
     <>
-      {/* Banner Section */}
+      
       <section className="hero" style={{ padding: '80px 0' }}>
         <div className="container hero-content">
           <h1 className="hero-title" style={{ fontSize: '2.8rem', marginBottom: '12px' }}>
@@ -56,10 +56,10 @@ export default function Admissions() {
         </div>
       </section>
 
-      {/* Process & Form */}
+      
       <section className="section section-bg">
         <div className="container grid-2">
-          {/* Steps */}
+          
           <div>
             <span className="badge badge-secondary" style={{ marginBottom: '14px' }}>Enrollment Journey</span>
             <h2 className="section-title" style={{ textAlign: 'left', marginBottom: '16px' }}>
@@ -147,7 +147,7 @@ export default function Admissions() {
             </div>
           </div>
 
-          {/* Registration Form */}
+          
           <div>
             <div
               style={{
@@ -262,7 +262,7 @@ export default function Admissions() {
         </div>
       </section>
 
-      {/* Fees and Scholarships */}
+      
       <section className="section" id="fees">
         <div className="container">
           <div className="section-title-wrap">
@@ -273,7 +273,7 @@ export default function Admissions() {
           </div>
 
           <div className="grid-2">
-            {/* Fees structure */}
+            
             <div className="card" style={{ padding: '30px' }}>
               <h3 className="card-title" style={{ marginBottom: '20px' }}>Annual Fee Overview</h3>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
@@ -305,7 +305,7 @@ export default function Admissions() {
               </p>
             </div>
 
-            {/* Scholarships */}
+            
             <div className="card" style={{ padding: '30px' }}>
               <h3 className="card-title" style={{ marginBottom: '20px' }}>Financial Aid & Awards</h3>
               <div className="feature-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

@@ -21,7 +21,7 @@ export default function App() {
 
   return (
     <div className="app-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Hide the public website navbar on portal and login pages */}
+      
       {!isPortal && !isLogin && <Navbar />}
 
       <main style={{ flex: 1 }}>
@@ -40,7 +40,7 @@ export default function App() {
         </Routes>
       </main>
 
-      {/* Hide public website footer on portal and login pages */}
+      
       {!isPortal && !isLogin && <Footer />}
     </div>
   );

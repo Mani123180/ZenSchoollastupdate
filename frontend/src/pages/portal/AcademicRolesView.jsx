@@ -17,7 +17,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
   const [searchQuery, setSearchQuery] = useState('');
   const [teacherSelectedClass, setTeacherSelectedClass] = useState('Grade 10-A');
 
-  // Fee Collection Tracker State
+  
   const [feeClassFilter, setFeeClassFilter] = useState('All');
   const [feeSearch, setFeeSearch] = useState('');
   const [feeReminderModal, setFeeReminderModal] = useState(null);
@@ -32,7 +32,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
     { id: 'FEE-108', roll: 'S108', name: 'Bhavani Chandran', class: 'Grade 9-A', parent: 'Chandran M.', phone: '+91 98456 12308', totalFee: '₹26,000', paid: '₹26,000', due: '₹0', status: 'PAID' },
   ]);
 
-  // Modals state
+  
   const [marksStudent, setMarksStudent] = useState(null);
   const [marksInputs, setMarksInputs] = useState({});
   const [selectedStudentDetail, setSelectedStudentDetail] = useState(null);
@@ -46,7 +46,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
     attachmentName: '',
   });
 
-  // Study Materials Upload Modal State
+  
   const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
   const [materialForm, setMaterialForm] = useState({
     title: '',
@@ -66,7 +66,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
     content: ''
   });
 
-  // Roll call state for attendance management
+  
   const [rollCall, setRollCall] = useState({
     S101: 'present',
     S102: 'present',
@@ -75,10 +75,10 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
     S105: 'present'
   });
 
-  // Feedback modal
+  
   const [feedback, setFeedback] = useState(null);
 
-  // Leave Applications & Approvals State (Synced with getPortalData)
+  
   const [staffLeaves, setStaffLeaves] = useState(() => {
     const cur = getPortalData();
     return cur.staffLeaves || [
@@ -116,7 +116,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
   const [staffTimetableModal, setStaffTimetableModal] = useState(null);
   const [activeTimetableStaff, setActiveTimetableStaff] = useState(null);
 
-  // Exam Scheduling State
+  
   const [isExamModalOpen, setIsExamModalOpen] = useState(false);
   const [examGradeFilter, setExamGradeFilter] = useState('All');
   const [editingExamId, setEditingExamId] = useState(null);
@@ -180,7 +180,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
     setData(getPortalData());
   };
 
-  // Helper for title header
+  
   const getTabTitle = () => {
     const titles = {
       'attendance-reports': 'Attendance Reports',
@@ -222,7 +222,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
     return titles[activeTab] || 'Dashboard';
   };
 
-  // Marks modal handlers
+  
   const handleOpenMarks = (student) => {
     setMarksStudent(student);
     const initial = {};
@@ -293,7 +293,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
     });
   };
 
-  // Homework submission & deletion
+  
   const handleSaveHomework = (e) => {
     e.preventDefault();
     const current = getPortalData();
@@ -328,7 +328,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
     });
   };
 
-  // Study Materials Upload & Delete Handlers
+  
   const handleSaveStudyMaterial = (e) => {
     e.preventDefault();
     const current = getPortalData();
@@ -378,7 +378,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
     });
   };
 
-  // Exam Scheduling Handlers
+  
   const handleOpenEditExam = (exam) => {
     setEditingExamId(exam.id);
     setExamForm({
@@ -409,7 +409,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
       : [{ subject: 'General', date: new Date().toISOString().split('T')[0], time: '09:30 AM - 12:30 PM', room: 'Hall A-1', maxMarks: 100, passMarks: 35 }];
 
     if (editingExamId) {
-      // Update existing exam
+      
       const subItem = listToSave[0];
       const examIndex = current.exams.findIndex((x) => x.id === editingExamId);
       if (examIndex !== -1) {
@@ -428,7 +428,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         };
       }
     } else {
-      // Add new batch of exams
+      
       listToSave.forEach((subItem, index) => {
         const newExam = {
           id: `EX-${Date.now().toString().slice(-4)}-${index + 1}`,
@@ -487,7 +487,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
 
   const excelFileInputRef = useRef(null);
 
-  // Teacher Student Excel Upload Handler
+  
   const handleStudentExcelUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -523,7 +523,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           const colEng = String(row[8] !== undefined ? row[8] : '').trim();
           const colPerf = String(row[9] || 'Good').trim();
 
-          // Skip headers row
+          
           if (
             idx === 0 &&
             (colRoll.toLowerCase().includes('roll') ||
@@ -605,7 +605,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
     reader.readAsBinaryString(file);
   };
 
-  // Grade Book CSV Export
+  
   const handleExportGradeBook = () => {
     const students = data.students.filter((s) => s.class === 'Grade 10-A');
     let csv = 'Roll No,Student Name,Class,Attendance,Maths,Physics,Chemistry,Tamil,English,Status\n';
@@ -641,7 +641,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
     }
   };
 
-  // Announcement posting
+  
   const handleSaveAnnouncement = (e) => {
     e.preventDefault();
     const current = getPortalData();
@@ -669,7 +669,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
     });
   };
 
-  // Shared Timetable Constants
+  
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   const periods = [
     { period: 1, time: '09:00 - 10:00' },
@@ -685,7 +685,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
 
   return (
     <div>
-      {/* Top Content Header matching portal.html lines 1357-1361 */}
+      
       <div className="content-header">
         <h2 id="section-title">{getTabTitle()}</h2>
         <div id="section-actions">
@@ -711,10 +711,10 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
       </div>
 
       <div id="portal-content">
-        {/* =================================================================== */}
-        {/* ENRICHMENT SERVICES & LABS TAB FOR PRINCIPAL, TEACHER, STUDENT, PARENT */}
-        {/* Controlled by Super Admin Role Portal Visibility Settings */}
-        {/* =================================================================== */}
+        
+        
+        
+        
         {['principal-services-tab', 'teacher-services-tab', 'student-services-tab', 'parent-services-tab'].includes(activeTab) && (() => {
           const currentStore = getPortalData();
           const masterServices = (currentStore.services || [
@@ -728,7 +728,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
             { id: 'SRV-08', name: 'Sports & Fitness', icon: '⚽', category: 'Athletics', status: 'Active', cost: '0/yr', description: 'Football, basketball, athletics coaching, yoga and physical agility.', visibleRoles: ['schooladmin', 'principal', 'teacher', 'student', 'parent'] },
           ]).map((s) => ({ ...s, cost: '0/yr' }));
 
-          // Filter by current role's authorization from Super Admin
+          
           const visibleServices = masterServices.filter((srv) => {
             const allowed = srv.visibleRoles || ['schooladmin', 'teacher', 'student'];
             return allowed.includes(role);
@@ -829,11 +829,11 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
             </div>
           );
         })()}
-        {/* =================================================================== */}
-        {/* PRINCIPAL DASHBOARD TABS */}
-        {/* =================================================================== */}
-        {/* PRINCIPAL DASHBOARD TABS */}
-        {/* =================================================================== */}
+        
+        
+        
+        
+        
         {role === 'principal' && activeTab === 'attendance-reports' && (() => {
           const selDateObj = new Date(selectedAttendanceDate);
           const isSunday = selDateObj.getDay() === 0;
@@ -844,7 +844,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
             day: 'numeric',
           });
 
-          // All sections master list
+          
           const classSections = [
             { cls: 'Grade 10-A', section: 'A', stream: 'General / CBSE', teacher: 'Mrs. Priya Krishnan', room: 'Room 201', total: 38, basePresent: 36 },
             { cls: 'Grade 10-B', section: 'B', stream: 'General / CBSE', teacher: 'Mr. Ramanathan K.', room: 'Room 202', total: 37, basePresent: 36 },
@@ -860,7 +860,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
             { cls: 'Grade 6-A', section: 'A', stream: 'Upper Primary', teacher: 'Mr. K. Parthiban', room: 'Room G-1', total: 33, basePresent: 31 },
           ];
 
-          // Deterministic seed by date
+          
           const dateSeed = (selDateObj.getDate() * 3 + selDateObj.getMonth()) % 5;
           const processedClasses = classSections.map((item, idx) => {
             if (isSunday) {
@@ -881,7 +881,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
 
           return (
             <div>
-              {/* Top Controls & Filter Header */}
+              
               <div
                 style={{
                   display: 'flex',
@@ -936,7 +936,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* KPI Summary Cards */}
+              
               <div className="grid-4" style={{ marginBottom: '22px' }}>
                 <div className="portal-card" style={{ borderLeftColor: '#3b82f6', padding: '16px 18px' }}>
                   <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 700 }}>Total Registered Classes</div>
@@ -967,7 +967,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* Class & Section Table with Clickable Rows */}
+              
               <div className="portal-card" style={{ borderLeftColor: '#2563eb', padding: '20px' }}>
                 <div className="portal-card-header" style={{ marginBottom: '14px', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
                   <div>
@@ -1086,12 +1086,12 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           );
         })()}
 
-        {/* Dashboard Analytics (Principal Master KPI & Overview) */}
+        
         {role === 'principal' && (activeTab === 'dashboard-analytics' || activeTab === 'academic-performance') && (
           <div>
-            {/* Top Metric KPI Cards - Clickable Drilldown */}
+            
             <div className="grid-3" style={{ marginBottom: '24px' }}>
-              {/* 1. Total Teaching Staff */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{
@@ -1153,7 +1153,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* 3. Non-Teaching Staff */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{
@@ -1215,7 +1215,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* 4. Total Works / Operations */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{
@@ -1277,7 +1277,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* 5. Fee Collection & Dues Card */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{
@@ -1340,7 +1340,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               </div>
             </div>
 
-            {/* Academic Performance Breakdown (Full Width) */}
+            
             <div style={{ marginBottom: '24px' }}>
               <div className="portal-card" style={{ borderLeftColor: '#1e3a8a', background: '#ffffff', padding: '20px' }}>
                 <div className="portal-card-header" style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', marginBottom: '16px' }}>
@@ -1393,7 +1393,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               </div>
             </div>
 
-            {/* Recent Classroom Attendance & Performance Summary Table */}
+            
             <div className="portal-card" style={{ borderLeftColor: '#6366f1' }}>
               <div className="portal-card-header">
                 <div>
@@ -1475,14 +1475,14 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           </div>
         )}
 
-        {/* =================================================================== */}
-        {/* SHARED FEE COLLECTION & DUE TRACKER (Principal & Teacher) */}
-        {/* =================================================================== */}
+        
+        
+        
         {(role === 'principal' || role === 'teacher') && activeTab === 'fee-collection-tracker' && (
           <div>
-            {/* Summary Metrics: Filtered by role */}
+            
             {(() => {
-              // For teacher: show only their class and only pending dues
+              
               const recordsForRole = role === 'teacher'
                 ? feeRecords.filter((r) => r.class === (teacherSelectedClass || 'Grade 10-A') && r.status !== 'PAID')
                 : feeRecords;
@@ -1537,7 +1537,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                     </div>
                   )}
 
-                  {/* Pending Fees Card */}
+                  
                   <div style={{
                     background: 'linear-gradient(135deg, #991b1b 0%, #dc2626 100%)',
                     color: '#ffffff',
@@ -1579,10 +1579,10 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               );
             })()}
 
-            {/* Filter and Controls Toolbar */}
+            
             <div className="sa-schools-header-bar" style={{ display: 'flex', gap: '14px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: '16px' }}>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-                {/* Search Bar */}
+                
                 <div style={{ position: 'relative', minWidth: '240px' }}>
                   <input
                     type="text"
@@ -1629,7 +1629,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   )}
                 </div>
 
-                {/* Filter Class */}
+                
                 {role === 'teacher' ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569' }}>My Class:</span>
@@ -1662,7 +1662,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 )}
               </div>
 
-              {/* Action Buttons: Export & Reminders */}
+              
               <div className="sa-toolbar-right" style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <button
                   type="button"
@@ -1719,7 +1719,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               </div>
             </div>
 
-            {/* Fee Collection Table - Shows ONLY Pending Fees for Teacher */}
+            
             <div className="table-responsive">
               <table className="sa-schools-table">
                 <thead>
@@ -1737,7 +1737,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   {feeRecords
                     .filter((r) => {
                       if (role === 'teacher') {
-                        // Teacher: ONLY their class students and ONLY pending fees
+                        
                         return r.class === (teacherSelectedClass || 'Grade 10-A') && r.status !== 'PAID';
                       }
                       return feeClassFilter === 'All' || r.class === feeClassFilter;
@@ -1981,13 +1981,13 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           </div>
         )}
 
-        {/* =================================================================== */}
-        {/* TEACHER DASHBOARD TABS */}
-        {/* =================================================================== */}
-        {/* =================================================================== */}
-        {/* =================================================================== */}
-        {/* TEACHER DASHBOARD TABS */}
-        {/* =================================================================== */}
+        
+        
+        
+        
+        
+        
+        
         {role === 'teacher' && activeTab === 'my-classes' && (() => {
           const teacherClasses = data.classes || [
             { name: 'Grade 10-A', teacher: 'Mrs. Priya Krishnan', room: 'A-102', strength: 38 },
@@ -2007,7 +2007,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-              {/* Class Selector Tabs for Teachers */}
+              
               {teacherClasses.length > 0 && (
                 <div className="sa-filter-segment" style={{ overflowX: 'auto', maxWidth: '100%', flexWrap: 'wrap', gap: '8px' }}>
                   {teacherClasses.map((cls) => {
@@ -2027,7 +2027,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               )}
 
-              {/* Top Banner with Total Students */}
+              
               <div
                 className="portal-card teacher-class-banner"
                 style={{
@@ -2077,7 +2077,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* Students List Table */}
+              
               <div className="portal-card teacher-card-container" style={{ margin: 0, borderRadius: '12px', padding: '20px 24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
                   <h3 style={{ margin: 0, fontSize: '1.05rem', color: '#0f172a', fontWeight: 700 }}>
@@ -2205,7 +2205,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   />
                 </div>
 
-                {/* Hidden Excel File Input */}
+                
                 <input
                   type="file"
                   ref={excelFileInputRef}
@@ -2214,7 +2214,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   onChange={handleStudentExcelUpload}
                 />
 
-                {/* Upload Excel Button */}
+                
                 <button
                   type="button"
                   className="btn btn-primary btn-sm"
@@ -2226,7 +2226,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   Upload Excel (.XLSX)
                 </button>
 
-                {/* Export Grade Book CSV */}
+                
                 <button
                   type="button"
                   className="btn btn-outline btn-sm"
@@ -2333,12 +2333,12 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                       current.attendanceLogs = [];
                     }
 
-                    // Remove any existing log for this date & class
+                    
                     const updatedLogs = current.attendanceLogs.filter(
                       (l) => !(l.date === todayStr && l.className === 'Grade 10-A')
                     );
 
-                    // Add new log entry
+                    
                     const newLog = {
                       date: todayStr,
                       className: 'Grade 10-A',
@@ -2349,11 +2349,11 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                     updatedLogs.unshift(newLog);
                     current.attendanceLogs = updatedLogs;
 
-                    // Update student attendance percentages dynamically
+                    
                     current.students = current.students.map((st) => {
                       if (st.class === 'Grade 10-A' && rollCall[st.roll] !== undefined) {
                         const status = rollCall[st.roll];
-                        // Calculate total logs for this student
+                        
                         const studentLogs = updatedLogs.filter((l) => l.className === 'Grade 10-A' && l.records && l.records[st.roll]);
                         const totalDays = studentLogs.length;
                         const presentDays = studentLogs.filter((l) => l.records[st.roll] === 'present').length;
@@ -2693,7 +2693,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
 
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {/* Header Bar */}
+              
               <div className="sa-schools-header-bar" style={{ flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h3 style={{ margin: '0 0 4px 0', fontSize: '1.25rem', color: '#1e3a8a', fontWeight: 800 }}>
@@ -2713,7 +2713,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </button>
               </div>
 
-              {/* Leave Quota Balance Cards */}
+              
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '14px' }}>
                 <div style={{ background: '#eff6ff', padding: '16px 20px', borderRadius: '12px', border: '1.5px solid #bfdbfe' }}>
                   <span style={{ fontSize: '0.78rem', color: '#1e40af', fontWeight: 700, textTransform: 'uppercase' }}>Casual Leave (CL)</span>
@@ -2742,7 +2742,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* Leave Applications Table */}
+              
               <div className="portal-card" style={{ margin: 0, padding: '20px', borderRadius: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                   <h4 style={{ margin: 0, fontSize: '1rem', color: '#0f172a', fontWeight: 700 }}>
@@ -2816,7 +2816,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* Apply Leave Modal */}
+              
               {isApplyLeaveOpen && (
                 <div
                   className="modal-overlay"
@@ -3092,14 +3092,14 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           </div>
         )}
 
-        {/* =================================================================== */}
-        {/* STUDENT DASHBOARD TABS */}
-        {/* =================================================================== */}
+        
+        
+        
         {role === 'student' && activeTab === 'view-dashboard' && (() => {
           const studentHw = (data.assignments || []).filter((h) => h.grade === 'Grade 10-A' || h.grade === 'All Grades');
           const upcomingExams = (data.exams || []).filter((x) => x.grade === 'Grade 10-A' || x.grade === 'All Grades');
 
-          // Dynamically compute attendance from attendanceLogs for S101
+          
           const studentRoll = 'S101';
           const logs = (data.attendanceLogs || []).filter((l) => l.className === 'Grade 10-A');
           const studentLogs = logs.filter((l) => l.records && l.records[studentRoll]);
@@ -3110,7 +3110,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
 
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              {/* Stat Summary Cards */}
+              
               <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
                 <div className="portal-card" style={{ borderLeft: '4px solid #10b981', margin: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -3178,7 +3178,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 })()}
               </div>
 
-              {/* Pending Homework & Assignments Section */}
+              
               <div className="portal-card" style={{ margin: 0, padding: '22px', border: '1px solid #e2e8f0', borderRadius: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
                   <div>
@@ -3314,7 +3314,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
 
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {/* Header metrics card */}
+              
               <div className="portal-card" style={{ margin: 0, padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
                   <div>
@@ -3348,7 +3348,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* Day-by-Day Logged Records Table */}
+              
               <div className="portal-card" style={{ margin: 0, padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                   <h4 style={{ margin: 0, color: '#0f172a', fontSize: '1.05rem' }}>
@@ -3560,16 +3560,16 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           </div>
         )}
 
-        {/* SHARED EXAMINATION SCHEDULE TAB (Principal, Teacher, Student, Parent) */}
+        
         {activeTab === 'track-exams' && (() => {
           const allExams = data.exams || [];
           const canManageExams = role === 'principal' || role === 'teacher';
 
-          // Filter by grade for student/parent or selected grade for principal/teacher
+          
           const filteredExams = allExams
             .filter((x) => {
               if (role === 'student' || role === 'parent') {
-                // Student is Grade 10-A
+                
                 return x.grade === 'Grade 10-A' || x.grade === 'All Grades';
               }
               if (examGradeFilter === 'All') return true;
@@ -3631,7 +3631,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* Notice Banner */}
+              
               {(role === 'student' || role === 'parent') && (
                 <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{ fontSize: '1.3rem' }}>📢</span>
@@ -3829,9 +3829,9 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           );
         })()}
 
-        {/* =================================================================== */}
-        {/* PARENT DASHBOARD TABS */}
-        {/* =================================================================== */}
+        
+        
+        
         {role === 'parent' && activeTab === 'child-information' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="portal-card">
@@ -3841,7 +3841,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               <p><strong>Emergency Contact:</strong> Ramesh Kumar (+91 98456 12301)</p>
             </div>
 
-            {/* Fee Collection & Dues Summary Card for Parent (Pending Fee Only) */}
+            
             {(() => {
               const myRoll = user?.studentRoll || 'S101';
               const myFee = feeRecords.find(r => r.roll === myRoll) || feeRecords[0] || {
@@ -3996,7 +3996,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
 
               return (
                 <div>
-                  {/* Live Pending Fee Card */}
+                  
                   <div className="portal-card" style={{ borderLeftColor: hasDue ? '#dc2626' : '#10b981', marginBottom: '20px', padding: '22px 24px' }}>
                     <div className="portal-card-header" style={{ marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
                       <div>
@@ -4042,7 +4042,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                     </div>
                   </div>
 
-                  {/* Itemized Fee Breakdown & Recent Ledger Table */}
+                  
                   <div className="portal-card" style={{ padding: '20px 24px', marginBottom: '20px' }}>
                     <h4 style={{ margin: '0 0 14px 0', fontSize: '1.05rem', color: '#1e3a8a', fontWeight: 700 }}>
                       📋 Fee Structure Breakdown ({myFee.billingMonth || 'October'} 2026-2027)
@@ -4066,7 +4066,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                       </div>
                     </div>
 
-                    {/* Detailed Fee Categories Breakdown (Monthly, Transport, Co-curricular, Term Fees) */}
+                    
                     <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid #e2e8f0' }}>
                       <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#1e3a8a', marginBottom: '10px' }}>
                         Categorized Fee Breakdown & Live Payment Status:
@@ -4117,7 +4117,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                     </div>
                   </div>
 
-                  {/* Payment Transactions & Receipts Table */}
+                  
                   <div className="table-responsive">
                     <table className="sa-schools-table">
                       <thead>
@@ -4160,7 +4160,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           </div>
         )}
 
-        {/* LIVE BUS / TRANSPORT GPS TRACKER (Student) */}
+        
         {role === 'student' && activeTab === 'transport-tracking' && (
           <div>
             <div className="sa-schools-header-bar" style={{ marginBottom: '16px' }}>
@@ -4195,7 +4195,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               </div>
             </div>
 
-            {/* Simulated Live Route Timeline */}
+            
             <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '24px' }}>
               <h4 style={{ margin: '0 0 20px 0', color: '#1e3a8a' }}>Route Stops & Timestamp Progress</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -4236,7 +4236,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           </div>
         )}
 
-        {/* SHARED ANNOUNCEMENTS TABS (Principal, Teacher, Parent) */}
+        
         {(activeTab === 'school-announcements' || activeTab === 'announcements') && (
           <div>
             <div className="sa-schools-header-bar">
@@ -4274,7 +4274,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           </div>
         )}
 
-        {/* SHARED CHAT MESSAGING TABS */}
+        
         {(activeTab === 'communication-teachers' ||
           activeTab === 'chat-teachers' ||
           activeTab === 'messaging-teachers' ||
@@ -4283,11 +4283,11 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         )}
       </div>
 
-      {/* =================================================================== */}
-      {/* MODALS */}
-      {/* =================================================================== */}
+      
+      
+      
 
-      {/* 0. Student Result & Parent Details Modal */}
+      
       {selectedStudentDetail && (
         <div className="modal-overlay" style={{ display: 'flex' }}>
           <div className="modal-content wizard-modal-lg" style={{ maxWidth: '680px', borderRadius: '14px', overflow: 'hidden' }}>
@@ -4310,7 +4310,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
             </div>
 
             <div className="teacher-student-modal-body" style={{ padding: '24px' }}>
-              {/* Parent & Contact Details Card */}
+              
               <div
                 style={{
                   background: '#f8fafc',
@@ -4363,7 +4363,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* Exam Results Scorecard */}
+              
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                   <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--color-primary)', fontWeight: 700 }}>
@@ -4429,7 +4429,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* Total & Average Summary Footer */}
+              
               {(() => {
                 const marksList = selectedStudentDetail.marks || [];
                 const validMarks = marksList.filter(m => m.scored !== 'AB' && !isNaN(Number(m.scored)));
@@ -4483,7 +4483,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         </div>
       )}
 
-      {/* 1. Academic Evaluation & Marks Entry Modal */}
+      
       {marksStudent && (
         <div className="modal-overlay" style={{ display: 'flex' }}>
           <div className="modal-content wizard-modal-lg" style={{ maxWidth: '640px' }}>
@@ -4552,7 +4552,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         </div>
       )}
 
-      {/* 2. Homework Form Modal */}
+      
       {isHomeworkOpen && (
         <div className="modal-overlay" style={{ display: 'flex' }}>
           <div className="modal-content wizard-modal-lg" style={{ maxWidth: '640px' }}>
@@ -4661,7 +4661,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         </div>
       )}
 
-      {/* 2B. Upload Study Material Modal */}
+      
       {isMaterialModalOpen && (
         <div className="modal-overlay" style={{ display: 'flex' }}>
           <div className="modal-content wizard-modal-lg" style={{ maxWidth: '640px' }}>
@@ -4781,7 +4781,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         </div>
       )}
 
-      {/* 3. Post Announcement Modal */}
+      
       {isAnnouncementOpen && (
         <div className="modal-overlay" style={{ display: 'flex' }}>
           <div className="modal-content wizard-modal-lg" style={{ maxWidth: '640px' }}>
@@ -4856,7 +4856,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         </div>
       )}
 
-      {/* 3b. Schedule Examination Modal (Single class with 5 Subjects in Table format) */}
+      
       {isExamModalOpen && (
         <div className="modal-backdrop" onClick={() => setIsExamModalOpen(false)} style={{ zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(3px)' }}>
           <div
@@ -4925,7 +4925,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 flex: 1,
               }}
             >
-              {/* Class & Exam Header Info */}
+              
               <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '16px', marginBottom: '20px', background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
@@ -4965,7 +4965,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* Multi-Subject Table for Selected Class */}
+              
               <div style={{ marginBottom: '18px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                   <label style={{ fontSize: '0.92rem', fontWeight: 800, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -5102,7 +5102,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* Bottom Actions */}
+              
               <div
                 style={{
                   display: 'flex',
@@ -5138,7 +5138,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         </div>
       )}
 
-      {/* 4. Feedback Modal */}
+      
       {feedback && (
         <div className="modal-overlay" style={{ display: 'flex' }}>
           <div className="modal-content" style={{ maxWidth: '440px', textAlign: 'center', padding: '30px 24px' }}>
@@ -5154,7 +5154,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         </div>
       )}
 
-      {/* 5. Online Fee Payment Modal (Razorpay / UPI) */}
+      
       {isPaymentModalOpen && (
         <div className="modal-overlay" style={{ display: 'flex' }}>
           <div className="modal-content" style={{ maxWidth: '480px' }}>
@@ -5269,7 +5269,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                             parentPhone: rec.phone || '+91 98456 12301'
                           };
 
-                          // Try backend call as well
+                          
                           try {
                             if (rec.id || rec.invoiceNumber) {
                               await api.recordStudentBillPayment(rec.id || rec.invoiceNumber, {
@@ -5302,7 +5302,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         </div>
       )}
 
-      {/* 6. Printable Official Student Report Card Modal */}
+      
       {reportCardStudent && (
         <div className="modal-overlay" style={{ display: 'flex' }}>
           <div className="modal-content" style={{ maxWidth: '640px', padding: 0, overflow: 'hidden' }}>
@@ -5380,9 +5380,9 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* PRINCIPAL DASHBOARD ANALYTICS DRILLDOWN MODAL */}
-      {/* =================================================================== */}
+      
+      
+      
       {analyticsModal && (
         <div className="modal-backdrop" onClick={() => setAnalyticsModal(null)}>
           <div
@@ -5390,7 +5390,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
             style={{ maxWidth: '850px', width: '92%', borderRadius: '14px', overflow: 'hidden' }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
+            
             <div
               style={{
                 background:
@@ -5451,9 +5451,9 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               </button>
             </div>
 
-            {/* Modal Body */}
+            
             <div style={{ padding: '24px', maxHeight: '72vh', overflowY: 'auto' }}>
-              {/* 1. ATTENDANCE CLASS-WISE DRILLDOWN */}
+              
               {analyticsModal === 'attendance' && (() => {
                 const selDateObj = new Date(selectedAttendanceDate);
                 const dayOfWeek = selDateObj.getDay();
@@ -5465,9 +5465,9 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   day: 'numeric',
                 });
 
-                // Deterministic calculation for different dates
+                
                 const dateSeed = (selDateObj.getDate() * 3 + selDateObj.getMonth()) % 5;
-                const absenteeDelta = isSunday ? 0 : (dateSeed - 2); // -2 to +2
+                const absenteeDelta = isSunday ? 0 : (dateSeed - 2); 
                 const totalStudents = 482;
                 const totalAbsent = isSunday ? 0 : Math.max(8, 22 + absenteeDelta);
                 const totalPresent = isSunday ? 0 : totalStudents - totalAbsent;
@@ -5500,7 +5500,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
 
                 return (
                   <div>
-                    {/* Date Picker Bar */}
+                    
                     <div
                       style={{
                         display: 'flex',
@@ -5569,7 +5569,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                       </div>
                     ) : (
                       <>
-                        {/* Attendance Summary Stat Cards */}
+                        
                         <div
                           style={{
                             display: 'grid',
@@ -5609,7 +5609,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                           </div>
                         </div>
 
-                        {/* Class-wise Attendance Table */}
+                        
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                           <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#1e293b' }}>
                             All Classes & Sections Breakdown for {formattedDateStr}:
@@ -5672,7 +5672,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 );
               })()}
 
-              {/* 2. TOTAL ENROLLED STUDENTS DRILLDOWN */}
+              
               {analyticsModal === 'students' && (
                 <div>
                   <div
@@ -5746,7 +5746,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               )}
 
-              {/* 3. TEACHING STAFF ON DUTY DRILLDOWN */}
+              
               {analyticsModal === 'staff' && (() => {
                 const sDate = new Date(staffAttendanceDate);
                 const dayNum = sDate.getDay();
@@ -5789,7 +5789,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
 
                 return (
                   <div>
-                    {/* Live Date Filter Bar */}
+                    
                     <div
                       style={{
                         display: 'flex',
@@ -5976,7 +5976,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                       </table>
                     </div>
 
-                    {/* Inline Timetable Display Right Below Table */}
+                    
                     {activeTimetableStaff && (() => {
                       const staff = activeTimetableStaff;
                       const allDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -6147,7 +6147,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 );
               })()}
 
-              {/* 4. PASS PERCENTAGE & ACADEMIC DRILLDOWN */}
+              
               {analyticsModal === 'results' && (
                 <div>
                   <div
@@ -6220,7 +6220,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               )}
 
-              {/* 5. NON-TEACHING STAFF DRILLDOWN */}
+              
               {analyticsModal === 'non-teaching' && (() => {
                 const sDate = new Date(staffAttendanceDate);
                 const dayNum = sDate.getDay();
@@ -6252,7 +6252,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
 
                 return (
                   <div>
-                    {/* Date Selector Bar for Non-Teaching */}
+                    
                     <div
                       style={{
                         display: 'flex',
@@ -6404,7 +6404,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 );
               })()}
 
-              {/* 6. OPERATIONS WORKS & TASKS DRILLDOWN */}
+              
               {analyticsModal === 'operations-works' && (() => {
                 const sDate = new Date(staffAttendanceDate);
                 const isSunday = sDate.getDay() === 0;
@@ -6433,7 +6433,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
 
                 return (
                   <div>
-                    {/* Live Date Filter Bar for Works */}
+                    
                     <div
                       style={{
                         display: 'flex',
@@ -6603,7 +6603,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               })()}
             </div>
 
-            {/* Modal Footer */}
+            
             <div
               style={{
                 display: 'flex',
@@ -6629,15 +6629,15 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* INDIVIDUAL STAFF / WORK ATTENDANCE & STATUS DRILLDOWN MODAL */}
-      {/* =================================================================== */}
+      
+      
+      
       {selectedStaffHistory && (() => {
         const staff = selectedStaffHistory;
         const curDateObj = new Date(staff.baseDate || staffAttendanceDate);
         const curDayName = curDateObj.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // Synthesize past 7-day attendance log for this person
+        
         const past7Days = Array.from({ length: 7 }).map((_, i) => {
           const d = new Date(curDateObj);
           d.setDate(d.getDate() - i);
@@ -6645,7 +6645,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           const dayName = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
           const dateStr = d.toISOString().split('T')[0];
 
-          // Deterministic attendance for this staff
+          
           const hash = (staff.name.charCodeAt(0) + d.getDate() * 3 + d.getMonth() * 5) % 9;
           const isLeave = !isSun && (hash === 2);
           const status = isSun ? 'Holiday (Sun)' : isLeave ? 'On Leave (Casual)' : 'Present on Duty';
@@ -6697,7 +6697,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Header */}
+              
               <div
                 style={{
                   background:
@@ -6748,9 +6748,9 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </button>
               </div>
 
-              {/* Body */}
+              
               <div style={{ padding: '24px', maxHeight: '70vh', overflowY: 'auto' }}>
-                {/* Search Any Date In History Box */}
+                
                 <div
                   style={{
                     background: '#f8fafc',
@@ -6827,7 +6827,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   </div>
                 </div>
 
-                {/* 7-Day Attendance Rate Summary Cards */}
+                
                 <div
                   style={{
                     display: 'grid',
@@ -6855,7 +6855,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   </div>
                 </div>
 
-                {/* Historical 7-Day Day-by-Day Audit Table */}
+                
                 <h4 style={{ margin: '0 0 10px 0', fontSize: '0.95rem', color: '#1e293b' }}>
                   Daily Clock-In & Presence Audit (Relative to Selected Date):
                 </h4>
@@ -6910,7 +6910,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 )}
               </div>
 
-              {/* Footer */}
+              
               <div
                 style={{
                   padding: '14px 24px',
@@ -6937,16 +6937,16 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         );
       })()}
 
-      {/* =================================================================== */}
-      {/* ATTENDANCE CLASS MODAL - STUDENT-WISE DETAILED ROLL CALL */}
-      {/* =================================================================== */}
+      
+      
+      
       {attendanceClassModal && (() => {
-        // Students belonging to or synthesized for this class
+        
         const existingClassStudents = (data.students || []).filter(
           (s) => s.class === attendanceClassModal.cls
         );
 
-        // Fill up realistic student list for the class strength
+        
         const studentNamesPool = [
           'Aishwarya Kumar', 'Kavitha Selvam', 'Sandhya Ramesh', 'Deepa Venkatesh', 'Meena Natarajan',
           'Priyadarshini Sundaram', 'Ananya Raghavan', 'Divya Meenakshi', 'Harini Balaji', 'Janani Swaminathan',
@@ -6966,7 +6966,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           const roll = `S${attendanceClassModal.cls.replace(/[^0-9]/g, '') || '10'}${String(i + 1).padStart(2, '0')}`;
           const existing = existingClassStudents[i];
           const name = existing ? existing.name : studentNamesPool[i % studentNamesPool.length];
-          // Last few students marked absent to match absentCount
+          
           const isAbsent = i >= presentCount;
           const status = isAbsent ? 'Absent' : 'Present';
           const punchTime = isAbsent ? '—' : `08:${String(15 + (i % 25)).padStart(2, '0')} AM`;
@@ -6981,7 +6981,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               style={{ maxWidth: '850px', width: '92%', borderRadius: '14px', overflow: 'hidden' }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Modal Header */}
+              
               <div
                 style={{
                   background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
@@ -7024,9 +7024,9 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </button>
               </div>
 
-              {/* Modal Body */}
+              
               <div style={{ padding: '24px', maxHeight: '72vh', overflowY: 'auto' }}>
-                {/* Class Stats Summary */}
+                
                 <div
                   style={{
                     display: 'grid',
@@ -7056,7 +7056,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   </div>
                 </div>
 
-                {/* Student Roster Table */}
+                
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                   <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#1e293b' }}>
                     Student Roll Call & Daily In-Time Status:
@@ -7112,7 +7112,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* Modal Footer */}
+              
               <div
                 style={{
                   display: 'flex',
@@ -7144,9 +7144,9 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
         );
       })()}
 
-      {/* =================================================================== */}
-      {/* PRINCIPAL FACULTY / STAFF TIMETABLE MODAL */}
-      {/* =================================================================== */}
+      
+      
+      
       {staffTimetableModal && (() => {
         const staff = staffTimetableModal;
         const allDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -7158,24 +7158,24 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           { period: 5, time: '02:45 - 03:45' },
         ];
 
-        // Find assigned timetable slots from portal data
+        
         const assignedSlots = (data.classTimetables || []).filter(
           (s) => s.teacherName === staff.name
         );
 
-        // Helper to get slot for day & period
+        
         const getSlot = (day, periodNum) => {
           const directMatch = assignedSlots.find(
             (s) => s.day === day && parseInt(s.period) === periodNum
           );
           if (directMatch) return directMatch;
 
-          // Default fallback timetable distribution if teacher hasn't custom slots in classTimetables
-          // Dr. Anandhi Rajan, Mrs. Priya Krishnan, Mrs. Selvi Murugan have default entries in classTimetables
-          // For other teachers, construct realistic periods
+          
+          
+          
           const teacherHash = (staff.name.charCodeAt(0) + day.charCodeAt(0) + periodNum) % 6;
           if (teacherHash === 0 || teacherHash === 3) {
-            return null; // Free / Preparation Period
+            return null; 
           }
           const gradeFallback = staff.cls && staff.cls.includes('Grade') ? staff.cls : 'Grade 10-B';
           return {
@@ -7185,7 +7185,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
           };
         };
 
-        // Calculate workload
+        
         let totalAssignedPeriods = 0;
         allDays.forEach((day) => {
           allPeriods.forEach((p) => {
@@ -7200,7 +7200,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
               style={{ maxWidth: '920px', width: '94%', borderRadius: '14px', overflow: 'hidden' }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Header */}
+              
               <div
                 style={{
                   background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
@@ -7246,9 +7246,9 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </button>
               </div>
 
-              {/* Body */}
+              
               <div style={{ padding: '20px 24px', maxHeight: '72vh', overflowY: 'auto' }}>
-                {/* Stats Bar */}
+                
                 <div
                   style={{
                     display: 'grid',
@@ -7324,7 +7324,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                   </div>
                 </div>
 
-                {/* Timetable Weekly Matrix */}
+                
                 <div className="table-responsive" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
                   <table className="timetable-grid timetable-table" style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', textAlign: 'center' }}>
                     <thead>
@@ -7406,7 +7406,7 @@ export default function AcademicRolesView({ role, user, activeTab, setActiveTab 
                 </div>
               </div>
 
-              {/* Footer */}
+              
               <div
                 style={{
                   display: 'flex',

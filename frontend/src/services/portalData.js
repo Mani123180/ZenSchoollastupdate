@@ -1,7 +1,7 @@
-// ============================================================================
-// ZenSchool Master Portal Data Store (Exact parity with js/portal.js)
-// Multi-Tenant RBAC & Live Data Synchronization
-// ============================================================================
+
+
+
+
 
 const defaultData = {
   teachers: [
@@ -520,10 +520,7 @@ export function savePortalData(data) {
   }
 }
 
-/**
- * Synchronize any student fee bill updates or payments into portalData.feeRecords
- * and broadcast the event so SchoolAdmin, Principal, Teacher, Student, and Parent views update live immediately.
- */
+
 export function syncBillToPortalFeeRecords(bill) {
   if (!bill) return;
   try {

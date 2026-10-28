@@ -10,10 +10,10 @@ const paymentHistorySchema = new mongoose.Schema(
       required: true,
       enum: ['Student Fee Payment', 'Staff Salary Payment', 'School Expense Payment']
     },
-    referenceId: { type: String, default: '' }, // bill ID, salary ID, or expense ID
+    referenceId: { type: String, default: '' }, 
     invoiceNumber: { type: String, default: '' },
-    partyName: { type: String, required: true }, // Student, Staff or Vendor name
-    partyRole: { type: String, default: '' }, // 'Student', 'Staff', 'Vendor'
+    partyName: { type: String, required: true }, 
+    partyRole: { type: String, default: '' }, 
     amount: { type: Number, required: true, min: 0.01 },
     paymentMethod: {
       type: String,

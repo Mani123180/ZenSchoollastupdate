@@ -25,7 +25,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  const [announcementCategory, setAnnouncementCategory] = useState('All');
  const [selectedClass, setSelectedClass] = useState('Grade 10-A');
 
- // Modals state
+ 
  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
  const [userForm, setUserForm] = useState({ name: '', role: 'TEACHER', phone: '', email: '' });
 
@@ -33,7 +33,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  const [editingStaff, setEditingStaff] = useState(null);
  const [staffForm, setStaffForm] = useState({
  name: '',
- role: 'Teacher', // 'Teacher' | 'Principal'
+ role: 'Teacher', 
  phone: '',
  email: '',
  address: '',
@@ -114,7 +114,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
    new Date().toISOString().split('T')[0]
  );
  const [analyticsModal, setAnalyticsModal] = useState(null);
- // Filter states
+ 
  const [studentGradeFilter, setStudentGradeFilter] = useState('All');
  const [studentSectionFilter, setStudentSectionFilter] = useState('All');
  const [parentSearch, setParentSearch] = useState('');
@@ -122,22 +122,22 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
   const [parentSectionFilter, setParentSectionFilter] = useState('All');
   const [parentClassFilter, setParentClassFilter] = useState('All');
  const [subjectCategoryFilter, setSubjectCategoryFilter] = useState('All');
- // Bulk Students State
+ 
  const [isBulkStudentOpen, setIsBulkStudentOpen] = useState(false);
  const [bulkCsvText, setBulkCsvText] = useState('');
  const [bulkStudentPreview, setBulkStudentPreview] = useState([]);
  const [bulkStudentFileName, setBulkStudentFileName] = useState('');
 
- // Bulk Teachers / Staff State
+ 
  const [isBulkTeacherOpen, setIsBulkTeacherOpen] = useState(false);
  const [bulkTeacherCsv, setBulkTeacherCsv] = useState('');
  const [bulkTeacherPreview, setBulkTeacherPreview] = useState([]);
  const [bulkTeacherFileName, setBulkTeacherFileName] = useState('');
 
- // Fee Collection Tracker State
+ 
  const [feeClassFilter, setFeeClassFilter] = useState('All');
  const [feeSearch, setFeeSearch] = useState('');
- const [feeReminderModal, setFeeReminderModal] = useState(null); // { record, channel: 'whatsapp'|'sms'|'call', message: string, sent: boolean }
+ const [feeReminderModal, setFeeReminderModal] = useState(null); 
  const [feeRecords, setFeeRecords] = useState(() => {
    const cur = getPortalData();
    return (cur && cur.feeRecords && cur.feeRecords.length > 0) ? cur.feeRecords : [
@@ -173,7 +173,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
    };
  }, []);
 
- // Fee Excel Upload handler
+ 
  const handleFeeExcelUpload = (e) => {
  const file = e.target.files[0];
  if (!file) return;
@@ -199,7 +199,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  const colDue = String(row[7] || '').trim();
  const colStatus = String(row[8] || '').trim();
 
- // Skip headers
+ 
  if (idx === 0 && (colRoll.toLowerCase().includes('roll') || colName.toLowerCase().includes('name'))) {
  return;
  }
@@ -243,7 +243,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  e.target.value = '';
  };
 
- // Fee Excel Export Handler
+ 
  const handleExportFeeExcel = () => {
  try {
  const exportData = feeRecords.map((r) => ({
@@ -269,7 +269,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  });
  } catch (err) {
  console.error('Error exporting fee excel:', err);
- // Fallback feedback if download prevented
+ 
  setFeedback({
  title: 'Fee Statement Exported',
  body: 'Fee collection register has been compiled and downloaded as Excel file.',
@@ -277,21 +277,21 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  }
  };
 
- // Attendance Heatmap / Calendar State
+ 
  const [calendarMonth, setCalendarMonth] = useState('October 2026');
  const [selectedCalendarClass, setSelectedCalendarClass] = useState('Grade 10-A');
 
- // ID Card Generation State
+ 
  const [selectedIdCard, setSelectedIdCard] = useState(null);
- const [idCardType, setIdCardType] = useState('student'); // 'student' or 'teacher'
+ const [idCardType, setIdCardType] = useState('student'); 
 
- // Weekly Staff Schedule Modal State (Teacher Weekly Timetable)
+ 
  const [selectedStaffSchedule, setSelectedStaffSchedule] = useState(null);
 
- // Active School Report Viewer Modal State (Interactive View & Export)
- const [activeReportViewer, setActiveReportViewer] = useState(null); // { id, title, category, description, metrics, records }
+ 
+ const [activeReportViewer, setActiveReportViewer] = useState(null); 
 
- // Process Excel/CSV File for Students
+ 
  const handleStudentFileSelect = (e) => {
  const file = e.target.files[0];
  if (!file) return;
@@ -306,7 +306,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  const ws = wb.Sheets[wsname];
  const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
 
- // Skip header if first row has string headers
+ 
  const parsed = [];
  rows.forEach((row, idx) => {
  if (!row || row.length === 0) return;
@@ -314,7 +314,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  const col1 = String(row[1] || '').trim();
  const col2 = String(row[2] || '').trim();
 
- // Skip header row if contains words like Roll, Name
+ 
  if (idx === 0 && (col0.toLowerCase().includes('roll') || col1.toLowerCase().includes('name'))) {
  return;
  }
@@ -343,7 +343,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  e.preventDefault();
  let studentsToAdd = [...bulkStudentPreview];
 
- // Also support typed CSV text if no file uploaded
+ 
  if (studentsToAdd.length === 0 && bulkCsvText.trim()) {
  const lines = bulkCsvText.trim().split('\n');
  lines.forEach((line) => {
@@ -404,7 +404,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  });
  };
 
- // Process Excel/CSV File for Staff / Teachers
+ 
  const handleTeacherFileSelect = (e) => {
  const file = e.target.files[0];
  if (!file) return;
@@ -422,21 +422,21 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  const parsed = [];
  rows.forEach((row, idx) => {
  if (!row || row.length === 0) return;
- const col0 = String(row[0] || '').trim(); // ID or Name
- const col1 = String(row[1] || '').trim(); // Name or Subject
- const col2 = String(row[2] || '').trim(); // Subject / Phone
- const col3 = String(row[3] || '').trim(); // Class / Email
- const col4 = String(row[4] || '').trim(); // Phone / Blood Group
- const col5 = String(row[5] || '').trim(); // Blood Group / Qualification
- const col6 = String(row[6] || '').trim(); // Qualification / Address
+ const col0 = String(row[0] || '').trim(); 
+ const col1 = String(row[1] || '').trim(); 
+ const col2 = String(row[2] || '').trim(); 
+ const col3 = String(row[3] || '').trim(); 
+ const col4 = String(row[4] || '').trim(); 
+ const col5 = String(row[5] || '').trim(); 
+ const col6 = String(row[6] || '').trim(); 
 
- // Check if header row
+ 
  if (idx === 0 && (col0.toLowerCase().includes('id') || col1.toLowerCase().includes('name') || col0.toLowerCase().includes('name'))) {
  return;
  }
 
  if (col0 && col1) {
- // Determine if col0 is ID or Name
+ 
  const isCol0Id = /^[A-Z0-9_-]{2,10}$/i.test(col0);
  const id = isCol0Id ? col0.toUpperCase() : `FAC${String(Date.now()).slice(-4)}${idx}`;
  const name = isCol0Id ? col1 : col0;
@@ -474,7 +474,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  e.preventDefault();
  let teachersToAdd = [...bulkTeacherPreview];
 
- // Also support typed CSV text if no file uploaded
+ 
  if (teachersToAdd.length === 0 && bulkTeacherCsv.trim()) {
  const lines = bulkTeacherCsv.trim().split('\n');
  lines.forEach((line) => {
@@ -576,7 +576,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  setData(getPortalData());
  };
 
- // Helper for title header
+ 
  const getTabTitle = () => {
  const titles = {
  'school-admin-users': 'DashBoard',
@@ -597,7 +597,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  return titles[activeTab] || 'Dashboard';
  };
 
- // Staff Handlers (Unified Principal, Teacher, Non-Teaching & Works)
+ 
  const handleOpenStaffModal = (staff = null, defaultRole = 'Teacher') => {
  setEditingStaff(staff);
  if (staff) {
@@ -855,7 +855,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  });
  };
 
- // Principal Handlers
+ 
  const handleOpenPrincipalModal = (principal = null) => {
  setEditingPrincipal(principal);
  if (principal) {
@@ -944,7 +944,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  });
  };
 
- // Reset User Password Handler
+ 
  const handleResetPassword = (name, email) => {
  const tempPass = 'Zen@' + Math.floor(10000 + Math.random() * 90000);
  setFeedback({
@@ -953,7 +953,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  });
  };
 
- // Add User Handler
+ 
  const handleSaveUser = (e) => {
  e.preventDefault();
  const current = getPortalData();
@@ -979,7 +979,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  });
  };
 
- // Teacher Handlers
+ 
  const handleOpenTeacherModal = (teacher = null) => {
  setEditingTeacher(teacher);
  if (teacher) {
@@ -1020,11 +1020,11 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  });
  };
 
- // Student Handlers
+ 
  const handleOpenStudentModal = (student = null) => {
  setEditingStudent(student);
  if (student) {
- // Find linked parent if any
+ 
  const linkedParent = (data.parents || []).find((p) => p.studentRoll === student.roll);
  setStudentForm({
  name: student.name || '',
@@ -1114,7 +1114,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  ]
  });
 
- // Auto-create Student User Account
+ 
  const studentUsername = studentForm.name.toLowerCase().replace(/[^a-z0-9]/g, '') || `student${rollNo}`;
  current.users.push({
  id: 'USR0' + (current.users.length + 1),
@@ -1129,7 +1129,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  });
  }
 
- // Auto sync/link Parent record if parent name is provided
+ 
  if (studentForm.parentName) {
  const parentIdx = current.parents.findIndex((p) => p.studentRoll === rollNo);
  if (parentIdx > -1) {
@@ -1163,7 +1163,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  });
  };
 
- // Marks Modal Handlers
+ 
  const handleOpenMarks = (student) => {
  setMarksStudent(student);
  const initial = {};
@@ -1234,7 +1234,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  });
  };
 
- // Class Handlers
+ 
  const handleOpenClassModal = (cls = null) => {
  setEditingClass(cls);
  if (cls) {
@@ -1274,7 +1274,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  });
  };
 
- // Timetable Period Assignment Handlers
+ 
  const handleOpenAssignWork = (className, day, period, teacherName = '') => {
  const normClass = (className || '').trim().toLowerCase();
  const pNum = parseInt(period);
@@ -1303,7 +1303,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  const normFinal = finalClassName.toLowerCase();
  const slotPeriod = parseInt(assignWorkSlot.period);
 
- // Filter out existing slot with case-insensitive check
+ 
  current.classTimetables = current.classTimetables.filter(
  (t) =>
  !(
@@ -1354,7 +1354,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  body: `Period ${period} slot cleared for ${className} on ${day}.`
  });
  };
- // Subject Handlers
+ 
  const handleOpenSubjectModal = (sub = null) => {
  setEditingSubject(sub);
  if (sub) {
@@ -1417,7 +1417,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  });
  };
 
- // Link Parent Handlers
+ 
  const handleSaveLinkParent = (e) => {
  e.preventDefault();
  const current = getPortalData();
@@ -1445,13 +1445,13 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  });
  };
 
- // Announcement Handlers
+ 
  const handleSaveAnnouncement = (e) => {
  e.preventDefault();
  const current = getPortalData();
  if (!current.announcements) current.announcements = [];
 
- // Fallback image if user didn't provide one
+ 
  const categoryFallbacks = {
  Sports: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1200&q=80',
  Academic: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80',
@@ -1492,7 +1492,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  });
  };
 
- // Timetable display constants
+ 
  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
  const periods = [
  { period: 1, time: '09:00 - 10:00' },
@@ -1511,7 +1511,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
  return (
  <div>
- {/* Content Header matching portal.html lines 1357-1361 */}
+ 
  <div className="content-header">
  <h2 id="section-title">{getTabTitle()}</h2>
  <div id="section-actions">
@@ -1525,18 +1525,18 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
 
  <div id="portal-content">
- {/* =================================================================== */}
- {/* UNIFIED FINANCE MANAGEMENT MODULE (finance-management) */}
- {/* Includes: Dashboard, Student Billing, Staff Salary, School Expenses, Reports, History */}
- {/* =================================================================== */}
+ 
+ 
+ 
+ 
  {activeTab === 'finance-management' && (
    <SchoolFinanceModule />
  )}
 
- {/* =================================================================== */}
- {/* CAMPUS SERVICES & ACTIVITIES (school-services-tab) */}
- {/* Controlled by Super Admin Service Visibility & Assignments */}
- {/* =================================================================== */}
+ 
+ 
+ 
+ 
  {activeTab === 'school-services-tab' && (() => {
  const currentStore = getPortalData();
  const masterServices = (currentStore.services || [
@@ -1555,7 +1555,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  { id: 'SSA-03', serviceId: 'SRV-03', serviceName: 'Robotics', schoolId: 'SCHOOL002', schoolName: 'Sri Sankara Vidhyasala Girls High School', status: 'Active', assignedDate: '2026-02-01' },
  ];
 
- // Filter services that Super Admin enabled for 'schooladmin' role
+ 
  const visibleServices = masterServices.filter((srv) => {
  const roles = srv.visibleRoles || ['schooladmin', 'teacher', 'student'];
  if (!roles.includes('schooladmin')) return false;
@@ -1568,7 +1568,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
  return (
  <div>
- {/* Top Banner explaining Super Admin synchronization */}
+ 
  <div style={{
  background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
  color: '#ffffff',
@@ -1594,7 +1594,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Search Bar */}
+ 
  <div style={{ position: 'relative', minWidth: '240px' }}>
  <input
  type="text"
@@ -1642,7 +1642,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Service Cards Grid */}
+ 
  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '18px' }}>
  {visibleServices.map((srv) => {
  const assignedRecord = assignments.find((a) => a.serviceId === srv.id && a.schoolId === 'SCHOOL002');
@@ -1695,7 +1695,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
 
  <div>
- {/* School Admin Portal Access Delegation Controls */}
+ 
  <div style={{ marginBottom: '14px', borderTop: '1px solid #f1f5f9', paddingTop: '10px' }}>
  <span style={{ fontSize: '0.74rem', color: '#1e3a8a', fontWeight: 800, display: 'block', width: '100%', marginBottom: '8px' }}>
  Campus Role Visibility (Toggle Sub-Portals):
@@ -1834,9 +1834,9 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  );
  })()}
 
- {/* =================================================================== */}
- {/* 1. SCHOOL ADMIN DASHBOARD (school-admin-users) */}
- {/* =================================================================== */}
+ 
+ 
+ 
  {activeTab === 'school-admin-users' && (() => {
  const totalStudentsCount = (data.students || []).length;
  const totalTeachersCount = (data.teachers || []).length;
@@ -1852,9 +1852,9 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
  return (
  <div>
- {/* Principal-Style Unified Faculty, Non-Teaching & Operations Works Quick Cards */}
+ 
  <div className="grid-3" style={{ marginBottom: '16px' }}>
-   {/* 1. Total Teaching Staff */}
+   
    <div
      className="portal-card clickable-card"
      style={{ borderLeftColor: '#f59e0b', cursor: 'pointer' }}
@@ -1871,7 +1871,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
      <span style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>3 On Duty &bull; 2 On Leave</span>
    </div>
 
-   {/* 2. Non-Teaching Staff */}
+   
    <div
      className="portal-card clickable-card"
      style={{ borderLeftColor: '#06b6d4', cursor: 'pointer' }}
@@ -1888,7 +1888,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
      <span style={{ fontSize: '0.75rem', color: '#0284c7', fontWeight: 600 }}>7 Active Today &bull; 1 Leave</span>
    </div>
 
-   {/* 3. Total Works & Tasks */}
+   
    <div
      className="portal-card clickable-card"
      style={{ borderLeftColor: '#ec4899', cursor: 'pointer' }}
@@ -1906,9 +1906,9 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
    </div>
  </div>
 
- {/* Top 12 Summary Metric Cards (Exact Super Admin style with drill-down modal) */}
+ 
  <div className="grid-4" style={{ marginBottom: '25px' }}>
- {/* 1. Total Students */}
+ 
  <div
  className="portal-card clickable-card"
  style={{ borderLeftColor: '#3b82f6', cursor: 'pointer' }}
@@ -1937,7 +1937,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>Active Enrolled</span>
  </div>
 
- {/* 2. Total Faculty / Teachers */}
+ 
  <div
  className="portal-card clickable-card"
  style={{ borderLeftColor: '#8b5cf6', cursor: 'pointer' }}
@@ -1966,7 +1966,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>Active Faculty</span>
  </div>
 
- {/* 3. Total Classes */}
+ 
  <div
  className="portal-card clickable-card"
  style={{ borderLeftColor: '#059669', cursor: 'pointer' }}
@@ -1995,7 +1995,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>Operational Sections</span>
  </div>
 
- {/* 4. Total Parents */}
+ 
  <div
  className="portal-card clickable-card"
  style={{ borderLeftColor: '#ec4899', cursor: 'pointer' }}
@@ -2025,7 +2025,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Linked Guardians</span>
  </div>
 
- {/* 5. Total Users */}
+ 
  <div
  className="portal-card clickable-card"
  style={{ borderLeftColor: '#f59e0b', cursor: 'pointer' }}
@@ -2054,7 +2054,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>Portal Logins</span>
  </div>
 
- {/* 6. Active Principals */}
+ 
  <div
  className="portal-card clickable-card"
  style={{ borderLeftColor: '#4f46e5', cursor: 'pointer' }}
@@ -2088,11 +2088,11 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  );
  })()}
 
- {/* =================================================================== */}
- {/* 1C. MANAGE STAFF (manage-staff) - UNIFIED PRINCIPALS & TEACHERS */}
- {/* =================================================================== */}
+ 
+ 
+ 
  {activeTab === 'manage-staff' && (() => {
- // Combine principals, teachers, non-teaching, and operations works into a unified staff list
+ 
  const principalsList = (data.principals || []).map((p) => ({
  ...p,
  roleType: 'Principal',
@@ -2163,7 +2163,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
  return (
  <div>
- {/* Header Bar */}
+ 
  <div
  className="sa-schools-header-bar"
  style={{
@@ -2255,7 +2255,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Quick Summary Pill Strip */}
+ 
  <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
  <div onClick={() => setStaffRoleFilter('ALL')} style={{ cursor: 'pointer', background: staffRoleFilter === 'ALL' ? '#0f172a' : '#f1f5f9', color: staffRoleFilter === 'ALL' ? '#ffffff' : '#334155', padding: '6px 14px', borderRadius: '20px', fontSize: '0.82rem', fontWeight: 600 }}>
  Total Staff: <strong>{allStaff.length}</strong>
@@ -2274,7 +2274,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Staff Table */}
+ 
  <div className="table-responsive">
  <table className="sa-schools-table">
  <thead>
@@ -2471,9 +2471,9 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  );
  })()}
 
- {/* =================================================================== */}
- {/* 1B. MANAGE PRINCIPAL (manage-principal) */}
- {/* =================================================================== */}
+ 
+ 
+ 
  {activeTab === 'manage-principal' && (
  <div>
  <div className="sa-schools-header-bar">
@@ -2549,9 +2549,9 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
- {/* =================================================================== */}
- {/* 2. MANAGE TEACHERS (manage-teachers) */}
- {/* =================================================================== */}
+ 
+ 
+ 
  {activeTab === 'manage-teachers' && (
  <div>
  <div className="sa-schools-header-bar">
@@ -2618,9 +2618,9 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
- {/* =================================================================== */}
- {/* 3. MANAGE STUDENTS (manage-students) */}
- {/* =================================================================== */}
+ 
+ 
+ 
  {activeTab === 'manage-students' && (() => {
  const availableGrades = ['Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
  const availableSections = ['A', 'B', 'C', 'D'];
@@ -2666,7 +2666,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Filter Controls: Class Buttons + Section Dropdown */}
+ 
  <div
  style={{
  display: 'flex',
@@ -2837,9 +2837,9 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  })()}
 
 
- {/* =================================================================== */}
- {/* 4. MANAGE PARENTS (manage-parents) */}
- {/* =================================================================== */}
+ 
+ 
+ 
  {activeTab === 'manage-parents' && (() => {
     const parentList = data.parents || [];
     const studentList = data.students || [];
@@ -2872,7 +2872,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
     return (
       <div>
-        {/* Parent Search & Header Bar */}
+        
         <div className="sa-schools-header-bar" style={{ marginBottom: '14px' }}>
           <div className="sa-search-wrap" style={{ minWidth: '280px', maxWidth: '440px', flex: 1 }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
@@ -2891,7 +2891,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
           </div>
         </div>
 
-        {/* Filter Controls: Class Buttons + Section Dropdown matching Manage Students */}
+        
         <div
           style={{
             display: 'flex',
@@ -3051,12 +3051,12 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  })()}
 
 
- {/* =================================================================== */}
- {/* 5. MANAGE CLASSES (manage-classes with full period grid & work modal) */}
- {/* =================================================================== */}
+ 
+ 
+ 
  {activeTab === 'manage-classes' && (
  <div>
- {/* Header Bar with Class/Section Dropdown and + Add Class Button */}
+ 
  <div
  className="sa-schools-header-bar"
  style={{
@@ -3074,8 +3074,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  >
  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
- <span style={{ fontSize: '1.2rem' }}>🏫</span>
- <label htmlFor="class-section-dropdown" style={{ fontWeight: 800, fontSize: '0.92rem', color: '#1e3a8a' }}>
+  <label htmlFor="class-section-dropdown" style={{ fontWeight: 800, fontSize: '0.92rem', color: '#1e3a8a' }}>
  Select Class & Section:
  </label>
  </div>
@@ -3110,7 +3109,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  onClick={() => handleOpenClassModal(selectedClassObj)}
  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
  >
- ✏️ Edit This Class
+ Edit This Class
  </button>
  <button
  type="button"
@@ -3123,7 +3122,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Section Switcher Buttons */}
+ 
  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
  {data.classes.map((c) => {
  const isSelected = c.name === selectedClassObj.name;
@@ -3143,8 +3142,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  fontWeight: isSelected ? 800 : 600
  }}
  >
- <span>📚</span>
- <span>{c.name}</span>
+  <span>{c.name}</span>
  <span className="badge" style={{ background: isSelected ? '#ffffff' : '#e2e8f0', color: isSelected ? '#1e3a8a' : '#475569', fontSize: '0.75rem', padding: '2px 6px' }}>
  Room {c.room}
  </span>
@@ -3153,7 +3151,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  })}
  </div>
 
- {/* Selected Class Overview Card */}
+ 
  <div
  style={{
  display: 'grid',
@@ -3175,24 +3173,24 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <div>
  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Class Teacher</div>
  <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
- 👩‍🏫 {selectedClassObj.teacher}
+ {selectedClassObj.teacher}
  </div>
  </div>
  <div>
  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Classroom / Room No</div>
  <div style={{ fontSize: '1rem', fontWeight: 800, color: '#059669', marginTop: '4px' }}>
- 🚪 Room {selectedClassObj.room}
+ Room {selectedClassObj.room}
  </div>
  </div>
  <div>
  <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Class Strength</div>
  <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#2563eb', marginTop: '2px' }}>
- 👥 {selectedClassObj.strength} Students Enrolled
+ {selectedClassObj.strength} Students Enrolled
  </div>
  </div>
  </div>
 
- {/* Selected Class Timetable Container */}
+ 
  <div style={{ background: 'var(--color-bg-white)', borderRadius: 'var(--radius-md)', padding: '20px', border: '2px solid rgba(30,58,138,0.12)', boxShadow: 'var(--shadow-sm)' }}>
  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '15px', borderBottom: '1px solid rgba(0,0,0,0.08)', paddingBottom: '12px' }}>
  <div>
@@ -3208,7 +3206,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  style={{ padding: '6px 14px', fontSize: '0.8rem' }}
  onClick={() => handleOpenClassModal(selectedClassObj)}
  >
- ✏️ Configure Class Details
+ Configure Class Details
  </button>
  </div>
 
@@ -3284,9 +3282,9 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  )}
 
 
- {/* =================================================================== */}
- {/* 6. MANAGE SUBJECTS (manage-subjects) */}
- {/* =================================================================== */}
+ 
+ 
+ 
  {activeTab === 'manage-subjects' && (() => {
  const subjectCategories = ['Tamil', 'English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Social Science'];
 
@@ -3327,7 +3325,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Subject Filter Buttons (Tamil, English, Mathematics, Physics, Chemistry...) */}
+ 
  <div
  style={{
  display: 'flex',
@@ -3484,12 +3482,12 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  })()}
 
 
- {/* =================================================================== */}
- {/* FEE MANAGEMENT: FEE COLLECTION & DUE TRACKER (fee-collection-tracker) */}
- {/* =================================================================== */}
+ 
+ 
+ 
  {activeTab === 'fee-collection-tracker' && (
  <div>
- {/* Summary Metrics: Total Fee Collect Today and Pending Fees */}
+ 
  {(() => {
  const totalPending = feeRecords.reduce((acc, r) => {
  const num = parseInt(r.due.replace(/[^0-9]/g, ''), 10) || 0;
@@ -3499,7 +3497,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
  return (
  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '24px' }}>
- {/* Card 1: Total Fee Collect Today */}
+ 
  <div style={{
  background: 'linear-gradient(135deg, #065f46 0%, #059669 100%)',
  color: '#ffffff',
@@ -3538,7 +3536,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Card 2: Pending Fees */}
+ 
  <div style={{
  background: 'linear-gradient(135deg, #991b1b 0%, #dc2626 100%)',
  color: '#ffffff',
@@ -3580,10 +3578,10 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  );
  })()}
 
- {/* Filter and Controls Toolbar */}
+ 
  <div className="sa-schools-header-bar" style={{ display: 'flex', gap: '14px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
  <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
- {/* Search Bar with Search Icon */}
+ 
  <div style={{ position: 'relative', minWidth: '240px' }}>
  <input
  type="text"
@@ -3630,7 +3628,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  )}
  </div>
 
- {/* Filter Class */}
+ 
  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569' }}>Class:</span>
  <select
@@ -3647,9 +3645,9 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Action Buttons: Upload Excel, Export Excel, Bulk WhatsApp */}
+ 
  <div className="sa-toolbar-right" style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
- {/* Upload Excel Button */}
+ 
  <label
  className="btn btn-outline btn-sm"
  style={{
@@ -3673,7 +3671,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  />
  </label>
 
- {/* Export Fee Register Button */}
+ 
  <button
  type="button"
  className="btn btn-primary btn-sm"
@@ -3684,7 +3682,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  Export Fee Register
  </button>
 
- {/* Bulk WhatsApp Reminders Button */}
+ 
  <button
  type="button"
  className="btn btn-outline btn-sm"
@@ -3702,7 +3700,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Fee Collection Table */}
+ 
  <div className="table-responsive">
  <table className="sa-schools-table">
  <thead>
@@ -3760,7 +3758,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </span>
  ) : (
  <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
- {/* WhatsApp Action */}
+ 
  <button
  className="btn btn-sm btn-outline"
  style={{
@@ -3787,7 +3785,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  WhatsApp
  </button>
 
- {/* SMS Action */}
+ 
  <button
  className="btn btn-sm btn-outline"
  style={{
@@ -3814,7 +3812,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  SMS
  </button>
 
- {/* Call Action */}
+ 
  <button
  className="btn btn-sm btn-outline"
  style={{
@@ -3870,7 +3868,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
- {/* ATTENDANCE: MONTHLY ATTENDANCE HEATMAP / CALENDAR (attendance-calendar) - REMOVED */}
+ 
  {false && activeTab === 'attendance-calendar' && (
  <div>
  <div className="sa-schools-header-bar">
@@ -3905,7 +3903,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Heatmap Legend */}
+ 
  <div style={{ display: 'flex', gap: '14px', alignItems: 'center', fontSize: '0.8rem', color: '#475569' }}>
  <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
  <span style={{ width: '12px', height: '12px', borderRadius: '3px', background: '#10b981', display: 'inline-block' }}></span> Present (&gt;90%)
@@ -3922,7 +3920,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Attendance Analytics Overview Banner */}
+ 
  <div style={{ background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)', borderRadius: '12px', padding: '20px', color: '#fff', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
  <div>
  <div style={{ fontSize: '0.85rem', opacity: 0.85, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -3951,7 +3949,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Heatmap 31-day visual calendar grid */}
+ 
  <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', marginBottom: '22px' }}>
  <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#1e293b', marginBottom: '14px' }}>
  {calendarMonth} — Day-by-Day Visual Attendance Calendar
@@ -3962,15 +3960,15 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  {d}
  </div>
  ))}
- {/* 31 days representation for October (Oct 1 2026 is Thursday -> 4 empty padding slots) */}
+ 
  {[null, null, null, null].map((_, idx) => (
  <div key={`empty-${idx}`} style={{ minHeight: '65px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #e2e8f0' }}></div>
  ))}
  {Array.from({ length: 31 }, (_, i) => {
  const day = i + 1;
- const dayOfWeek = (day + 3) % 7; // Thursday = 4, etc.
+ const dayOfWeek = (day + 3) % 7; 
  const isSunday = dayOfWeek === 0;
- const isHoliday = day === 2 || day === 20; // Gandhi Jayanti, etc.
+ const isHoliday = day === 2 || day === 20; 
  const isPartial = day === 12 || day === 23;
  const isHighAbsent = day === 15;
 
@@ -4030,7 +4028,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
- {/* ID CARD GENERATION: PRINT STUDENT & STAFF ID CARDS (id-card-generator) - REMOVED */}
+ 
  {false && activeTab === 'id-card-generator' && (
  <div>
  <div className="sa-schools-header-bar">
@@ -4067,7 +4065,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* List to pick individual to preview and print */}
+ 
  <div className="table-responsive">
  <table className="sa-schools-table">
  <thead>
@@ -4158,7 +4156,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </table>
  </div>
 
- {/* Printable ID Card Modal */}
+ 
  {selectedIdCard && (
  <div className="modal-overlay" style={{ display: 'flex' }}>
  <div className="modal-content" style={{ maxWidth: '440px', padding: 0, overflow: 'hidden', borderRadius: '16px' }}>
@@ -4170,7 +4168,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
 
  <div style={{ padding: '24px 20px', display: 'flex', justifyContent: 'center', background: '#f1f5f9' }}>
- {/* ID Card Visual Badge */}
+ 
  <div
  id="printable-id-badge"
  style={{
@@ -4183,7 +4181,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  position: 'relative',
  }}
  >
- {/* Badge Top Header */}
+ 
  <div style={{ background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)', padding: '16px 12px', textAlign: 'center', color: '#fff' }}>
  <div style={{ fontSize: '0.9rem', fontWeight: 800, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
  Sri Sankara Vidhyasala
@@ -4196,7 +4194,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Photo & Identity */}
+ 
  <div style={{ padding: '16px 18px', textAlign: 'center' }}>
  <div style={{ width: '84px', height: '84px', borderRadius: '50%', background: '#e0e7ff', border: '3px solid #2563eb', margin: '0 auto 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
  {selectedIdCard.type === 'Student' ? '' : ''}
@@ -4211,7 +4209,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  ID / Roll No: <strong>{selectedIdCard.id}</strong>
  </div>
 
- {/* Details Grid */}
+ 
  <div style={{ marginTop: '14px', background: '#f8fafc', borderRadius: '10px', padding: '10px 12px', textAlign: 'left', fontSize: '0.75rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
  <div>
  <span style={{ color: '#64748b', display: 'block' }}>Blood Group:</span>
@@ -4231,7 +4229,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Barcode / QR Simulation */}
+ 
  <div style={{ marginTop: '14px', borderTop: '1px dashed #cbd5e1', paddingTop: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
  <div style={{ letterSpacing: '4px', fontFamily: 'monospace', fontSize: '1.1rem', fontWeight: 900, color: '#334155' }}>
  |||||| | |||| ||| |||||||
@@ -4244,7 +4242,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Actions Footer */}
+ 
  <div style={{ padding: '12px 20px', background: '#fff', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
  <button className="btn btn-outline btn-sm" onClick={() => setSelectedIdCard(null)}>
  Close
@@ -4264,15 +4262,15 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
- {/* =================================================================== */}
- {/* 7. PUBLISH ANNOUNCEMENTS (publish-announcements) */}
- {/* =================================================================== */}
+ 
+ 
+ 
  {activeTab === 'publish-announcements' && (
  <div>
- {/* Announcement Controls Toolbar */}
+ 
  <div className="sa-schools-header-bar" style={{ display: 'flex', gap: '14px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
  <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
- {/* Search Bar with Search Icon */}
+ 
  <div style={{ position: 'relative', minWidth: '240px' }}>
  <input
  type="text"
@@ -4319,7 +4317,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  )}
  </div>
 
- {/* Category Filter Pills */}
+ 
  <div className="sa-filter-segment">
  {['All', 'Academic', 'Sports', 'General', 'Holidays'].map((cat) => (
  <button
@@ -4333,7 +4331,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Single Post Announcement Button */}
+ 
  <div className="sa-toolbar-right">
  <button
  type="button"
@@ -4353,7 +4351,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Advanced Announcement Visual Photo Cards Grid */}
+ 
  <div style={{
  display: 'grid',
  gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
@@ -4413,7 +4411,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.06)';
  }}
  >
- {/* Photo Banner with Category & Date Overlays */}
+ 
  <div style={{ position: 'relative', height: '180px', width: '100%', overflow: 'hidden', background: '#0f172a' }}>
  <img
  src={cardImg}
@@ -4437,7 +4435,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  background: 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%)'
  }} />
 
- {/* Top Badges */}
+ 
  <div style={{ position: 'absolute', top: '12px', left: '12px', display: 'flex', gap: '6px' }}>
  <span style={{
  background: badgeStyle.bg,
@@ -4466,7 +4464,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  )}
  </div>
 
- {/* Target Audience Pill */}
+ 
  <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
  <span style={{
  background: 'rgba(15, 23, 42, 0.75)',
@@ -4481,13 +4479,13 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </span>
  </div>
 
- {/* Date Tag at Bottom of Banner */}
+ 
  <div style={{ position: 'absolute', bottom: '10px', left: '12px', color: '#f8fafc', fontSize: '0.78rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
  <span> {a.date}</span> &bull; <span> {a.author || 'School Admin'}</span>
  </div>
  </div>
 
- {/* Card Content Body */}
+ 
  <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
  <h3 style={{
  margin: '0 0 8px',
@@ -4509,7 +4507,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  {a.content}
  </p>
 
- {/* Card Bottom Actions */}
+ 
  <div style={{
  display: 'flex',
  justifyContent: 'space-between',
@@ -4557,7 +4555,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  })}
  </div>
 
- {/* Empty State */}
+ 
  {(data.announcements || [])
  .filter((a) => announcementCategory === 'All' || a.category === announcementCategory)
  .filter((a) => {
@@ -4584,23 +4582,23 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
- {/* =================================================================== */}
- {/* 8. SCHOOL REPORTS (view-reports) */}
- {/* =================================================================== */}
+ 
+ 
+ 
  {activeTab === 'view-reports' && (() => {
- // Compute dynamic metrics across existing store
+ 
  const totalStudents = (data.students || []).length;
  const totalStaff = (data.teachers || []).length;
  const totalClasses = (data.classes || []).length;
  const totalSubjects = (data.subjects || []).length;
 
- // Fee calculations
+ 
  const totalFeeSum = feeRecords.reduce((acc, r) => acc + (parseInt(r.totalFee.replace(/[^0-9]/g, ''), 10) || 0), 0);
  const totalPaidSum = feeRecords.reduce((acc, r) => acc + (parseInt(r.paid.replace(/[^0-9]/g, ''), 10) || 0), 0);
  const totalDueSum = feeRecords.reduce((acc, r) => acc + (parseInt(r.due.replace(/[^0-9]/g, ''), 10) || 0), 0);
  const feeClearanceRate = totalFeeSum > 0 ? Math.round((totalPaidSum / totalFeeSum) * 100) : 78;
 
- // Academic marks analysis
+ 
  let allMarkScores = [];
  (data.students || []).forEach(st => {
  (st.marks || []).forEach(m => {
@@ -4609,7 +4607,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  });
  const avgSchoolScore = allMarkScores.length > 0 ? Math.round(allMarkScores.reduce((a, b) => a + b, 0) / allMarkScores.length) : 84;
 
- // Reports Registry with rich details & drill-downs
+ 
  const reportsList = [
  {
  id: 'REP-ENROLLMENT',
@@ -4699,9 +4697,9 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
  return (
  <div>
- {/* Reports Toolbar Header */}
+ 
 
- {/* Reports Toolbar Header */}
+ 
  <div className="sa-schools-header-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
  <div>
  <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#0f172a', fontWeight: 800 }}>
@@ -4717,7 +4715,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  className="btn btn-outline btn-sm"
  style={{ fontWeight: 700, borderColor: '#2563eb', color: '#2563eb' }}
  onClick={() => {
- // Export all reports summary into Excel
+ 
  const summaryExport = reportsList.map(r => ({
  'Report ID': r.id,
  'Report Name': r.title,
@@ -4741,7 +4739,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </button>
  </div>
 
- {/* Interactive Report Cards Grid */}
+ 
  <div style={{
  display: 'grid',
  gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
@@ -4772,7 +4770,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  e.currentTarget.style.borderColor = '#e2e8f0';
  }}
  >
- {/* Header: Icon & Category Badge */}
+ 
  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
  <div style={{
  width: '48px',
@@ -4801,7 +4799,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </span>
  </div>
 
- {/* Report Title & Description */}
+ 
  <h4 style={{ margin: '0 0 8px', fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', lineHeight: '1.35' }}>
  {rep.title}
  </h4>
@@ -4809,7 +4807,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  {rep.description}
  </p>
 
- {/* Metric Highlight Box */}
+ 
  <div style={{
  background: '#f8fafc',
  borderRadius: '10px',
@@ -4828,7 +4826,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Action Button: Opens Interactive Report Modal */}
+ 
  <button
  type="button"
  className="btn btn-primary btn-sm"
@@ -4853,17 +4851,17 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  );
  })()}
 
- {/* =================================================================== */}
- {/* 9. SECURE MESSAGING (secure-messaging) */}
- {/* =================================================================== */}
+ 
+ 
+ 
  {activeTab === 'secure-messaging' && <ChatBox />}
  </div>
 
- {/* =================================================================== */}
- {/* MODALS */}
- {/* =================================================================== */}
+ 
+ 
+ 
 
- {/* 1. Add User Modal */}
+ 
  {isAddUserOpen && (
  <div className="modal-overlay" style={{ display: 'flex' }}>
  <div className="modal-content wizard-modal-lg" style={{ maxWidth: '640px' }}>
@@ -4936,7 +4934,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
- {/* 1S. Add / Edit Staff Modal (Dynamic fields based on Selected Staff Role) */}
+ 
  {isStaffModalOpen && (
  <div className="modal-overlay" style={{ display: 'flex' }}>
  <div className="modal-content wizard-modal-lg" style={{ maxWidth: '720px' }}>
@@ -5003,7 +5001,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
 
  <div className="wizard-grid-2">
- {/* Role Selection */}
+ 
  <div className="wizard-field">
  <label>Staff Role <span className="req">*</span></label>
  <select
@@ -5032,7 +5030,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </select>
  </div>
 
- {/* Status */}
+ 
  <div className="wizard-field">
  <label>
    {staffForm.role === 'Operations Works' ? 'Task Status' : 'Duty Status'} <span className="req">*</span>
@@ -5057,7 +5055,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </select>
  </div>
 
- {/* Name / Assigned Person */}
+ 
  <div className="wizard-field span-2">
  <label>
    {staffForm.role === 'Operations Works' ? 'Assigned Person / Responsible Team' : 'Full Name'} <span className="req">*</span>
@@ -5079,7 +5077,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  />
  </div>
 
- {/* Contact Phone Number */}
+ 
  <div className="wizard-field">
  <label>
    {staffForm.role === 'Operations Works' ? 'In-charge Contact Phone' : 'Phone Number'} <span className="req">*</span>
@@ -5093,7 +5091,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  />
  </div>
 
- {/* Email Address */}
+ 
  <div className="wizard-field">
  <label>
    {staffForm.role === 'Operations Works' ? 'Official / Department Email' : 'Email Address'} <span className="req">*</span>
@@ -5113,7 +5111,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  />
  </div>
 
- {/* Address */}
+ 
  <div className="wizard-field span-2">
  <label>
    {staffForm.role === 'Operations Works' ? 'Campus Location / Station' : 'Residential / Quarters Address'} <span className="req">*</span>
@@ -5131,7 +5129,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  />
  </div>
 
- {/* Blood Group */}
+ 
  <div className="wizard-field">
  <label>Blood Group {staffForm.role !== 'Operations Works' && <span className="req">*</span>}</label>
  <select
@@ -5149,7 +5147,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </select>
  </div>
 
- {/* Qualification / Designation / Task Title */}
+ 
  <div className="wizard-field">
  <label>
    {staffForm.role === 'Non-Teaching'
@@ -5178,7 +5176,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  />
  </div>
 
- {/* Subject / Department */}
+ 
  <div className="wizard-field">
  <label>
    {staffForm.role === 'Principal'
@@ -5207,7 +5205,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  />
  </div>
 
- {/* Assigned Class / Shift / Work Deadline */}
+ 
  <div className="wizard-field">
  <label>
    {staffForm.role === 'Principal'
@@ -5257,7 +5255,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
- {/* 10. Add / Edit Principal Modal */}
+ 
  {isPrincipalModalOpen && (
  <div className="modal-overlay" style={{ display: 'flex' }}>
  <div className="modal-content wizard-modal-lg" style={{ maxWidth: '640px' }}>
@@ -5351,9 +5349,9 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
- {/* 11. Feedback Modal */}
+ 
 
-  {/* Add / Edit Student Profile Modal */}
+  
   {isStudentModalOpen && (
     <div className="modal-overlay" style={{ display: 'flex' }}>
       <div className="modal-content wizard-modal-lg" style={{ maxWidth: '680px' }}>
@@ -5534,7 +5532,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
     </div>
   )}
 
-  {/* Student Exam Marks Modal */}
+  
   {marksStudent && (
     <div className="modal-overlay" style={{ display: 'flex' }}>
       <div className="modal-content wizard-modal-lg" style={{ maxWidth: '600px' }}>
@@ -5577,7 +5575,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
     </div>
   )}
 
-  {/* Add / Edit Class Modal */}
+  
   {isClassModalOpen && (
     <div className="modal-overlay" style={{ display: 'flex' }}>
       <div className="modal-content wizard-modal-lg" style={{ maxWidth: '580px' }}>
@@ -5664,7 +5662,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
     </div>
   )}
 
-  {/* Add / Edit Subject Modal */}
+  
   {isSubjectModalOpen && (
     <div className="modal-overlay" style={{ display: 'flex' }}>
       <div className="modal-content wizard-modal-lg" style={{ maxWidth: '580px' }}>
@@ -5774,7 +5772,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
   )}
 
  
-  {/* Assign Period / Subject & Faculty Modal */}
+  
   {assignWorkSlot && (
     <div className="modal-overlay" style={{ display: 'flex' }}>
       <div className="modal-content wizard-modal-lg" style={{ maxWidth: '540px' }}>
@@ -5812,7 +5810,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
                   value={assignWorkForm.subject}
                   onChange={(e) => {
                     const subName = e.target.value;
-                    // Auto-suggest faculty teacher assigned to this subject
+                    
                     const matchedSub = (data.subjects || []).find((s) => s.name === subName);
                     const suggestedTeacher = matchedSub && matchedSub.teacher ? matchedSub.teacher : assignWorkForm.teacherName;
                     setAssignWorkForm({
@@ -5891,7 +5889,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
- {/* 12. Bulk Student Import Modal (Excel .xlsx / .xls / CSV) */}
+ 
  {isBulkStudentOpen && (
  <div className="modal-overlay" style={{ display: 'flex' }}>
  <div className="modal-content" style={{ maxWidth: '720px' }}>
@@ -5912,7 +5910,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </button>
  </div>
  <form onSubmit={handleBulkUploadStudents} style={{ padding: '20px' }}>
- {/* Excel File Upload Input Box */}
+ 
  <div style={{
  border: '2px dashed #93c5fd',
  borderRadius: '12px',
@@ -5949,7 +5947,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  )}
  </div>
 
- {/* Live Preview Table */}
+ 
  {bulkStudentPreview.length > 0 && (
  <div style={{ marginBottom: '16px' }}>
  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
@@ -6017,7 +6015,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
- {/* 13. Bulk Staff / Teacher Import Modal (Excel) */}
+ 
  {isBulkTeacherOpen && (
  <div className="modal-overlay" style={{ display: 'flex' }}>
  <div className="modal-content" style={{ maxWidth: '780px' }}>
@@ -6038,7 +6036,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </button>
  </div>
  <form onSubmit={handleBulkUploadTeachers} style={{ padding: '20px' }}>
- {/* Excel File Upload Input Box */}
+ 
  <div style={{
  border: '2px dashed #a78bfa',
  borderRadius: '12px',
@@ -6075,7 +6073,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  )}
  </div>
 
- {/* Live Preview Table */}
+ 
  {bulkTeacherPreview.length > 0 && (
  <div style={{ marginBottom: '16px' }}>
  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
@@ -6153,7 +6151,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
- {/* Weekly Staff Schedule / Timetable Modal */}
+ 
  {selectedStaffSchedule && (() => {
  const staffName = selectedStaffSchedule;
  const staffObj = (data.teachers || []).find((t) => t.name === staffName) ||
@@ -6193,7 +6191,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <button className="modal-close" onClick={() => setSelectedStaffSchedule(null)}>&times;</button>
  </div>
 
- {/* Staff Stats Summary */}
+ 
  <div style={{
  display: 'grid',
  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
@@ -6224,7 +6222,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Weekly Timetable Grid Table */}
+ 
  <div style={{ marginBottom: '14px' }}>
  <h4 style={{ margin: '0 0 10px', fontSize: '0.95rem', color: 'var(--color-text-dark)', display: 'flex', alignItems: 'center', gap: '6px' }}>
  <span></span> Weekly Timetable & Allocated Sections (Monday to Friday)
@@ -6308,7 +6306,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Close Button Footer */}
+ 
  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #e2e8f0' }}>
  <button
  type="button"
@@ -6324,7 +6322,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  );
  })()}
 
- {/* Fee Reminder Action Modal (WhatsApp / SMS / IVR) */}
+ 
  {feeReminderModal && (
  <div className="modal-backdrop" onClick={() => setFeeReminderModal(null)}>
  <div
@@ -6362,7 +6360,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
 
  <div style={{ padding: '16px 20px' }}>
- {/* Due Summary Pill */}
+ 
  <div style={{
  background: '#fef2f2',
  border: '1px solid #fecaca',
@@ -6387,7 +6385,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Channel Selector Tabs */}
+ 
  <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px' }}>
  <button
  type="button"
@@ -6460,7 +6458,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </button>
  </div>
 
- {/* Message Composer */}
+ 
  <div style={{ marginBottom: '14px' }}>
  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
  {feeReminderModal.channel === 'call' ? 'Voice Call Prompt / Script' : 'Reminder Message Content'}
@@ -6484,7 +6482,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  />
  </div>
 
- {/* Quick Template Switcher */}
+ 
  <div style={{ display: 'flex', gap: '8px', marginBottom: '18px', flexWrap: 'wrap' }}>
  <button
  type="button"
@@ -6514,7 +6512,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </button>
  </div>
 
- {/* Actions Footer */}
+ 
  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', paddingTop: '12px', borderTop: '1px solid #e2e8f0', flexWrap: 'wrap' }}>
  <button
  type="button"
@@ -6524,7 +6522,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  Cancel
  </button>
 
- {/* If channel is call, provide Direct Phone Dialer + Automated IVR Dispatch */}
+ 
  {feeReminderModal.channel === 'call' ? (
  <>
  <a
@@ -6594,11 +6592,11 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  const phoneClean = feeReminderModal.record.phone.replace(/[^0-9]/g, '');
 
  if (feeReminderModal.channel === 'whatsapp') {
- // Launch WhatsApp Web / Mobile with customized message
+ 
  const waUrl = `https://api.whatsapp.com/send?phone=${phoneClean}&text=${encodeURIComponent(feeReminderModal.message)}`;
  window.open(waUrl, '_blank');
  } else if (feeReminderModal.channel === 'sms') {
- // Launch device SMS app with sms: protocol
+ 
  const smsUrl = `sms:${feeReminderModal.record.phone.replace(/[^0-9+]/g, '')}?body=${encodeURIComponent(feeReminderModal.message)}`;
  window.location.href = smsUrl;
  }
@@ -6621,7 +6619,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
- {/* Comprehensive School Report Detail Viewer Modal */}
+ 
  {activeReportViewer && (
  <div
  className="modal-backdrop"
@@ -6656,7 +6654,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  overflow: 'hidden'
  }}
  >
- {/* Modal Header */}
+ 
  <div className="modal-header" style={{ padding: '18px 24px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
  <div style={{
@@ -6696,9 +6694,9 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  <button className="modal-close" onClick={() => setActiveReportViewer(null)}>&times;</button>
  </div>
 
- {/* Modal Body / Report Tables */}
+ 
  <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1 }}>
- {/* Highlight ribbon inside modal */}
+ 
  <div style={{
  background: '#f8fafc',
  border: '1px solid #e2e8f0',
@@ -6797,7 +6795,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Dynamic Table Rendering based on Report Type */}
+ 
  <div className="table-responsive">
  {activeReportViewer.type === 'students' && (
  <table className="sa-schools-table">
@@ -7011,7 +7009,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  </div>
 
- {/* Modal Footer */}
+ 
  <div style={{ padding: '14px 24px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', justifyContent: 'flex-end' }}>
  <button
  type="button"
@@ -7026,14 +7024,14 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </div>
  )}
 
- {/* Interactive Service Player Modal */}
+ 
  <InteractiveServicePlayerModal
  isOpen={!!activePlayService}
  service={activePlayService}
  onClose={() => setActivePlayService(null)}
  />
 
-  {/* Dashboard Card Drill-down Modal */}
+  
  <DashboardDetailModal
  isOpen={cardDetailModal.isOpen}
  detailConfig={cardDetailModal.config}
@@ -7045,7 +7043,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  }}
  />
 
- {/* Individual Staff / Work Attendance & Status Modal */}
+ 
  {selectedStaffHistory && (() => {
  const staff = selectedStaffHistory;
  const curDateObj = new Date(staff.baseDate || staffAttendanceDate);
@@ -7340,7 +7338,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  );
  })()}
 
- {/* Principal-Style Unified Roster & Works Drilldown Modal */}
+ 
  {analyticsModal && (
  <div
  className="portal-modal-backdrop"
@@ -7375,7 +7373,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  }}
  onClick={(e) => e.stopPropagation()}
  >
- {/* Modal Header */}
+ 
  <div
  style={{
  background:
@@ -7426,9 +7424,9 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  </button>
  </div>
 
- {/* Modal Body */}
+ 
  <div style={{ padding: '24px', maxHeight: '72vh', overflowY: 'auto' }}>
- {/* 1. TEACHING STAFF DRILLDOWN */}
+ 
  {analyticsModal === 'staff' && (() => {
  const sDate = new Date(staffAttendanceDate);
  const dayNum = sDate.getDay();
@@ -7471,7 +7469,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
  return (
  <div>
- {/* Live Date Filter Bar */}
+ 
  <div
  style={{
  display: 'flex',
@@ -7624,7 +7622,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  );
  })()}
 
- {/* 2. NON-TEACHING STAFF DRILLDOWN */}
+ 
  {analyticsModal === 'non-teaching' && (() => {
  const sDate = new Date(staffAttendanceDate);
  const dayNum = sDate.getDay();
@@ -7656,7 +7654,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
  return (
  <div>
- {/* Date Selector Bar for Non-Teaching */}
+ 
  <div
  style={{
  display: 'flex',
@@ -7808,7 +7806,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  );
  })()}
 
- {/* 3. OPERATIONS WORKS & TASKS DRILLDOWN */}
+ 
  {analyticsModal === 'operations-works' && (() => {
  const sDate = new Date(staffAttendanceDate);
  const isSunday = sDate.getDay() === 0;
@@ -7837,7 +7835,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
 
  return (
  <div>
- {/* Live Date Filter Bar for Works */}
+ 
  <div
  style={{
  display: 'flex',
@@ -8007,7 +8005,7 @@ export default function SchoolAdminView({ activeTab, setActiveTab }) {
  })()}
  </div>
 
- {/* Modal Footer */}
+ 
  <div
  style={{
  display: 'flex',

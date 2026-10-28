@@ -31,7 +31,7 @@ export default function Contact() {
 
   return (
     <>
-      {/* Banner Section */}
+      
       <section className="hero" style={{ padding: '80px 0' }}>
         <div className="container hero-content">
           <h1 className="hero-title" style={{ fontSize: '2.8rem', marginBottom: '12px' }}>
@@ -43,10 +43,10 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* Contacts and Message Form */}
+      
       <section className="section section-bg">
         <div className="container grid-2">
-          {/* Contact details */}
+          
           <div>
             <span className="badge badge-secondary" style={{ marginBottom: '14px' }}>Get in Touch</span>
             <h2 className="section-title" style={{ textAlign: 'left', marginBottom: '16px' }}>
@@ -99,7 +99,7 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Contact Form */}
+          
           <div>
             <div
               style={{
@@ -188,7 +188,7 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* Location Map */}
+      
       <section className="section">
         <div className="container">
           <div className="section-title-wrap">

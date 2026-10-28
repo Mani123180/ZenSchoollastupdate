@@ -60,7 +60,7 @@ export default function Features() {
 
   return (
     <div className="landing-wrapper">
-      {/* Header Banner */}
+      
       <section className="landing-hero" style={{ background: '#ffffff', padding: '60px 20px 40px', textAlign: 'center' }}>
         <span className="badge-pricing-title" style={{ background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', padding: '6px 16px', borderRadius: '20px', fontWeight: 800, fontSize: '0.85rem' }}>
           Platform Features
@@ -73,7 +73,7 @@ export default function Features() {
         </p>
       </section>
 
-      {/* Feature Pillars Grid */}
+      
       <section className="landing-section" style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px', marginBottom: '50px' }}>
           {featurePillars.map((p, i) => (
@@ -85,7 +85,7 @@ export default function Features() {
           ))}
         </div>
 
-        {/* Feature Comparison Table Section */}
+        
         <div className="section-header" style={{ textAlign: 'center', marginBottom: '30px' }}>
           <h2 style={{ fontSize: '1.85rem', fontWeight: 900, color: '#0f172a' }}>DETAILED MODULE & FEATURE COMPARISON</h2>
           <p style={{ color: '#64748b', fontSize: '0.95rem' }}>Check which plan matches your school's student strength and operational requirements</p>
@@ -119,7 +119,7 @@ export default function Features() {
           </table>
         </div>
 
-        {/* CTA Strip */}
+        
         <div style={{ marginTop: '50px', background: 'linear-gradient(135deg, #0a1e3f 0%, #1e3a8a 100%)', borderRadius: '16px', padding: '36px', color: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
           <div>
             <h3 style={{ margin: '0 0 6px 0', fontSize: '1.4rem', fontWeight: 800 }}>Need a custom setup or module demo?</h3>

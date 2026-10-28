@@ -7,7 +7,7 @@ export default function SubscriptionModal({ isOpen, onClose, defaultTab = 'subsc
   nextYear.setFullYear(nextYear.getFullYear() + 1);
   const nextYearDate = nextYear.toISOString().split('T')[0];
 
-  // Subscription Form State
+  
   const [subSchool, setSubSchool] = useState('');
   const [subPlan, setSubPlan] = useState('');
   const [subStatus, setSubStatus] = useState('ACTIVE');
@@ -15,7 +15,7 @@ export default function SubscriptionModal({ isOpen, onClose, defaultTab = 'subsc
   const [subEnd, setSubEnd] = useState(nextYearDate);
   const [subAmount, setSubAmount] = useState('0/yr');
 
-  // Plan Form State
+  
   const [planName, setPlanName] = useState('');
   const [planPrice, setPlanPrice] = useState('0/yr');
   const [planStudents, setPlanStudents] = useState(2500);
@@ -144,7 +144,7 @@ export default function SubscriptionModal({ isOpen, onClose, defaultTab = 'subsc
               </div>
             </div>
 
-            {/* PANE 1: Assign School Subscription */}
+            
             {activeTab === 'subscription' && (
               <form onSubmit={handleSaveSub}>
                 <div className="wizard-grid-2">
@@ -198,7 +198,7 @@ export default function SubscriptionModal({ isOpen, onClose, defaultTab = 'subsc
               </form>
             )}
 
-            {/* PANE 2: Create / Edit Plan Tier */}
+            
             {activeTab === 'plan' && (
               <form onSubmit={handleSavePlan}>
                 <div className="wizard-grid-2">

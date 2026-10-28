@@ -78,7 +78,7 @@ export default function SuperAdminSettingsHub({ showFeedback }) {
 
   const [auditSearch, setAuditSearch] = useState('');
 
-  // Load live settings from backend/database on mount
+  
   useEffect(() => {
     async function loadData() {
       setLoading(true);
@@ -135,7 +135,7 @@ export default function SuperAdminSettingsHub({ showFeedback }) {
 
   return (
     <div style={{ marginTop: '10px' }}>
-      {/* 10 Setting Tabs Navigation */}
+      
       <div className="sa-schools-header-bar" style={{ marginBottom: '22px', flexWrap: 'wrap', gap: '8px' }}>
         <div className="sa-filter-segment" style={{ flexWrap: 'wrap', gap: '6px' }}>
           {tabs.map((t) => (
@@ -152,7 +152,7 @@ export default function SuperAdminSettingsHub({ showFeedback }) {
       </div>
 
       <div style={{ maxWidth: '860px' }}>
-        {/* 1. GENERAL */}
+        
         {activeTab === 'general' && (
           <form
             onSubmit={(e) => {
@@ -234,7 +234,7 @@ export default function SuperAdminSettingsHub({ showFeedback }) {
           </form>
         )}
 
-        {/* 2. SECURITY */}
+        
         {activeTab === 'security' && (
           <form
             onSubmit={(e) => {
@@ -311,7 +311,7 @@ export default function SuperAdminSettingsHub({ showFeedback }) {
           </form>
         )}
 
-        {/* 3. USER & ROLE PERMISSIONS */}
+        
         {activeTab === 'permissions' && (
           <form
             onSubmit={(e) => {
@@ -365,7 +365,7 @@ export default function SuperAdminSettingsHub({ showFeedback }) {
           </form>
         )}
 
-        {/* 4. NOTIFICATIONS */}
+        
         {activeTab === 'notifications' && (
           <form
             onSubmit={(e) => {
@@ -439,7 +439,7 @@ export default function SuperAdminSettingsHub({ showFeedback }) {
           </form>
         )}
 
-        {/* 5. SUBSCRIPTION & PAYMENT */}
+        
         {activeTab === 'subscription' && (
           <form
             onSubmit={(e) => {
@@ -506,7 +506,7 @@ export default function SuperAdminSettingsHub({ showFeedback }) {
           </form>
         )}
 
-        {/* 6. SCHOOL CONFIGURATION */}
+        
         {activeTab === 'schoolConfig' && (
           <form
             onSubmit={(e) => {
@@ -587,7 +587,7 @@ export default function SuperAdminSettingsHub({ showFeedback }) {
           </form>
         )}
 
-        {/* 7. DATA & BACKUP */}
+        
         {activeTab === 'dataBackup' && (
           <div className="wizard-form-box" style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
             <div className="wizard-header-strip" style={{ marginBottom: '20px' }}>
@@ -665,7 +665,7 @@ export default function SuperAdminSettingsHub({ showFeedback }) {
           </div>
         )}
 
-        {/* 8. AUDIT LOGS */}
+        
         {activeTab === 'auditLogs' && (
           <div className="wizard-form-box" style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
             <div className="wizard-header-strip" style={{ marginBottom: '16px' }}>
@@ -724,7 +724,7 @@ export default function SuperAdminSettingsHub({ showFeedback }) {
           </div>
         )}
 
-        {/* 9. LOCALIZATION */}
+        
         {activeTab === 'localization' && (
           <form
             onSubmit={(e) => {
@@ -797,7 +797,7 @@ export default function SuperAdminSettingsHub({ showFeedback }) {
           </form>
         )}
 
-        {/* 10. SYSTEM SETTINGS */}
+        
         {activeTab === 'system' && (
           <form
             onSubmit={(e) => {

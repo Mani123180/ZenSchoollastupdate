@@ -18,7 +18,7 @@ const handleResponse = async (res) => {
 };
 
 export const api = {
-  // Auth
+  
   login: async (username, password) => {
     const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
@@ -40,7 +40,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  // Schools
+  
   getSchools: async () => {
     const res = await fetch(`${API_BASE}/schools`, { headers: getAuthHeaders() });
     return handleResponse(res);
@@ -72,7 +72,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  // Users
+  
   getUsers: async (params = {}) => {
     const query = new URLSearchParams(params).toString();
     const res = await fetch(`${API_BASE}/users${query ? `?${query}` : ''}`, {
@@ -107,7 +107,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  // Students
+  
   getStudents: async (params = {}) => {
     const query = new URLSearchParams(params).toString();
     const res = await fetch(`${API_BASE}/students${query ? `?${query}` : ''}`, {
@@ -142,7 +142,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  // Teachers
+  
   getTeachers: async (params = {}) => {
     const query = new URLSearchParams(params).toString();
     const res = await fetch(`${API_BASE}/teachers${query ? `?${query}` : ''}`, {
@@ -168,7 +168,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  // Subscriptions & Plans
+  
   getPlans: async () => {
     const res = await fetch(`${API_BASE}/subscriptions/plans`, { headers: getAuthHeaders() });
     return handleResponse(res);
@@ -202,7 +202,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  // Messaging
+  
   sendHeartbeat: async () => {
     try {
       const res = await fetch(`${API_BASE}/messages/heartbeat`, {
@@ -236,7 +236,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  // Timetable
+  
   getTimetable: async (params = {}) => {
     const query = new URLSearchParams(params).toString();
     const res = await fetch(`${API_BASE}/timetable${query ? `?${query}` : ''}`, {
@@ -254,7 +254,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  // Contact Inquiry (Public)
+  
   submitInquiry: async (inquiryData) => {
     const res = await fetch(`${API_BASE}/contact`, {
       method: 'POST',
@@ -264,9 +264,9 @@ export const api = {
     return handleResponse(res);
   },
 
-  // ==========================================
-  // School Finance Module API Endpoints
-  // ==========================================
+  
+  
+  
   getFinanceDashboard: async (filters = {}) => {
     const query = new URLSearchParams(filters).toString();
     const res = await fetch(`${API_BASE}/finance/dashboard${query ? `?${query}` : ''}`, {
@@ -275,7 +275,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  // Student Billing
+  
   getStudentBills: async () => {
     const res = await fetch(`${API_BASE}/finance/student-bills`, {
       headers: getAuthHeaders(),
@@ -327,7 +327,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  // Staff Salary
+  
   getStaffSalaries: async () => {
     const res = await fetch(`${API_BASE}/finance/staff-salaries`, {
       headers: getAuthHeaders(),
@@ -371,7 +371,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  // School Expenses
+  
   getSchoolExpenses: async () => {
     const res = await fetch(`${API_BASE}/finance/expenses`, {
       headers: getAuthHeaders(),
@@ -414,7 +414,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  // Payment History
+  
   getPaymentHistory: async (filters = {}) => {
     const query = new URLSearchParams(filters).toString();
     const res = await fetch(`${API_BASE}/finance/payment-history${query ? `?${query}` : ''}`, {

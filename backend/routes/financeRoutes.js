@@ -3,11 +3,11 @@ const router = express.Router();
 const financeController = require('../controllers/financeController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
-// 1. Dashboard summary (superadmin, schooladmin)
+
 router.get('/dashboard', protect, authorize('superadmin', 'schooladmin'), financeController.getDashboardSummary);
 
-// 2. Student Billing
-// Reading bills and paying bills can also be accessed by parent, student, teacher, principal
+
+
 router.get('/student-bills', protect, authorize('superadmin', 'schooladmin', 'principal', 'teacher', 'student', 'parent'), financeController.getStudentBills);
 router.post('/student-bills/bulk', protect, authorize('superadmin', 'schooladmin'), financeController.bulkImportStudentBills);
 router.post('/student-bills', protect, authorize('superadmin', 'schooladmin'), financeController.createStudentBill);
@@ -15,21 +15,21 @@ router.put('/student-bills/:id', protect, authorize('superadmin', 'schooladmin')
 router.delete('/student-bills/:id', protect, authorize('superadmin', 'schooladmin'), financeController.deleteStudentBill);
 router.post('/student-bills/:id/pay', protect, authorize('superadmin', 'schooladmin', 'parent', 'student'), financeController.recordStudentFeePayment);
 
-// 3. Staff Salary (superadmin, schooladmin)
+
 router.get('/staff-salaries', protect, authorize('superadmin', 'schooladmin'), financeController.getStaffSalaries);
 router.post('/staff-salaries/bulk', protect, authorize('superadmin', 'schooladmin'), financeController.bulkImportStaffSalaries);
 router.post('/staff-salaries', protect, authorize('superadmin', 'schooladmin'), financeController.generateStaffSalary);
 router.put('/staff-salaries/:id', protect, authorize('superadmin', 'schooladmin'), financeController.updateStaffSalary);
 router.post('/staff-salaries/:id/pay', protect, authorize('superadmin', 'schooladmin'), financeController.recordStaffSalaryPayment);
 
-// 4. School Expenses (superadmin, schooladmin)
+
 router.get('/expenses', protect, authorize('superadmin', 'schooladmin'), financeController.getSchoolExpenses);
 router.post('/expenses', protect, authorize('superadmin', 'schooladmin'), financeController.addSchoolExpense);
 router.put('/expenses/:id', protect, authorize('superadmin', 'schooladmin'), financeController.updateSchoolExpense);
 router.delete('/expenses/:id', protect, authorize('superadmin', 'schooladmin'), financeController.deleteSchoolExpense);
 router.post('/expenses/:id/pay', protect, authorize('superadmin', 'schooladmin'), financeController.recordSchoolExpensePayment);
 
-// 5. Payment History (superadmin, schooladmin)
+
 router.get('/payment-history', protect, authorize('superadmin', 'schooladmin'), financeController.getPaymentHistory);
 
 module.exports = router;

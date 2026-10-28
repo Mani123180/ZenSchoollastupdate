@@ -1,14 +1,11 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-/**
- * Generates and downloads a clean, professional PDF invoice directly to the user's system.
- * @param {Object} bill - The bill object { invoiceNo, school, schoolId, plan, amount, dueDate, paymentDate, status }
- */
+
 export async function downloadInvoicePDF(bill) {
   if (!bill) return;
 
-  // Create an offscreen DOM container styled for invoice printing
+  
   const container = document.createElement('div');
   container.id = 'temp-pdf-invoice-container';
   container.style.position = 'fixed';
@@ -103,7 +100,7 @@ export async function downloadInvoicePDF(bill) {
       format: 'a4'
     });
 
-    const imgWidth = 595.28; // standard A4 width in pt
+    const imgWidth = 595.28; 
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
     pdf.addImage(imgData, 'PNG', 0, 20, imgWidth, imgHeight);
@@ -118,10 +115,7 @@ export async function downloadInvoicePDF(bill) {
   }
 }
 
-/**
- * Generates and downloads a real, formatted study material PDF document.
- * @param {Object} material - The study material object { id, title, grade, subject, fileName, fileSize, uploadedBy, date, description }
- */
+
 export async function downloadStudyMaterialPDF(material) {
   if (!material) return;
 
@@ -221,9 +215,7 @@ export async function downloadStudyMaterialPDF(material) {
   }
 }
 
-/**
- * Generates and downloads a clean, professional Student Fee Bill Invoice PDF
- */
+
 export async function downloadStudentBillPDF(bill) {
   if (!bill) return;
 
@@ -351,9 +343,7 @@ export async function downloadStudentBillPDF(bill) {
   }
 }
 
-/**
- * Generates and downloads a clean, professional Staff Salary Slip PDF
- */
+
 export async function downloadSalarySlipPDF(salary) {
   if (!salary) return;
 

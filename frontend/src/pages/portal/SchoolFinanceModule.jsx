@@ -3,15 +3,16 @@ import { api } from '../../services/api';
 import { downloadStudentBillPDF, downloadSalarySlipPDF } from '../../services/pdfDownloadUtil';
 import { syncBillToPortalFeeRecords } from '../../services/portalData';
 import * as XLSX from 'xlsx';
+import { defaultFinanceData } from '../../services/defaultFinanceData';
 
 export default function SchoolFinanceModule({ user }) {
-  // Active Submenu tab
-  // 1: 'dashboard', 2: 'student-billing', 3: 'staff-salary', 4: 'school-expenses', 5: 'finance-reports', 6: 'payment-history'
+  
+  
   const [subTab, setSubTab] = useState('dashboard');
   const [loading, setLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
-  // Dashboard Data State
+  
   const [dashboardData, setDashboardData] = useState({
     summary: {
       totalStudentFees: 133500,
@@ -54,7 +55,7 @@ export default function SchoolFinanceModule({ user }) {
     recentTransactions: []
   });
 
-  // Dashboard Filter State
+  
   const [dashFilters, setDashFilters] = useState({
     academicYear: '2026-2027',
     month: 'October',
@@ -62,12 +63,12 @@ export default function SchoolFinanceModule({ user }) {
     section: 'All'
   });
 
-  // ==========================================
-  // 1. Student Bills State
-  // ==========================================
-  const [bills, setBills] = useState([]);
+  
+  
+  
+  const [bills, setBills] = useState(() => defaultFinanceData.bills);
   const [billSearch, setBillSearch] = useState('');
-  const [selectedStudentCard, setSelectedStudentCard] = useState(null);
+  const [selectedStudentCard, setSelectedStudentCard] = useState(() => defaultFinanceData.bills[0] || null);
   const [drillDownModal, setDrillDownModal] = useState({ isOpen: false, type: '', title: '', subtitle: '', color: '#3b82f6', targetTab: '' });
   const [billStatusFilter, setBillStatusFilter] = useState('All');
   const [billClassFilter, setBillClassFilter] = useState('All');
@@ -75,10 +76,10 @@ export default function SchoolFinanceModule({ user }) {
   const [billMonthFilter, setBillMonthFilter] = useState('All');
   const [billSectionFilter, setBillSectionFilter] = useState('All');
 
-  // Bulk Import Modal State
+  
   const [bulkImportModal, setBulkImportModal] = useState({
     isOpen: false,
-    type: 'student', // 'student' | 'salary'
+    type: 'student', 
     previewData: [],
     fileName: '',
     importing: false,
@@ -90,7 +91,7 @@ export default function SchoolFinanceModule({ user }) {
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
   const [activePayingRecord, setActivePayingRecord] = useState(null);
 
-  // Standard fee types
+  
   const standardFeeTypes = [
     'Monthly Fees',
     'Transport Fees',
@@ -133,14 +134,14 @@ export default function SchoolFinanceModule({ user }) {
     remarks: ''
   });
 
-  // ==========================================
-  // 2. Staff Salary State (Teaching & Non-Teaching)
-  // ==========================================
-  const [salaries, setSalaries] = useState([]);
+  
+  
+  
+  const [salaries, setSalaries] = useState(() => defaultFinanceData.salaries);
   const [salarySearch, setSalarySearch] = useState('');
-  const [staffCategoryTab, setStaffCategoryTab] = useState('ALL'); // 'ALL' | 'Teaching' | 'Non-Teaching'
-  const [staffRoleFilter, setStaffRoleFilter] = useState('ALL'); // 'ALL' | 'Transport Driver' | 'Cleaning Worker' | 'Hostel Warden'
-  const [salaryPayStatusFilter, setSalaryPayStatusFilter] = useState('ALL'); // 'ALL' | 'PAID' | 'NON-PAID'
+  const [staffCategoryTab, setStaffCategoryTab] = useState('ALL'); 
+  const [staffRoleFilter, setStaffRoleFilter] = useState('ALL'); 
+  const [salaryPayStatusFilter, setSalaryPayStatusFilter] = useState('ALL'); 
   const [salaryMonthFilter, setSalaryMonthFilter] = useState('All');
   const [salaryYearFilter, setSalaryYearFilter] = useState('2026');
   const [salaryDepartmentFilter, setSalaryDepartmentFilter] = useState('All');
@@ -171,9 +172,9 @@ export default function SchoolFinanceModule({ user }) {
     remarks: ''
   });
 
-  // ==========================================
-  // 3. School Expenses State
-  // ==========================================
+  
+  
+  
   const expenseCategories = [
     'Electricity and Utilities',
     'Maintenance',
@@ -184,7 +185,7 @@ export default function SchoolFinanceModule({ user }) {
     'Other Expenses'
   ];
 
-  const [expenses, setExpenses] = useState([]);
+  const [expenses, setExpenses] = useState(() => defaultFinanceData.expenses);
   const [expenseSearch, setExpenseSearch] = useState('');
   const [expenseCatFilter, setExpenseCatFilter] = useState('All');
   const [expenseStatusFilter, setExpenseStatusFilter] = useState('All');
@@ -206,25 +207,25 @@ export default function SchoolFinanceModule({ user }) {
     attachmentUrl: ''
   });
 
-  // ==========================================
-  // 4. Payment History State
-  // ==========================================
-  const [paymentHistory, setPaymentHistory] = useState([]);
+  
+  
+  
+  const [paymentHistory, setPaymentHistory] = useState(() => defaultFinanceData.paymentHistory);
   const [paySearch, setPaySearch] = useState('');
   const [payTypeFilter, setPayTypeFilter] = useState('All');
   const [payStartDate, setPayStartDate] = useState('');
   const [payEndDate, setPayEndDate] = useState('');
 
-  // ==========================================
-  // 5. Reports Filter & State
-  // ==========================================
+  
+  
+  
   const [reportType, setReportType] = useState('student-fee-collection');
   const [reportMonth, setReportMonth] = useState('All');
   const [reportYear, setReportYear] = useState('2026-2027');
   const [reportClass, setReportClass] = useState('All');
   const [reportStatus, setReportStatus] = useState('All');
 
-  // Single Payment Input Modal Form
+  
   const [paymentRecordForm, setPaymentRecordForm] = useState({
     amount: '',
     paymentMethod: 'Bank Transfer',
@@ -232,13 +233,13 @@ export default function SchoolFinanceModule({ user }) {
     remarks: ''
   });
 
-  // Toast notifier helper
+  
   const showToast = (title, message, isError = false) => {
     setToastMessage({ title, message, isError });
     setTimeout(() => setToastMessage(null), 4500);
   };
 
-  // Fetch Dashboard Summary
+  
   const loadDashboardData = async () => {
     try {
       const res = await api.getFinanceDashboard(dashFilters);
@@ -250,47 +251,57 @@ export default function SchoolFinanceModule({ user }) {
     }
   };
 
-  // Fetch Student Bills
+  
   const loadStudentBills = async () => {
     try {
       const res = await api.getStudentBills();
-      if (res && res.success) {
+      if (res && res.success && Array.isArray(res.bills) && res.bills.length > 0) {
         setBills(res.bills);
-        // Default select first student if available and none selected
-        if (res.bills && res.bills.length > 0 && !selectedStudentCard) {
+        if (!selectedStudentCard) {
           setSelectedStudentCard(res.bills[0]);
         }
+      } else {
+        setBills(defaultFinanceData.bills);
+        if (!selectedStudentCard) setSelectedStudentCard(defaultFinanceData.bills[0]);
       }
     } catch (err) {
-      console.warn('Student Bills API fallback:', err.message);
+      console.warn('Student Bills API fallback to demo data:', err.message);
+      setBills(defaultFinanceData.bills);
+      if (!selectedStudentCard) setSelectedStudentCard(defaultFinanceData.bills[0]);
     }
   };
 
-  // Fetch Staff Salaries
+  
   const loadStaffSalaries = async () => {
     try {
       const res = await api.getStaffSalaries();
-      if (res && res.success) {
+      if (res && res.success && Array.isArray(res.salaries) && res.salaries.length > 0) {
         setSalaries(res.salaries);
+      } else {
+        setSalaries(defaultFinanceData.salaries);
       }
     } catch (err) {
-      console.warn('Staff Salaries API fallback:', err.message);
+      console.warn('Staff Salaries API fallback to demo data:', err.message);
+      setSalaries(defaultFinanceData.salaries);
     }
   };
 
-  // Fetch School Expenses
+  
   const loadSchoolExpenses = async () => {
     try {
       const res = await api.getSchoolExpenses();
-      if (res && res.success) {
+      if (res && res.success && Array.isArray(res.expenses) && res.expenses.length > 0) {
         setExpenses(res.expenses);
+      } else {
+        setExpenses(defaultFinanceData.expenses);
       }
     } catch (err) {
-      console.warn('School Expenses API fallback:', err.message);
+      console.warn('School Expenses API fallback to demo data:', err.message);
+      setExpenses(defaultFinanceData.expenses);
     }
   };
 
-  // Fetch Payment History
+  
   const loadPaymentHistory = async () => {
     try {
       const res = await api.getPaymentHistory({
@@ -299,15 +310,18 @@ export default function SchoolFinanceModule({ user }) {
         startDate: payStartDate,
         endDate: payEndDate
       });
-      if (res && res.success) {
+      if (res && res.success && Array.isArray(res.transactions) && res.transactions.length > 0) {
         setPaymentHistory(res.transactions);
+      } else {
+        setPaymentHistory(defaultFinanceData.paymentHistory);
       }
     } catch (err) {
-      console.warn('Payment History API fallback:', err.message);
+      console.warn('Payment History API fallback to demo data:', err.message);
+      setPaymentHistory(defaultFinanceData.paymentHistory);
     }
   };
 
-  // Initial Load
+  
   useEffect(() => {
     loadDashboardData();
     loadStudentBills();
@@ -316,19 +330,19 @@ export default function SchoolFinanceModule({ user }) {
     loadPaymentHistory();
   }, []);
 
-  // When dashFilters change, reload dashboard
+  
   useEffect(() => {
     loadDashboardData();
   }, [dashFilters]);
 
-  // When payment filters change, reload history
+  
   useEffect(() => {
     loadPaymentHistory();
   }, [payTypeFilter, paySearch, payStartDate, payEndDate]);
 
-  // ==========================================
-  // Student Billing Handlers
-  // ==========================================
+  
+  
+  
   const handleOpenBillModal = (bill = null) => {
     setEditingBill(bill);
     if (bill) {
@@ -492,13 +506,13 @@ export default function SchoolFinanceModule({ user }) {
     }
   };
 
-  // ==========================================
-  // BULK EXCEL UPLOAD HANDLERS
-  // ==========================================
+  
+  
+  
   const handleOpenBulkModal = (type) => {
     setBulkImportModal({
       isOpen: true,
-      type, // 'student' | 'salary'
+      type, 
       previewData: [],
       fileName: '',
       importing: false,
@@ -538,7 +552,7 @@ export default function SchoolFinanceModule({ user }) {
       }
     };
     reader.readAsBinaryString(file);
-    e.target.value = ''; // reset
+    e.target.value = ''; 
   };
 
   const handleConfirmBulkImport = async () => {
@@ -679,7 +693,7 @@ export default function SchoolFinanceModule({ user }) {
     }
   };
 
-  // Helper to extract specific fee from feeItems
+  
   const getFeeAmount = (bill, typeName) => {
     if (!bill || !bill.feeItems) return 0;
     const item = bill.feeItems.find(f => (f.feeType || '').toLowerCase().includes(typeName.toLowerCase()));
@@ -694,9 +708,9 @@ export default function SchoolFinanceModule({ user }) {
     return bill.paymentStatus === 'Paid' ? 'Paid' : 'Unpaid';
   };
 
-  // ==========================================
-  // Staff Salary Handlers
-  // ==========================================
+  
+  
+  
   const handleOpenSalaryModal = (salary = null, defaultType = 'Teaching', defaultDesig = 'Senior Teacher') => {
     setEditingSalary(salary);
     if (salary) {
@@ -777,9 +791,9 @@ export default function SchoolFinanceModule({ user }) {
     }
   };
 
-  // ==========================================
-  // School Expenses Handlers
-  // ==========================================
+  
+  
+  
   const handleOpenExpenseModal = (expense = null) => {
     setEditingExpense(expense);
     if (expense) {
@@ -855,9 +869,9 @@ export default function SchoolFinanceModule({ user }) {
     }
   };
 
-  // ==========================================
-  // Record Payment Modal (Unified for Bill, Salary, Expense)
-  // ==========================================
+  
+  
+  
   const handleOpenPayModal = (record, type) => {
     setActivePayingRecord({ ...record, _paymentType: type });
     setPaymentRecordForm({
@@ -920,9 +934,9 @@ export default function SchoolFinanceModule({ user }) {
     }
   };
 
-  // ==========================================
-  // Export Excel Handlers
-  // ==========================================
+  
+  
+  
   const exportToExcel = (dataList, fileName) => {
     try {
       const ws = XLSX.utils.json_to_sheet(dataList);
@@ -935,7 +949,7 @@ export default function SchoolFinanceModule({ user }) {
     }
   };
 
-  // Calculated Salary Preview in form
+  
   const calcGross = (Number(salaryForm.basicSalary) || 0) +
     (Number(salaryForm.hra) || 0) +
     (Number(salaryForm.allowances) || 0) +
@@ -949,7 +963,7 @@ export default function SchoolFinanceModule({ user }) {
 
   const calcNet = Math.max(0, calcGross - calcDeductions);
 
-  // Filtered views
+  
   const filteredBills = bills.filter(b => {
     const q = billSearch.toLowerCase();
     const matchSearch = (b.studentName || '').toLowerCase().includes(q) ||
@@ -964,7 +978,7 @@ export default function SchoolFinanceModule({ user }) {
     return matchSearch && matchStatus && matchClass && matchYear && matchMonth && matchSection;
   });
 
-  // Staff Salary Filter with Teaching & Non-Teaching (Drivers, Cleaners, Wardens) and Paid / Non-Paid
+  
   const filteredSalaries = salaries.filter(s => {
     const q = salarySearch.toLowerCase();
     const matchSearch = (s.staffName || '').toLowerCase().includes(q) ||
@@ -972,7 +986,7 @@ export default function SchoolFinanceModule({ user }) {
       (s.department || '').toLowerCase().includes(q) ||
       (s.designation || '').toLowerCase().includes(q);
 
-    // Teaching vs Non-Teaching category
+    
     const isNonTeaching = s.staffType === 'Non-Teaching' ||
       ['Transport Driver', 'Cleaning Worker', 'Hostel Warden', 'Security', 'Driver', 'Housekeeping'].includes(s.designation);
 
@@ -980,13 +994,13 @@ export default function SchoolFinanceModule({ user }) {
       (staffCategoryTab === 'Teaching' && !isNonTeaching) ||
       (staffCategoryTab === 'Non-Teaching' && isNonTeaching);
 
-    // Non-Teaching Specific Role Sub-filter
+    
     let matchRole = true;
     if (staffRoleFilter !== 'ALL') {
       matchRole = (s.designation || '').toLowerCase().includes(staffRoleFilter.toLowerCase());
     }
 
-    // Paid vs Non-Paid button filter
+    
     let matchPaid = true;
     if (salaryPayStatusFilter === 'PAID') {
       matchPaid = s.paymentStatus === 'Paid';
@@ -1012,7 +1026,7 @@ export default function SchoolFinanceModule({ user }) {
 
   return (
     <div className="school-finance-container" style={{ padding: '4px' }}>
-      {/* Toast Notification Alert */}
+      
       {toastMessage && (
         <div style={{
           position: 'fixed',
@@ -1044,7 +1058,7 @@ export default function SchoolFinanceModule({ user }) {
         </div>
       )}
 
-      {/* Primary Submenu Tabs Bar (All 6 Submenus under one Finance Menu) */}
+      
       <div style={{
         background: '#ffffff',
         border: '1px solid #e2e8f0',
@@ -1094,12 +1108,12 @@ export default function SchoolFinanceModule({ user }) {
         })}
       </div>
 
-      {/* =================================================================== */}
-      {/* 1. FINANCE DASHBOARD */}
-      {/* =================================================================== */}
+      
+      
+      
       {subTab === 'dashboard' && (
         <div>
-          {/* Dashboard Header & Multi-Filter Bar */}
+          
           <div style={{
             background: '#ffffff',
             border: '1px solid #e2e8f0',
@@ -1121,7 +1135,7 @@ export default function SchoolFinanceModule({ user }) {
               </p>
             </div>
 
-            {/* Filters: Academic Year, Month, Class, Section */}
+            
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Academic Year</label>
@@ -1190,14 +1204,14 @@ export default function SchoolFinanceModule({ user }) {
             </div>
           </div>
 
-          {/* 9 Summary Cards as Specified */}
+          
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
             gap: '16px',
             marginBottom: '24px'
           }}>
-            {/* Card 1: Total Student Fees */}
+            
             <div
               onClick={() => setDrillDownModal({
                 isOpen: true,
@@ -1231,7 +1245,7 @@ export default function SchoolFinanceModule({ user }) {
               <div style={{ fontSize: '0.76rem', color: '#64748b', marginTop: '4px' }}>Billed student accounts ({dashboardData.summary?.counts?.billsCount || 0} active)</div>
             </div>
 
-            {/* Card 2: Total Fees Collected */}
+            
             <div
               onClick={() => setDrillDownModal({
                 isOpen: true,
@@ -1265,7 +1279,7 @@ export default function SchoolFinanceModule({ user }) {
               <div style={{ fontSize: '0.76rem', color: '#16a34a', marginTop: '4px' }}>Received via UPI, NetBanking & Cash</div>
             </div>
 
-            {/* Card 3: Total Pending Student Fees */}
+            
             <div
               onClick={() => setDrillDownModal({
                 isOpen: true,
@@ -1299,7 +1313,7 @@ export default function SchoolFinanceModule({ user }) {
               <div style={{ fontSize: '0.76rem', color: '#dc2626', marginTop: '4px' }}>Awaiting settlement & partial balances</div>
             </div>
 
-            {/* Card 4: Total Staff Salary */}
+            
             <div
               onClick={() => setDrillDownModal({
                 isOpen: true,
@@ -1333,7 +1347,7 @@ export default function SchoolFinanceModule({ user }) {
               <div style={{ fontSize: '0.76rem', color: '#64748b', marginTop: '4px' }}>Net payroll liability (Teaching + Non-Teaching)</div>
             </div>
 
-            {/* Card 5: Total Salary Paid */}
+            
             <div
               onClick={() => setDrillDownModal({
                 isOpen: true,
@@ -1367,7 +1381,7 @@ export default function SchoolFinanceModule({ user }) {
               <div style={{ fontSize: '0.76rem', color: '#14b8a6', marginTop: '4px' }}>Disbursed directly into bank accounts</div>
             </div>
 
-            {/* Card 6: Total Salary Pending */}
+            
             <div
               onClick={() => setDrillDownModal({
                 isOpen: true,
@@ -1401,7 +1415,7 @@ export default function SchoolFinanceModule({ user }) {
               <div style={{ fontSize: '0.76rem', color: '#b45309', marginTop: '4px' }}>Pending batch transfer processing</div>
             </div>
 
-            {/* Card 7: Total School Expenses */}
+            
             <div
               onClick={() => setDrillDownModal({
                 isOpen: true,
@@ -1435,7 +1449,7 @@ export default function SchoolFinanceModule({ user }) {
               <div style={{ fontSize: '0.76rem', color: '#64748b', marginTop: '4px' }}>Utilities, fleet fuel & maintenance</div>
             </div>
 
-            {/* Card 8: Total Income */}
+            
             <div
               onClick={() => setDrillDownModal({
                 isOpen: true,
@@ -1469,7 +1483,7 @@ export default function SchoolFinanceModule({ user }) {
               <div style={{ fontSize: '0.76rem', color: '#10b981', marginTop: '4px' }}>Gross collected revenue inflow</div>
             </div>
 
-            {/* Card 9: Total Outstanding Payments */}
+            
             <div
               onClick={() => setDrillDownModal({
                 isOpen: true,
@@ -1504,9 +1518,9 @@ export default function SchoolFinanceModule({ user }) {
             </div>
           </div>
 
-          {/* Charts Visual Section */}
+          
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '20px', marginBottom: '24px' }}>
-            {/* Visual 1: Monthly Income vs Expenses Chart */}
+            
             <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px' }}>
               <h4 style={{ margin: '0 0 16px', fontSize: '1rem', color: '#1e3a8a', fontWeight: 700 }}>
                 📈 Monthly Income & Expense Trends
@@ -1546,7 +1560,7 @@ export default function SchoolFinanceModule({ user }) {
               </div>
             </div>
 
-            {/* Visual 2: Expense Category Breakdown */}
+            
             <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px' }}>
               <h4 style={{ margin: '0 0 16px', fontSize: '1rem', color: '#1e3a8a', fontWeight: 700 }}>
                 Campus Expense Category Distribution
@@ -1573,12 +1587,12 @@ export default function SchoolFinanceModule({ user }) {
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* 2. STUDENT BILLING (Select/Search Student -> Full Details Card + Separated Fee Columns) */}
-      {/* =================================================================== */}
+      
+      
+      
       {subTab === 'student-billing' && (
         <div>
-          {/* Header & Controls */}
+          
           <div style={{
             background: '#ffffff',
             border: '1px solid #e2e8f0',
@@ -1661,7 +1675,7 @@ export default function SchoolFinanceModule({ user }) {
             </div>
           </div>
 
-          {/* Standardized Filter Option Bar matching screenshot: ACADEMIC YEAR | MONTH | CLASS | SECTION | Refresh + Search */}
+          
           <div style={{
             background: '#ffffff',
             border: '1px solid #cbd5e1',
@@ -1814,9 +1828,9 @@ export default function SchoolFinanceModule({ user }) {
             </div>
           </div>
 
-          {/* ======================================================== */}
-          {/* SPECIAL FULL DETAILS CARD FOR SELECTED STUDENT (As Requested) */}
-          {/* ======================================================== */}
+          
+          
+          
           {selectedStudentCard && (
             <div style={{
               background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
@@ -1842,7 +1856,7 @@ export default function SchoolFinanceModule({ user }) {
                   </div>
                 </div>
 
-                {/* Status Badge & Due Date Banner */}
+                
                 <div style={{ textAlign: 'right' }}>
                   <span className={`badge ${selectedStudentCard.paymentStatus === 'Paid' ? 'badge-success' : selectedStudentCard.paymentStatus === 'Partially Paid' ? 'badge-warning' : 'badge-danger'}`}
                     style={{ fontSize: '0.85rem', padding: '6px 14px' }}>
@@ -1854,7 +1868,7 @@ export default function SchoolFinanceModule({ user }) {
                 </div>
               </div>
 
-              {/* Exact Fields Requested in Student Billing Details Grid */}
+              
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
@@ -1929,7 +1943,7 @@ export default function SchoolFinanceModule({ user }) {
                 </div>
               </div>
 
-              {/* Action Buttons: View, Edit, Download Bill, Record Payment */}
+              
               <div style={{ display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', gap: '10px' }}>
                 {selectedStudentCard.pendingAmount > 0 && (
                   <button
@@ -1972,10 +1986,10 @@ export default function SchoolFinanceModule({ user }) {
             </div>
           )}
 
-          {/* ======================================================== */}
-          {/* HORIZONTALLY SCROLLABLE STUDENT BILLING SHEET (Left to Right Movement) */}
-          {/* Separated Fee Columns as Requested */}
-          {/* ======================================================== */}
+          
+          
+          
+          
           <div style={{
             background: '#ffffff',
             border: '1px solid #e2e8f0',
@@ -2176,12 +2190,12 @@ export default function SchoolFinanceModule({ user }) {
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* 3. STAFF SALARY MANAGEMENT (Teaching & Non-Teaching: Drivers, Cleaning, Wardens + Paid / Non-Paid) */}
-      {/* =================================================================== */}
+      
+      
+      
       {subTab === 'staff-salary' && (
         <div>
-          {/* Header & Controls */}
+          
           <div style={{
             background: '#ffffff',
             border: '1px solid #e2e8f0',
@@ -2263,7 +2277,7 @@ export default function SchoolFinanceModule({ user }) {
             </div>
           </div>
 
-          {/* Category Switcher Tabs: All Staff / Teaching Faculty / Non-Teaching Staff */}
+          
           <div style={{
             display: 'flex',
             flexWrap: 'wrap',
@@ -2328,7 +2342,7 @@ export default function SchoolFinanceModule({ user }) {
             </button>
           </div>
 
-          {/* Non-Teaching Sub-Role Filter Quick Buttons (Transport Drivers, Cleaning Workers, Hostel Wardens) */}
+          
           {staffCategoryTab === 'Non-Teaching' && (
             <div style={{
               background: '#f0fdfa',
@@ -2369,7 +2383,7 @@ export default function SchoolFinanceModule({ user }) {
             </div>
           )}
 
-          {/* Standardized Filter Option Bar for Staff Salary matching screenshot: ACADEMIC YEAR | MONTH | DEPARTMENT | STATUS | Refresh + Search */}
+          
           <div style={{
             background: '#ffffff',
             border: '1px solid #cbd5e1',
@@ -2434,7 +2448,7 @@ export default function SchoolFinanceModule({ user }) {
               </select>
             </div>
 
-            {/* PAID or NON-PAID BUTTONS */}
+            
             <div>
               <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.3px' }}>
                 SALARY STATUS
@@ -2536,9 +2550,9 @@ export default function SchoolFinanceModule({ user }) {
             </div>
           </div>
 
-          {/* ======================================================== */}
-          {/* HORIZONTALLY SCROLLABLE STAFF SALARY SHEET (Left to Right Movement) */}
-          {/* ======================================================== */}
+          
+          
+          
           <div style={{
             background: '#ffffff',
             border: '1px solid #e2e8f0',
@@ -2697,9 +2711,9 @@ export default function SchoolFinanceModule({ user }) {
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* 4. SCHOOL EXPENSES MANAGEMENT */}
-      {/* =================================================================== */}
+      
+      
+      
       {subTab === 'school-expenses' && (
         <div>
           <div style={{
@@ -2756,7 +2770,7 @@ export default function SchoolFinanceModule({ user }) {
             </div>
           </div>
 
-          {/* Filters Bar */}
+          
           <div style={{
             background: '#f8fafc',
             border: '1px solid #e2e8f0',
@@ -2803,7 +2817,7 @@ export default function SchoolFinanceModule({ user }) {
             </div>
           </div>
 
-          {/* Expenses Table with Scroll */}
+          
           <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
             <div style={{ overflowX: 'auto', width: '100%' }}>
               <table className="sa-schools-table" style={{ width: '100%', minWidth: '950px', borderCollapse: 'collapse' }}>
@@ -2913,9 +2927,9 @@ export default function SchoolFinanceModule({ user }) {
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* 5. FINANCE REPORTS */}
-      {/* =================================================================== */}
+      
+      
+      
       {subTab === 'finance-reports' && (
         <div>
           <div style={{
@@ -2932,7 +2946,7 @@ export default function SchoolFinanceModule({ user }) {
               Download detailed reports in PDF and Excel format with custom date, class, and status filters
             </div>
 
-            {/* Report Selection Grid */}
+            
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
@@ -2976,7 +2990,7 @@ export default function SchoolFinanceModule({ user }) {
             </div>
           </div>
 
-          {/* Report Filters and Actions */}
+          
           <div style={{
             background: '#ffffff',
             border: '1px solid #e2e8f0',
@@ -3109,9 +3123,9 @@ export default function SchoolFinanceModule({ user }) {
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* 6. PAYMENT HISTORY */}
-      {/* =================================================================== */}
+      
+      
+      
       {subTab === 'payment-history' && (
         <div>
           <div style={{
@@ -3144,7 +3158,7 @@ export default function SchoolFinanceModule({ user }) {
             </button>
           </div>
 
-          {/* Filters Bar */}
+          
           <div style={{
             background: '#f8fafc',
             border: '1px solid #e2e8f0',
@@ -3200,7 +3214,7 @@ export default function SchoolFinanceModule({ user }) {
             </div>
           </div>
 
-          {/* Transactions Table with Scroll */}
+          
           <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
             <div style={{ overflowX: 'auto', width: '100%' }}>
               <table className="sa-schools-table" style={{ width: '100%', minWidth: '1000px', borderCollapse: 'collapse' }}>
@@ -3283,9 +3297,9 @@ export default function SchoolFinanceModule({ user }) {
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* MODAL 1: CREATE / EDIT STUDENT BILL */}
-      {/* =================================================================== */}
+      
+      
+      
       {isBillModalOpen && (
         <div className="modal-overlay" style={{ display: 'flex', zIndex: 10000 }}>
           <div className="modal-content wizard-modal-lg" style={{ maxWidth: '850px', maxHeight: '90vh', overflowY: 'auto' }}>
@@ -3403,7 +3417,7 @@ export default function SchoolFinanceModule({ user }) {
                 </div>
               </div>
 
-              {/* Itemized Fee Items Table */}
+              
               <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px', marginBottom: '16px', background: '#f8fafc' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                   <div style={{ fontWeight: 700, fontSize: '0.92rem', color: '#1e3a8a' }}>
@@ -3531,7 +3545,7 @@ export default function SchoolFinanceModule({ user }) {
                   </table>
                 </div>
 
-                {/* Calculation Summary Bar */}
+                
                 {(() => {
                   const calculatedTotal = billForm.feeItems.reduce((acc, it) => acc + (Number(it.netAmount) || 0), 0);
                   const paid = Number(billForm.paidAmount) || 0;
@@ -3557,7 +3571,7 @@ export default function SchoolFinanceModule({ user }) {
                 })()}
               </div>
 
-              {/* Initial Paid Amount & Method */}
+              
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '16px' }}>
                 <div>
                   <label className="form-label">Initial Paid Amount (₹)</label>
@@ -3609,9 +3623,9 @@ export default function SchoolFinanceModule({ user }) {
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* MODAL 2: GENERATE / EDIT STAFF SALARY */}
-      {/* =================================================================== */}
+      
+      
+      
       {isSalaryModalOpen && (
         <div className="modal-overlay" style={{ display: 'flex', zIndex: 10000 }}>
           <div className="modal-content wizard-modal-lg" style={{ maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto' }}>
@@ -3714,9 +3728,9 @@ export default function SchoolFinanceModule({ user }) {
                 </div>
               </div>
 
-              {/* Earnings & Deductions Split */}
+              
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                {/* Earnings Card */}
+                
                 <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px' }}>
                   <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#1e3a8a', marginBottom: '10px' }}>
                     1. Earnings Breakdown (₹)
@@ -3780,7 +3794,7 @@ export default function SchoolFinanceModule({ user }) {
                   </div>
                 </div>
 
-                {/* Deductions Card */}
+                
                 <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px' }}>
                   <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#dc2626', marginBottom: '10px' }}>
                     2. Deductions Breakdown (₹)
@@ -3835,7 +3849,7 @@ export default function SchoolFinanceModule({ user }) {
                 </div>
               </div>
 
-              {/* Net Salary Computed Ribbon */}
+              
               <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px', padding: '12px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <div>
                   <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#166534', textTransform: 'uppercase' }}>Computed Net Salary</div>
@@ -3881,9 +3895,9 @@ export default function SchoolFinanceModule({ user }) {
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* MODAL 3: ADD / EDIT SCHOOL EXPENSE */}
-      {/* =================================================================== */}
+      
+      
+      
       {isExpenseModalOpen && (
         <div className="modal-overlay" style={{ display: 'flex', zIndex: 10000 }}>
           <div className="modal-content" style={{ maxWidth: '650px' }}>
@@ -4013,9 +4027,9 @@ export default function SchoolFinanceModule({ user }) {
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* MODAL 4: RECORD PAYMENT (Partial or Full) */}
-      {/* =================================================================== */}
+      
+      
+      
       {isPayModalOpen && activePayingRecord && (
         <div className="modal-overlay" style={{ display: 'flex', zIndex: 10000 }}>
           <div className="modal-content" style={{ maxWidth: '500px' }}>
@@ -4102,9 +4116,9 @@ export default function SchoolFinanceModule({ user }) {
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* MODAL 5: VIEW BILL DETAILS */}
-      {/* =================================================================== */}
+      
+      
+      
       {selectedBillForView && (
         <div className="modal-overlay" style={{ display: 'flex', zIndex: 10000 }}>
           <div className="modal-content" style={{ maxWidth: '600px' }}>
@@ -4181,9 +4195,9 @@ export default function SchoolFinanceModule({ user }) {
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* MODAL 6: VIEW SALARY DETAILS */}
-      {/* =================================================================== */}
+      
+      
+      
       {selectedSalaryForView && (
         <div className="modal-overlay" style={{ display: 'flex', zIndex: 10000 }}>
           <div className="modal-content" style={{ maxWidth: '580px' }}>
@@ -4250,9 +4264,9 @@ export default function SchoolFinanceModule({ user }) {
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* MODAL: BULK EXCEL UPLOAD PREVIEW & IMPORT LIST MODAL */}
-      {/* =================================================================== */}
+      
+      
+      
       {bulkImportModal.isOpen && (
         <div className="modal-overlay" style={{ display: 'flex', zIndex: 10000 }}>
           <div className="modal-content" style={{ maxWidth: '960px', width: '95%', maxHeight: '90vh', overflowY: 'auto' }}>
@@ -4277,7 +4291,7 @@ export default function SchoolFinanceModule({ user }) {
             </div>
 
             <div style={{ padding: '16px 20px' }}>
-              {/* Top Action Bar: Sample Template Download & File Re-selection */}
+              
               <div style={{
                 background: '#f8fafc',
                 border: '1px dashed #cbd5e1',
@@ -4324,7 +4338,7 @@ export default function SchoolFinanceModule({ user }) {
                 </div>
               </div>
 
-              {/* Status Message if successfully imported */}
+              
               {bulkImportModal.importedList && bulkImportModal.importedList.length > 0 && (
                 <div style={{
                   background: '#f0fdf4',
@@ -4343,7 +4357,7 @@ export default function SchoolFinanceModule({ user }) {
                 </div>
               )}
 
-              {/* Preview Table of Uploaded Records */}
+              
               {bulkImportModal.previewData.length > 0 ? (
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
@@ -4478,7 +4492,7 @@ export default function SchoolFinanceModule({ user }) {
                 </div>
               )}
 
-              {/* Bottom Actions */}
+              
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px', paddingTop: '12px', borderTop: '1px solid #e2e8f0' }}>
                 <button
                   type="button"
@@ -4505,9 +4519,9 @@ export default function SchoolFinanceModule({ user }) {
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* MODAL 7: VIEW EXPENSE DETAILS */}
-      {/* =================================================================== */}
+      
+      
+      
       {selectedExpenseForView && (
         <div className="modal-overlay" style={{ display: 'flex', zIndex: 10000 }}>
           <div className="modal-content" style={{ maxWidth: '520px' }}>
@@ -4553,9 +4567,9 @@ export default function SchoolFinanceModule({ user }) {
         </div>
       )}
 
-      {/* =================================================================== */}
-      {/* MODAL 8: DRILL-DOWN CARD BREAKDOWN MODAL */}
-      {/* =================================================================== */}
+      
+      
+      
       {drillDownModal.isOpen && (
         <div className="modal-overlay" style={{ display: 'flex', zIndex: 10000, background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(3px)' }}>
           <div className="modal-content" style={{ maxWidth: '980px', width: '95%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', borderRadius: '14px', border: `2px solid ${drillDownModal.color}` }}>
@@ -4581,7 +4595,7 @@ export default function SchoolFinanceModule({ user }) {
             </div>
 
             <div style={{ padding: '20px', overflowY: 'auto', flex: 1 }}>
-              {/* Drilldown Content for Student Fees (All or Pending) */}
+              
               {(drillDownModal.type === 'student-fees-all' || drillDownModal.type === 'student-fees-pending') && (() => {
                 const list = drillDownModal.type === 'student-fees-pending'
                   ? bills.filter(b => (Number(b.pendingAmount) > 0 || b.paymentStatus !== 'Paid'))
@@ -4592,7 +4606,7 @@ export default function SchoolFinanceModule({ user }) {
 
                 return (
                   <div>
-                    {/* Summary Badges */}
+                    
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '18px' }}>
                       <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                         <div style={{ fontSize: '0.72rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Total Records</div>
@@ -4612,7 +4626,7 @@ export default function SchoolFinanceModule({ user }) {
                       </div>
                     </div>
 
-                    {/* Table */}
+                    
                     <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                         <thead>
@@ -4674,7 +4688,7 @@ export default function SchoolFinanceModule({ user }) {
                 );
               })()}
 
-              {/* Drilldown Content for Fees Collected (or Income All) */}
+              
               {(drillDownModal.type === 'fees-collected' || drillDownModal.type === 'income-all') && (() => {
                 const paidBills = bills.filter(b => Number(b.paidAmount) > 0);
                 const totalCollected = paidBills.reduce((sum, b) => sum + (Number(b.paidAmount) || 0), 0);
@@ -4724,7 +4738,7 @@ export default function SchoolFinanceModule({ user }) {
                 );
               })()}
 
-              {/* Drilldown Content for Staff Salary (All, Paid, Pending) */}
+              
               {(drillDownModal.type === 'staff-salary-all' || drillDownModal.type === 'staff-salary-paid' || drillDownModal.type === 'staff-salary-pending') && (() => {
                 let list = salaries;
                 if (drillDownModal.type === 'staff-salary-paid') {
@@ -4822,7 +4836,7 @@ export default function SchoolFinanceModule({ user }) {
                 );
               })()}
 
-              {/* Drilldown Content for School Expenses */}
+              
               {drillDownModal.type === 'expenses-all' && (() => {
                 const totalAmt = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
                 const totalPaid = expenses.reduce((sum, e) => sum + (Number(e.paidAmount) || 0), 0);
@@ -4897,7 +4911,7 @@ export default function SchoolFinanceModule({ user }) {
                 );
               })()}
 
-              {/* Drilldown Content for Combined Outstanding */}
+              
               {drillDownModal.type === 'outstanding-all' && (() => {
                 const pendingBills = bills.filter(b => Number(b.pendingAmount) > 0);
                 const pendingSal = salaries.filter(s => Number(s.pendingAmount) > 0);
@@ -4955,7 +4969,7 @@ export default function SchoolFinanceModule({ user }) {
               })()}
             </div>
 
-            {/* Bottom Actions */}
+            
             <div style={{ padding: '14px 20px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px' }}>
               {drillDownModal.targetTab && (
                 <button

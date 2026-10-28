@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
-// Fee Item Schema (Separate items, never hardcoded single amount)
+
 const feeItemSchema = new mongoose.Schema({
-  feeType: { type: String, required: true }, // e.g. Tuition Fees, Transport Fees, Sports Fees, etc.
+  feeType: { type: String, required: true }, 
   description: { type: String, default: '' },
   amount: { type: Number, required: true, min: 0 },
   discount: { type: Number, default: 0, min: 0 },

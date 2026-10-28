@@ -23,7 +23,7 @@ import SuperAdminSecurityView from './SuperAdminSecurityView';
 import InteractiveServicePlayerModal from './InteractiveServicePlayerModal';
 import { downloadInvoicePDF } from '../../services/pdfDownloadUtil';
 
-// Default Demo Data matching js/portal.js lines 245-522
+
 const defaultSchools = [
   {
     id: 'SCHOOL002',
@@ -186,7 +186,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
     db: 'Connected (MongoDB Primary)',
     activeTenants: 5,
   });
-  // Main Data States with initial demo defaults merged with local portal storage
+  
   const [schools, setSchools] = useState(() => {
     try {
       const store = getPortalData();
@@ -255,7 +255,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
 
   const [activities, setActivities] = useState(defaultActivities);
 
-  // Filters & Search States
+  
   const [schoolFilter, setSchoolFilter] = useState('All');
   const [schoolSearch, setSchoolSearch] = useState('');
   const [adminFilter, setAdminFilter] = useState('All');
@@ -263,12 +263,12 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
   const [serviceSearch, setServiceSearch] = useState('');
   const [selectedSchoolForServiceView, setSelectedSchoolForServiceView] = useState('All');
   const [activeInteractiveService, setActiveInteractiveService] = useState(null);
-  const [subViewType, setSubViewType] = useState('subs'); // 'subs' or 'plans'
+  const [subViewType, setSubViewType] = useState('subs'); 
   const [subStatusFilter, setSubStatusFilter] = useState('All');
   const [billFilter, setBillFilter] = useState('All');
   const [settingsSection, setSettingsSection] = useState('platform');
-  const [servicesMainSection, setServicesMainSection] = useState('available'); // 'available' | 'school-services' | 'management'
-  const [schoolServiceFilter, setSchoolServiceFilter] = useState('All'); // 'All' | 'Active' | 'Inactive'
+  const [servicesMainSection, setServicesMainSection] = useState('available'); 
+  const [schoolServiceFilter, setSchoolServiceFilter] = useState('All'); 
   const [schoolAssignments, setSchoolAssignments] = useState(() => {
     try {
       const store = getPortalData();
@@ -292,12 +292,12 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
   });
   const [assignFormData, setAssignFormData] = useState({ serviceId: '', schoolId: '', status: 'Active' });
 
-  // Modals States
+  
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isOverviewOpen, setIsOverviewOpen] = useState(false);
   const [selectedSchool, setSelectedSchool] = useState(null);
-  const [activeCampusPortal, setActiveCampusPortal] = useState(null); // When super admin opens a school's full dashboards suite
-  const [activeCampusRole, setActiveCampusRole] = useState('schooladmin'); // 'schooladmin' | 'principal' | 'teacher' | 'student' | 'parent'
+  const [activeCampusPortal, setActiveCampusPortal] = useState(null); 
+  const [activeCampusRole, setActiveCampusRole] = useState('schooladmin'); 
   const [activeCampusTab, setActiveCampusTab] = useState('school-admin-users');
   const [isEditSchoolOpen, setIsEditSchoolOpen] = useState(false);
   const [isAdminProfileOpen, setIsAdminProfileOpen] = useState(false);
@@ -316,7 +316,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
 
 
 
-  // Sync data from backend if available
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -328,7 +328,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
           api.getUsers({ role: 'schooladmin' }).catch(() => ({ success: false })),
         ]);
         if (schRes.success && schRes.data && schRes.data.length > 0) {
-          // Normalize school fields
+          
           const mapped = schRes.data.map((s) => ({
             id: s.schoolId || s._id,
             name: s.name,
@@ -427,7 +427,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
     setFeedback({ isOpen: true, title, message });
   };
 
-  // Activity icon matching getSaActivityIcon
+  
   const renderActivityIcon = (type) => {
     switch (type) {
       case 'sub_activated':
@@ -469,7 +469,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
     }
   };
 
-  // Aggregates for 12 Dashboard cards
+  
   const totalSchools = schools.length;
   const activeSchools = schools.filter((s) => s.status === 'Active').length;
   const inactiveSchools = schools.filter((s) => s.status !== 'Active').length;
@@ -489,7 +489,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
   const totalParents = schools.reduce((sum, s) => sum + (s.parentsCount || 0), 0);
   const totalStaff = totalTeachers + totalSchoolAdmins + schools.length;
 
-  // Toggle school active/inactive
+  
   const handleToggleSchool = (id, newStatus) => {
     setSchools((prev) =>
       prev.map((s) => (s.id === id ? { ...s, status: newStatus } : s))
@@ -507,7 +507,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
     showFeedback('Status Updated', `School status updated to ${newStatus}.`);
   };
 
-  // Toggle admin active/inactive
+  
   const handleToggleAdmin = (id, newStatus) => {
     setUsers((prev) =>
       prev.map((u) => (u.id === id ? { ...u, status: newStatus } : u))
@@ -515,7 +515,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
     showFeedback('Admin Status Updated', `Administrator status set to ${newStatus}.`);
   };
 
-  // Reset admin password
+  
   const handleResetAdminPassword = (adminId) => {
     const admin = users.find((u) => u.id === adminId);
     if (!admin) return;
@@ -523,7 +523,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
     showFeedback('Password Reset', `Temporary password for ${admin.name} (${admin.email}):\n\n${newPass}`);
   };
 
-  // Assign admin to school
+  
   const handleAssignAdmin = (adminId, schoolId) => {
     const admin = users.find((u) => (u.id || u.userId) === adminId);
     const school = schools.find((s) => (s.id || s.schoolId) === schoolId);
@@ -546,7 +546,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
     }
   };
 
-  // Add new school admin
+  
   const handleAddAdmin = (newAdmin) => {
     setUsers((prev) => [newAdmin, ...prev]);
     if (newAdmin.schoolId) {
@@ -561,7 +561,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
     showFeedback('Admin Created', `Admin ${newAdmin.name} created and assigned.`);
   };
 
-  // Toggle service status
+  
   const handleToggleService = (id) => {
     setServices((prev) =>
       prev.map((srv) =>
@@ -572,7 +572,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
     );
   };
 
-  // Mark bill paid
+  
   const handleMarkBillPaid = (invoiceNo) => {
     const bill = bills.find((b) => b.invoiceNo === invoiceNo);
     if (bill) {
@@ -596,13 +596,13 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
     }
   };
 
-  // Save new invoice
+  
   const handleSaveInvoice = (newBill) => {
     setBills((prev) => [newBill, ...prev]);
     showFeedback('Invoice Generated', `Invoice ${newBill.invoiceNo} for ${newBill.school} generated.`);
   };
 
-  // Save subscription or plan
+  
   const handleSaveSubOrPlan = (event) => {
     if (event.type === 'subscription') {
       setSubscriptions((prev) => {
@@ -617,7 +617,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         return [event.data, ...prev];
       });
 
-      // Update the school's subscription in schools list
+      
       setSchools((prev) =>
         prev.map((s) => {
           if (s.id === event.data.schoolId || s.schoolId === event.data.schoolId || s.name === event.data.school) {
@@ -635,7 +635,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         })
       );
 
-      // Generate invoice & payment record for billing
+      
       const newInvoice = {
         invoiceNo: 'INV-2026-0' + Math.floor(10 + Math.random() * 90),
         schoolId: event.data.schoolId,
@@ -658,7 +658,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         ...prev,
       ]);
 
-      // Persist in portal storage
+      
       try {
         const store = getPortalData();
         if (!store.subscriptions) store.subscriptions = [];
@@ -698,14 +698,14 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
     }
   };
 
-  // Save onboarding school
+  
   const handleSchoolOnboarded = (newSchool) => {
     setIsWizardOpen(false);
 
-    // 1) Add school to Schools list
+    
     setSchools((prev) => [newSchool, ...prev]);
 
-    // 2) Create Administrator and add to Admin Management
+    
     const adminEmail = newSchool.admin || newSchool.email || `admin@${(newSchool.code || 'school').toLowerCase().replace(/[^a-z0-9]/g, '')}.edu`;
     const adminUsername = newSchool.username || `admin_${(newSchool.code || 'school').toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 8)}`;
     const adminName = newSchool.adminName || `Admin ${newSchool.name}`;
@@ -724,7 +724,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
     };
     setUsers((prev) => [createdAdmin, ...prev]);
 
-    // 3) Create Pending Subscription record so school immediately shows in Subscriptions
+    
     const pendingSub = {
       id: 'SUB-' + (newSchool.code || newSchool.id).replace(/[^A-Z0-9]/gi, '').toUpperCase() + '-01',
       schoolId: newSchool.id,
@@ -747,7 +747,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
       ...prev,
     ]);
 
-    // Persist all in portal local storage
+    
     try {
       const store = getPortalData();
       if (!store.schools) store.schools = [];
@@ -765,10 +765,10 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
     );
   };
 
-  // =========================================================================
-  // Security & Governance Suite Handlers
-  // =========================================================================
-  // Filtered array calculations
+  
+  
+  
+  
   const filteredSchools = schools.filter((s) => {
     if (schoolFilter !== 'All' && s.status !== schoolFilter) return false;
     if (schoolSearch && !s.name.toLowerCase().includes(schoolSearch.toLowerCase()) && !(s.code || '').toLowerCase().includes(schoolSearch.toLowerCase()) && !(s.adminName || s.admin || '').toLowerCase().includes(schoolSearch.toLowerCase())) return false;
@@ -793,21 +793,21 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
 
   return (
     <div>
-      {/* ===================================================================== */}
-      {/* 1. SUPER ADMIN: DASHBOARD (sa-dashboard) */}
-      {/* ===================================================================== */}
+      
+      
+      
       {activeTab === 'sa-dashboard' && (
         <div>
-          {/* Header Bar */}
+          
           <div className="content-header">
             <h2 id="section-title">Super Admin Dashboard</h2>
             <div id="section-actions"></div>
           </div>
 
           <div id="portal-content">
-            {/* Top 12 Summary SaaS Cards */}
+            
             <div className="grid-4" style={{ marginBottom: '25px' }}>
-              {/* 1. Total Schools */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{ borderLeftColor: '#2563eb' }}
@@ -836,7 +836,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>Platform Multi-Tenant</span>
               </div>
 
-              {/* 2. Active Schools */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{ borderLeftColor: '#10b981' }}
@@ -866,7 +866,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>Operational</span>
               </div>
 
-              {/* 3. InActive Schools */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{ borderLeftColor: '#ef4444' }}
@@ -896,7 +896,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 <span style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 600 }}>Suspended / Expired</span>
               </div>
 
-              {/* 4. Total School Admins */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{ borderLeftColor: '#f59e0b' }}
@@ -925,7 +925,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Assigned Admins</span>
               </div>
 
-              {/* 5. Active Subscriptions */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{ borderLeftColor: '#10b981' }}
@@ -955,7 +955,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>Paid SaaS Tier</span>
               </div>
 
-              {/* 6. Expiring / Expired */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{ borderLeftColor: '#f97316' }}
@@ -985,7 +985,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 <span style={{ fontSize: '0.75rem', color: '#ea580c', fontWeight: 600 }}>Action Required</span>
               </div>
 
-              {/* 7. Pending Bills */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{ borderLeftColor: '#ef4444' }}
@@ -1015,7 +1015,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 <span style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: 600 }}>Invoices Unpaid</span>
               </div>
 
-              {/* 8. Total Revenue */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{ borderLeftColor: '#059669' }}
@@ -1045,7 +1045,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>Lifetime Collections</span>
               </div>
 
-              {/* 9. Total Students */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{ borderLeftColor: '#3b82f6' }}
@@ -1074,7 +1074,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Across All Campuses</span>
               </div>
 
-              {/* 10. Total Teachers */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{ borderLeftColor: '#8b5cf6' }}
@@ -1103,7 +1103,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Faculty Members</span>
               </div>
 
-              {/* 11. Total Parents */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{ borderLeftColor: '#ec4899' }}
@@ -1132,7 +1132,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Registered Portals</span>
               </div>
 
-              {/* 12. Total Staff */}
+              
               <div
                 className="portal-card clickable-card"
                 style={{ borderLeftColor: '#6366f1' }}
@@ -1162,7 +1162,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
               </div>
             </div>
 
-            {/* Recent Activities */}
+            
             <div style={{ marginTop: '35px' }}>
               <h3 style={{ color: 'var(--color-primary)', fontSize: '1.25rem', marginBottom: '12px' }}>Recent Platform Activities</h3>
               <div className="activity-timeline">
@@ -1183,17 +1183,17 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         </div>
       )}
 
-      {/* ===================================================================== */}
-      {/* 2. SUPER ADMIN: SCHOOLS (sa-schools) */}
-      {/* ===================================================================== */}
+      
+      
+      
       {activeTab === 'sa-schools' && (
         <div>
           {activeCampusPortal ? (
-            /* =============================================================== */
-            /* DEEP DIVE: FULL SCHOOL DASHBOARDS SUITE FOR SUPER ADMIN          */
-            /* =============================================================== */
+            
+            
+            
             <div className="sa-school-deep-dive">
-              {/* Clean Structured Header Bar */}
+              
               <div className="sa-campus-header-card" style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -1263,7 +1263,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 </div>
               </div>
 
-              {/* Structured Role Navigation Tabs */}
+              
               <div style={{
                 background: '#ffffff',
                 border: '1px solid #e2e8f0',
@@ -1324,7 +1324,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                   })}
                 </div>
 
-                {/* Sub-tab Navigation for the selected role */}
+                
                 <div style={{
                   display: 'flex',
                   gap: '8px',
@@ -1403,7 +1403,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 </div>
               </div>
 
-              {/* Live Rendered View */}
+              
               <div style={{ background: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '20px', minHeight: '600px' }}>
                 {activeCampusRole === 'schooladmin' ? (
                   <SchoolAdminView activeTab={activeCampusTab} setActiveTab={setActiveCampusTab} />
@@ -1423,9 +1423,9 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
               </div>
             </div>
           ) : (
-            /* =============================================================== */
-            /* STANDARD SCHOOLS DIRECTORY TABLE VIEW                           */
-            /* =============================================================== */
+            
+            
+            
             <>
               <div className="content-header">
                 <h2 id="section-title">Schools Management</h2>
@@ -1433,7 +1433,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
               </div>
 
               <div id="portal-content">
-                {/* Modern SaaS Schools Toolbar */}
+                
                 <div className="sa-schools-toolbar">
               <div className="sa-filter-segment">
                 <button
@@ -1648,9 +1648,9 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         </div>
       )}
 
-      {/* ===================================================================== */}
-      {/* 3. SUPER ADMIN: ADMIN MANAGEMENT (sa-admin-management) */}
-      {/* ===================================================================== */}
+      
+      
+      
       {activeTab === 'sa-admin-management' && (
         <div>
           <div className="content-header">
@@ -1826,9 +1826,9 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         </div>
       )}
 
-      {/* ===================================================================== */}
-      {/* 4. SUPER ADMIN: SERVICES (sa-services) */}
-      {/* ===================================================================== */}
+      
+      
+      
       {activeTab === 'sa-services' && (
         <div>
           <div className="content-header" style={{ marginBottom: '18px' }}>
@@ -1837,7 +1837,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
             </div>
           </div>
 
-          {/* Three Level Primary Services Navigation */}
+          
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -1934,7 +1934,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
               </button>
             </div>
 
-            {/* Search Bar with Search Icon */}
+            
             <div style={{ position: 'relative', minWidth: '260px' }}>
               <span style={{
                 position: 'absolute',
@@ -1990,7 +1990,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
             </div>
           </div>
 
-          {/* 1. AVAILABLE SERVICES SECTION */}
+          
           {servicesMainSection === 'available' && (
             <div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '18px' }}>
@@ -2053,7 +2053,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                       </div>
 
                       <div>
-                        {/* Live Practice / Play Work button */}
+                        
                         <div style={{ marginBottom: '12px' }}>
                           <button
                             type="button"
@@ -2103,10 +2103,10 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
             </div>
           )}
 
-          {/* 2. SCHOOL SERVICES SECTION */}
+          
           {servicesMainSection === 'school-services' && (
             <div>
-              {/* Filter Bar with School Selection & Status Filter */}
+              
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -2120,7 +2120,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 gap: '12px'
               }}>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-                  {/* School Selector Dropdown to show which services are active for each school */}
+                  
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#475569', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                       <span>🏫</span> Select School:
@@ -2191,7 +2191,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 </button>
               </div>
 
-              {/* Active Services Summary Banner if specific school is selected */}
+              
               {selectedSchoolForServiceView !== 'All' && (
                 <div style={{
                   background: 'linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%)',
@@ -2243,7 +2243,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                 </div>
               )}
 
-              {/* Assignments Table */}
+              
               <div className="table-responsive">
                 <table className="sa-schools-table" style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
                   <thead>
@@ -2258,15 +2258,15 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                   <tbody>
                     {schoolAssignments
                       .filter((item) => {
-                        // School filter
+                        
                         if (selectedSchoolForServiceView !== 'All' && item.schoolId !== selectedSchoolForServiceView) {
                           return false;
                         }
-                        // Status filter
+                        
                         if (schoolServiceFilter !== 'All' && item.status !== schoolServiceFilter) {
                           return false;
                         }
-                        // Search filter
+                        
                         if (serviceSearch.trim()) {
                           const q = serviceSearch.toLowerCase();
                           const matchesName = item.serviceName.toLowerCase().includes(q);
@@ -2362,7 +2362,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
             </div>
           )}
 
-          {/* 3. MANAGEMENT SERVICES SECTION */}
+          
           {servicesMainSection === 'management' && (
             <div>
               <div style={{
@@ -2552,7 +2552,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
             </div>
           )}
 
-          {/* Modal: Add / Edit Service */}
+          
           {isServiceModalOpen && (
             <div className="modal-overlay" style={{ display: 'flex' }}>
               <div className="modal-content" style={{ maxWidth: '540px' }}>
@@ -2649,7 +2649,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
                     />
                   </div>
 
-                  {/* Portal Visibility / Role Access Selector */}
+                  
                   <div className="form-group" style={{ marginBottom: '20px', background: '#f8fafc', padding: '12px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.86rem', fontWeight: 700, color: '#1e3a8a' }}>
                       Portal Visibility — Which Roles Can Access & View This Service?
@@ -2712,7 +2712,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
             </div>
           )}
 
-          {/* Modal: Assign Service to School */}
+          
           {isAssignServiceModalOpen && (
             <div className="modal-overlay" style={{ display: 'flex' }}>
               <div className="modal-content" style={{ maxWidth: '500px' }}>
@@ -2807,9 +2807,9 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         </div>
       )}
 
-      {/* ===================================================================== */}
-      {/* 5. SUPER ADMIN: SUBSCRIPTION (sa-subscriptions) */}
-      {/* ===================================================================== */}
+      
+      
+      
       {activeTab === 'sa-subscriptions' && (
         <div>
           <div className="content-header">
@@ -2861,7 +2861,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
               </div>
             </div>
 
-            {/* Plans Grid View */}
+            
             {subViewType === 'plans' && (
               <div id="sub-plans-pane" style={{ marginBottom: '25px' }}>
                 <div className="grid-3">
@@ -2886,7 +2886,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
               </div>
             )}
 
-            {/* Subscriptions Table View */}
+            
             {subViewType === 'subs' && (
               <div id="sub-table-pane" className="table-responsive">
                 <table className="sa-schools-table">
@@ -2981,9 +2981,9 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         </div>
       )}
 
-      {/* ===================================================================== */}
-      {/* 6. SUPER ADMIN: BILLS / BILLING (sa-billing) */}
-      {/* ===================================================================== */}
+      
+      
+      
       {activeTab === 'sa-billing' && (
         <div>
           <div className="content-header">
@@ -3111,9 +3111,9 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         </div>
       )}
 
-      {/* ===================================================================== */}
-      {/* 6.5 SUPER ADMIN: SECURE MESSAGING (sa-messaging) */}
-      {/* ===================================================================== */}
+      
+      
+      
       {activeTab === 'sa-messaging' && (
         <div>
           <div className="content-header">
@@ -3126,9 +3126,9 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         </div>
       )}
 
-      {/* ===================================================================== */}
-      {/* 7. SUPER ADMIN: SETTINGS (sa-settings) */}
-      {/* ===================================================================== */}
+      
+      
+      
       {activeTab === 'sa-settings' && (
         <div>
           <div className="content-header">
@@ -3265,10 +3265,10 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
       )}
 
 
-      {/* ===================================================================== */}
-      {/* ALL MODALS MOUNTED ACCORDING TO PORTAL.JS BEHAVIOR */}
-      {/* ===================================================================== */}
-      {/* 1. Onboarding Wizard Modal */}
+      
+      
+      
+      
       <NewSchoolWizardModal
         key={isWizardOpen ? 'wiz-open' : 'wiz-closed'}
         isOpen={isWizardOpen}
@@ -3276,7 +3276,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         onSchoolCreated={handleSchoolOnboarded}
       />
 
-      {/* 2. Campus Overview Modal */}
+      
       <CampusOverviewModal
         isOpen={isOverviewOpen}
         school={selectedSchool}
@@ -3289,7 +3289,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         }}
       />
 
-      {/* 3. Edit School Modal */}
+      
       <EditSchoolModal
         isOpen={isEditSchoolOpen}
         school={selectedSchool}
@@ -3300,14 +3300,14 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         }}
       />
 
-      {/* 4. Admin Profile Modal */}
+      
       <AdminProfileModal
         isOpen={isAdminProfileOpen}
         admin={selectedAdmin}
         onClose={() => setIsAdminProfileOpen(false)}
       />
 
-      {/* 5. Add Admin Modal */}
+      
       <AddAdminModal
         isOpen={isAddAdminOpen}
         schools={schools}
@@ -3315,7 +3315,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         onSave={handleAddAdmin}
       />
 
-      {/* 6. Assign Admin Modal */}
+      
       <AssignAdminModal
         isOpen={isAssignAdminOpen}
         admins={schoolAdmins}
@@ -3325,7 +3325,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         onSave={handleAssignAdmin}
       />
 
-      {/* 7. Subscription / Plan Modal */}
+      
       <SubscriptionModal
         isOpen={isSubModalOpen}
         defaultTab={subModalTab}
@@ -3336,7 +3336,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         onSave={handleSaveSubOrPlan}
       />
 
-      {/* 8. Create Invoice Modal */}
+      
       <CreateInvoiceModal
         isOpen={isInvoiceModalOpen}
         schools={schools}
@@ -3344,7 +3344,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         onSave={handleSaveInvoice}
       />
 
-      {/* 9. Feedback Confirmation Modal */}
+      
       <FeedbackModal
         isOpen={feedback.isOpen}
         title={feedback.title}
@@ -3352,7 +3352,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         onClose={() => setFeedback({ ...feedback, isOpen: false })}
       />
 
-      {/* 10. Dashboard Card Drill-down Modal */}
+      
       <DashboardDetailModal
         isOpen={cardDetailModal.isOpen}
         detailConfig={cardDetailModal.config}
@@ -3364,14 +3364,14 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         }}
       />
 
-      {/* 11. Printable Invoice Modal */}
+      
       <PrintableInvoiceModal
         isOpen={!!selectedInvoiceForPrint}
         bill={selectedInvoiceForPrint}
         onClose={() => setSelectedInvoiceForPrint(null)}
       />
 
-      {/* 12. Safety Action Confirmation Modal */}
+      
       <ConfirmationModal
         isOpen={confirmModal.isOpen}
         title={confirmModal.title}
@@ -3380,7 +3380,7 @@ export default function SuperAdminView({ activeTab = 'sa-dashboard', setActiveTa
         onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
       />
 
-      {/* 13. Interactive Service Practice & Lab Modal */}
+      
       <InteractiveServicePlayerModal
         isOpen={!!activeInteractiveService}
         service={activeInteractiveService}

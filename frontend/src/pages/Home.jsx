@@ -13,7 +13,7 @@ export default function Home() {
 
   return (
     <div className="landing-wrapper">
-      {/* Hero Section */}
+      
       <section className="landing-hero" style={{ background: '#ffffff', padding: '80px 20px 60px', textAlign: 'center' }}>
         <div style={{ maxWidth: '850px', margin: '0 auto' }}>
           <span style={{ background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', padding: '6px 18px', borderRadius: '30px', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '0.5px' }}>
@@ -62,7 +62,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Highlights Grid */}
+      
       <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px 70px' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <h2 style={{ fontSize: '2rem', fontWeight: 900, color: '#0f172a' }}>Why Institutions Choose ZenSkooll</h2>
@@ -79,7 +79,7 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Quick Nav Links Grid */}
+        
         <div style={{ marginTop: '60px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '36px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
           <div>
             <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '6px' }}>Full Feature Suite</h4>

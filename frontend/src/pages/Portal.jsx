@@ -6,7 +6,7 @@ import SuperAdminView from './portal/SuperAdminView';
 import SchoolAdminView from './portal/SchoolAdminView';
 import AcademicRolesView from './portal/AcademicRolesView';
 
-// Exact SVG icons matching js/portal.js lines 80-100
+
 const saIcons = {
   dashboard: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -65,7 +65,7 @@ export default function Portal() {
 
   const currentRole = user ? user.role.toLowerCase() : 'superadmin';
 
-  // Exact Role Menus Configuration matching js/portal.js lines 102-161
+  
   const menuConfig = {
     superadmin: [
       { id: 'sa-dashboard', label: 'Dashboard', icon: saIcons.dashboard },
@@ -150,7 +150,7 @@ export default function Portal() {
     setActiveTab(newMenu[0]?.id || 'sa-dashboard');
   }, [currentRole]);
 
-  // Real-time Presence Heartbeat: send heartbeat when user is active in portal
+  
   useEffect(() => {
     if (!user) return;
     api.sendHeartbeat();
@@ -179,7 +179,7 @@ export default function Portal() {
 
   return (
     <>
-      {/* Clean Portal Header matching portal.html lines 1315-1332 */}
+      
       <header className="header" style={{ position: 'sticky', top: 0, zIndex: 100, background: '#ffffff', borderBottom: '2px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
         <div className="container nav-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '70px', padding: '0 20px' }}>
           <Link to="/" className="logo" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
@@ -203,10 +203,10 @@ export default function Portal() {
         </div>
       </header>
 
-      {/* Main Portal Section */}
+      
       <div className="portal-section">
         <div className="container portal-layout" style={{ height: '100%' }}>
-          {/* Sidebar matching portal.html lines 1337-1350 */}
+          
           <aside className={`portal-sidebar ${isMobileMenuOpen ? 'active' : ''}`}>
             <div className="sidebar-close-btn" onClick={() => setIsMobileMenuOpen(false)} style={{ position: 'absolute', top: '15px', right: '15px', cursor: 'pointer', display: 'none' }}>
                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -262,7 +262,7 @@ export default function Portal() {
             </button>
           </aside>
 
-          {/* Main Panel matching portal.html lines 1353-1366 */}
+          
           <main className="portal-main">
             {currentRole === 'superadmin' && <SuperAdminView activeTab={activeTab} setActiveTab={setActiveTab} />}
             {currentRole === 'schooladmin' && <SchoolAdminView activeTab={activeTab} setActiveTab={setActiveTab} />}

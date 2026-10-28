@@ -1,7 +1,7 @@
 const SystemSettings = require('../models/SystemSettings');
 const { getDBStatus } = require('../config/db');
 
-// In-memory fallback if MongoDB is in offline mode
+
 let memSettings = {
   key: 'global_settings',
   general: {
@@ -105,7 +105,7 @@ const updateSectionSettings = async (req, res) => {
       } else {
         doc[section] = updatePayload;
       }
-      // Record audit log
+      
       const newAuditLog = {
         id: 'LOG-' + Math.floor(1000 + Math.random() * 9000),
         event: `SETTINGS_UPDATE_${section.toUpperCase()}`,
@@ -120,7 +120,7 @@ const updateSectionSettings = async (req, res) => {
       return res.json({ success: true, message: `${section} settings updated successfully`, data: doc[section] });
     }
 
-    // In-Memory
+    
     if (memSettings[section]) {
       memSettings[section] = { ...memSettings[section], ...updatePayload };
     } else {

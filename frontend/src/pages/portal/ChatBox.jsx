@@ -13,7 +13,7 @@ export default function ChatBox() {
   const [showMobileChat, setShowMobileChat] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Load contacts list
+  
   const loadContacts = async () => {
     try {
       const res = await api.getContacts();
@@ -36,7 +36,7 @@ export default function ChatBox() {
     loadContacts();
   }, [user]);
 
-  // Load and refresh messages for active contact
+  
   const loadMessages = async (contactId) => {
     if (!contactId) return;
     try {
@@ -55,7 +55,7 @@ export default function ChatBox() {
     }
   }, [activeContact?.id]);
 
-  // Periodic live polling to synchronize real-time messages & contacts across portals
+  
   useEffect(() => {
     const contactInterval = setInterval(() => {
       loadContacts();
@@ -130,7 +130,7 @@ export default function ChatBox() {
 
   return (
     <div className={`messaging-layout ${showMobileChat ? 'show-mobile-chat' : 'show-mobile-sidebar'}`}>
-      {/* Contacts sidebar */}
+      
       <div className="messaging-sidebar">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
           <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-primary)', margin: 0 }}>
@@ -141,7 +141,7 @@ export default function ChatBox() {
           </span>
         </div>
 
-        {/* Search Contacts filter input */}
+        
         <div style={{ marginBottom: '12px' }}>
           <input
             type="text"
@@ -230,9 +230,9 @@ export default function ChatBox() {
         </div>
       </div>
 
-      {/* Chat pane */}
+      
       <div className="messaging-chat-pane" style={{ display: 'flex', flexDirection: 'column', height: '520px' }}>
-        {/* Chat header */}
+        
         {activeContact && (
           <div
             style={{
@@ -292,7 +292,7 @@ export default function ChatBox() {
           </div>
         )}
 
-        {/* Message feed */}
+        
         <div
           style={{
             flex: 1,
@@ -354,7 +354,7 @@ export default function ChatBox() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Chat input */}
+        
         <form
           onSubmit={handleSend}
           style={{

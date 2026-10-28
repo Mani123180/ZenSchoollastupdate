@@ -24,7 +24,7 @@ export default function NewSchoolWizardModal({ isOpen, onClose, onSchoolCreated 
   const [step, setStep] = useState(1);
   const [wizardData, setWizardData] = useState(getInitialWizardData);
 
-  // Automatically reset to fresh Step 1 every time modal is opened
+  
   useEffect(() => {
     if (isOpen) {
       setStep(1);
@@ -143,7 +143,7 @@ export default function NewSchoolWizardModal({ isOpen, onClose, onSchoolCreated 
         </div>
 
         <div id="modal-body">
-          {/* 4-Step Onboarding Progress Bar */}
+          
           <div className="wizard-stepper-wrap">
             <div className="wizard-progress-track">
               <div className="wizard-progress-bar" style={{ width: `${progressPercent}%` }}></div>
@@ -168,7 +168,7 @@ export default function NewSchoolWizardModal({ isOpen, onClose, onSchoolCreated 
             </div>
           </div>
 
-          {/* STEP 1: School Profile */}
+          
           {step === 1 && (
             <form onSubmit={(e) => handleNext(e, 1)}>
               <div className="wizard-form-box">
@@ -295,7 +295,7 @@ export default function NewSchoolWizardModal({ isOpen, onClose, onSchoolCreated 
             </form>
           )}
 
-          {/* STEP 2: Plan Selection */}
+          
           {step === 2 && (
             <form onSubmit={(e) => handleNext(e, 2)}>
               <div className="wizard-form-box">
@@ -354,7 +354,7 @@ export default function NewSchoolWizardModal({ isOpen, onClose, onSchoolCreated 
             </form>
           )}
 
-          {/* STEP 3: Admin Access */}
+          
           {step === 3 && (
             <form onSubmit={(e) => handleNext(e, 3)}>
               <div className="wizard-form-box">
@@ -430,7 +430,7 @@ export default function NewSchoolWizardModal({ isOpen, onClose, onSchoolCreated 
             </form>
           )}
 
-          {/* STEP 4: Domain & Review Launch */}
+          
           {step === 4 && (
             <div>
               <div className="wizard-form-box">

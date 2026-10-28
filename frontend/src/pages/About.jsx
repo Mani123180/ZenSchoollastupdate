@@ -3,7 +3,7 @@ import React from 'react';
 export default function About() {
   return (
     <>
-      {/* Banner Section */}
+      
       <section className="hero" style={{ padding: '80px 0' }}>
         <div className="container hero-content">
           <h1 className="hero-title" style={{ fontSize: '2.8rem', marginBottom: '12px' }}>
@@ -15,7 +15,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* About S.S.V. History Block */}
+      
       <section className="section">
         <div className="container grid-2" style={{ alignItems: 'center' }}>
           <div>
@@ -48,7 +48,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* Mission & Vision */}
+      
       <section className="section section-bg">
         <div className="container">
           <div className="section-title-wrap">
@@ -74,7 +74,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* Core Values */}
+      
       <section className="section">
         <div className="container">
           <div className="section-title-wrap">
@@ -107,7 +107,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* Timeline of Legacy */}
+      
       <section className="section section-bg">
         <div className="container">
           <div className="section-title-wrap">
@@ -163,7 +163,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* Campus Safety Section */}
+      
       <section className="section" id="safety">
         <div className="container grid-2" style={{ alignItems: 'center' }}>
           <div>

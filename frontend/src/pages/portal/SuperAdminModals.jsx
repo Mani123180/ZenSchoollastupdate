@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { downloadInvoicePDF } from '../../services/pdfDownloadUtil';
 
-// 1. Campus Overview Modal (viewSchoolDetails)
+
 export function CampusOverviewModal({ isOpen, school, onClose, onEdit, onEnterSchool }) {
   if (!isOpen || !school) return null;
 
@@ -16,7 +16,7 @@ export function CampusOverviewModal({ isOpen, school, onClose, onEdit, onEnterSc
         </div>
 
         <div style={{ padding: '4px' }}>
-          {/* Wizard Header Strip */}
+          
           <div className="wizard-header-strip" style={{ marginBottom: '20px' }}>
             <div className="wizard-header-icon" style={{ background: 'rgba(30, 58, 138, 0.08)', color: 'var(--color-primary)' }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -34,7 +34,7 @@ export function CampusOverviewModal({ isOpen, school, onClose, onEdit, onEnterSc
             </div>
           </div>
 
-          {/* Quick Metrics Ribbon */}
+          
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '20px' }}>
             <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px 14px', textAlign: 'center' }}>
               <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Students</div>
@@ -54,7 +54,7 @@ export function CampusOverviewModal({ isOpen, school, onClose, onEdit, onEnterSc
             </div>
           </div>
 
-          {/* Structured Review Grid */}
+          
           <div className="review-grid" style={{ marginBottom: '22px' }}>
             <div className="review-card">
               <div className="review-card-title">
@@ -97,7 +97,7 @@ export function CampusOverviewModal({ isOpen, school, onClose, onEdit, onEnterSc
             </div>
           </div>
 
-          {/* Action Footer */}
+          
           <div className="view-school-modal-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid #e2e8f0', flexWrap: 'wrap', gap: '12px' }}>
             <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Partition ID: <code>{school.id || school.schoolId}</code></span>
             <div className="view-school-footer-buttons" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -139,7 +139,7 @@ export function CampusOverviewModal({ isOpen, school, onClose, onEdit, onEnterSc
   );
 }
 
-// 2. Edit School Modal (editSchool)
+
 export function EditSchoolModal({ isOpen, school, onClose, onSave }) {
   const [form, setForm] = useState({
     name: '',
@@ -252,7 +252,7 @@ export function EditSchoolModal({ isOpen, school, onClose, onSave }) {
   );
 }
 
-// 3. School Admin Profile Modal (viewSchoolAdmin / viewAdminProfile)
+
 export function AdminProfileModal({ isOpen, admin, onClose }) {
   if (!isOpen || !admin) return null;
 
@@ -309,7 +309,7 @@ export function AdminProfileModal({ isOpen, admin, onClose }) {
   );
 }
 
-// 4. Add Admin Modal (openAddAdminModal)
+
 export function AddAdminModal({ isOpen, schools = [], onClose, onSave }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -406,7 +406,7 @@ export function AddAdminModal({ isOpen, schools = [], onClose, onSave }) {
   );
 }
 
-// 5. Assign / Reassign Admin Modal (openAssignAdminModal)
+
 export function AssignAdminModal({ isOpen, admins = [], schools = [], initialAdminId = null, onClose, onSave }) {
   const [selectedAdmin, setSelectedAdmin] = useState('');
   const [selectedSchool, setSelectedSchool] = useState('');
@@ -484,7 +484,7 @@ export function AssignAdminModal({ isOpen, admins = [], schools = [], initialAdm
   );
 }
 
-// 6. Create Invoice Modal (openCreateInvoiceModal)
+
 export function CreateInvoiceModal({ isOpen, schools = [], onClose, onSave }) {
   const [schoolId, setSchoolId] = useState('');
   const [plan, setPlan] = useState('Pro Plan');
@@ -583,7 +583,7 @@ export function CreateInvoiceModal({ isOpen, schools = [], onClose, onSave }) {
   );
 }
 
-// 7. General Feedback / Confirmation Modal (showFeedbackModal)
+
 export function FeedbackModal({ isOpen, title, message, onClose }) {
   if (!isOpen) return null;
 
@@ -604,7 +604,7 @@ export function FeedbackModal({ isOpen, title, message, onClose }) {
   );
 }
 
-// 7b. Action Confirmation Modal
+
 export function ConfirmationModal({ isOpen, title, message, confirmText = 'Confirm', onConfirm, onClose }) {
   if (!isOpen) return null;
 
@@ -636,7 +636,7 @@ export function ConfirmationModal({ isOpen, title, message, confirmText = 'Confi
   );
 }
 
-// 7c. Printable Official Invoice Modal
+
 export function PrintableInvoiceModal({ isOpen, bill, onClose }) {
   if (!isOpen || !bill) return null;
 
@@ -871,14 +871,14 @@ export function PrintableInvoiceModal({ isOpen, bill, onClose }) {
   );
 }
 
-// 8. Dashboard Card Drill-down Modal (shows details when cards are clicked)
+
 export function DashboardDetailModal({ isOpen, detailConfig, onClose, onNavigate }) {
   if (!isOpen || !detailConfig) return null;
 
   const { title, subtitle, badgeColor, count, items = [], type } = detailConfig;
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Filter items based on active search query
+  
   const filteredItems = items.filter((item) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase().trim();
@@ -985,7 +985,7 @@ export function DashboardDetailModal({ isOpen, detailConfig, onClose, onNavigate
           <button className="modal-close" onClick={onClose}>&times;</button>
         </div>
 
-        {/* Modal Search Toolbar */}
+        
         <div style={{ padding: '12px 20px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', flex: 1, background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px 12px', gap: '8px' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2">

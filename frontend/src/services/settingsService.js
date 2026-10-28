@@ -1,8 +1,6 @@
 const API_BASE = '/api';
 
-/**
- * Fetch all platform system settings
- */
+
 export async function getSystemSettings() {
   try {
     const res = await fetch(`${API_BASE}/settings`);
@@ -16,11 +14,7 @@ export async function getSystemSettings() {
   return null;
 }
 
-/**
- * Update a specific section in system settings
- * @param {string} section - general, security, permissions, notifications, subscription, schoolConfig, dataBackup, localization, system
- * @param {object} payload - Key-values to update
- */
+
 export async function updateSystemSettingsSection(section, payload) {
   try {
     const res = await fetch(`${API_BASE}/settings/${section}`, {
@@ -38,9 +32,7 @@ export async function updateSystemSettingsSection(section, payload) {
   return { success: false, message: 'API connection offline' };
 }
 
-/**
- * Trigger real-time backup
- */
+
 export async function triggerSystemBackup() {
   try {
     const res = await fetch(`${API_BASE}/settings/backup`, {

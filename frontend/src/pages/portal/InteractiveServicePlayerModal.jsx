@@ -6,7 +6,7 @@ export default function InteractiveServicePlayerModal({ isOpen, service, onClose
   return (
     <div className="modal-overlay" style={{ display: 'flex', zIndex: 1100 }}>
       <div className="modal-content" style={{ maxWidth: '850px', width: '95%', maxHeight: '90vh', overflowY: 'auto', borderRadius: '14px', padding: 0 }}>
-        {/* Header */}
+        
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -60,7 +60,7 @@ export default function InteractiveServicePlayerModal({ isOpen, service, onClose
           </button>
         </div>
 
-        {/* Content Body based on service type */}
+        
         <div style={{ padding: '22px' }}>
           {service.name.toLowerCase().includes('chess') && <ChessInteractiveLab />}
           {service.name.toLowerCase().includes('coding') && <CodingInteractiveLab />}
@@ -71,13 +71,13 @@ export default function InteractiveServicePlayerModal({ isOpen, service, onClose
           {service.name.toLowerCase().includes('dance') && <MusicDanceInteractiveLab />}
           {service.name.toLowerCase().includes('sports') && <SportsFitnessInteractiveLab />}
 
-          {/* Fallback if another custom service */}
+          
           {!['chess', 'coding', 'robotics', 'drawing', 'spoken', 'abacus', 'dance', 'sports'].some(k => service.name.toLowerCase().includes(k)) && (
             <GenericInteractiveLab service={service} />
           )}
         </div>
 
-        {/* Footer */}
+        
         <div style={{ padding: '14px 22px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: '0 0 14px 14px' }}>
           <span style={{ fontSize: '0.82rem', color: '#64748b' }}>
             ⚡ Live Student Practice Simulator &bull; Interactive Sandbox
@@ -91,7 +91,7 @@ export default function InteractiveServicePlayerModal({ isOpen, service, onClose
   );
 }
 
-// 1. CHESS ACADEMY INTERACTIVE LAB
+
 function ChessInteractiveLab() {
   const initialBoard = [
     ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
@@ -167,7 +167,7 @@ function ChessInteractiveLab() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 420px) 1fr', gap: '20px', alignItems: 'start' }}>
-        {/* Chess Grid */}
+        
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(8, 1fr)',
@@ -203,7 +203,7 @@ function ChessInteractiveLab() {
           )}
         </div>
 
-        {/* Moves & Academy Lessons */}
+        
         <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
           <h4 style={{ margin: '0 0 10px', fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-primary, #1e3a8a)' }}>
             ♟️ Move Log & Lesson Notes
@@ -231,7 +231,7 @@ function ChessInteractiveLab() {
   );
 }
 
-// 2. CODING FOR KIDS INTERACTIVE LAB
+
 function CodingInteractiveLab() {
   const [code, setCode] = useState(`// Python / JavaScript Interactive Sandbox
 function drawShape(sides) {
@@ -309,7 +309,7 @@ drawShape(5);`);
   );
 }
 
-// 3. ROBOTICS LAB
+
 function RoboticsInteractiveLab() {
   const [power, setPower] = useState(true);
   const [speed, setSpeed] = useState(60);
@@ -386,7 +386,7 @@ function RoboticsInteractiveLab() {
   );
 }
 
-// 4. DRAWING & ART CANVAS LAB
+
 function DrawingInteractiveLab() {
   const [color, setColor] = useState('#2563eb');
   const [brushSize, setBrushSize] = useState(6);
@@ -456,7 +456,7 @@ function DrawingInteractiveLab() {
   );
 }
 
-// 5. SPOKEN ENGLISH LAB
+
 function SpokenEnglishInteractiveLab() {
   const [selectedTopic, setSelectedTopic] = useState('Introducing Yourself in Front of Audience');
   const [quizScore, setQuizScore] = useState(null);
@@ -506,7 +506,7 @@ function SpokenEnglishInteractiveLab() {
   );
 }
 
-// 6. ABACUS & VEDIC MATHS LAB
+
 function AbacusInteractiveLab() {
   const [num1, setNum1] = useState(48);
   const [num2, setNum2] = useState(37);
@@ -559,7 +559,7 @@ function AbacusInteractiveLab() {
   );
 }
 
-// 7. MUSIC & DANCE LAB
+
 function MusicDanceInteractiveLab() {
   const [activeBeat, setActiveBeat] = useState('Bharatanatyam Adavu 1');
 
@@ -593,7 +593,7 @@ function MusicDanceInteractiveLab() {
   );
 }
 
-// 8. SPORTS & FITNESS LAB
+
 function SportsFitnessInteractiveLab() {
   const [drill, setDrill] = useState('Shuttle Run Agility Drill');
 
